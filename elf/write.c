@@ -10,19 +10,19 @@ sbyte* strTableEntry; // XXX ???
 u32 strTableOffset; // XXX ???
 
 void elf_write_strtab(i32 offset, i32 len, const sbyte* buf) {
-	Elf32_Shdr* e = (Elf32_Shdr*)&buf[offset+len];
-	sbyte str[len];
-	i32 i;
-	   
-	for(i = 0; i < e->sh_size; i++)
-		str[i] = buf[e->sh_offset + i];
-	
-	strTableEntry = str;
+    Elf32_Shdr* e = (Elf32_Shdr*)&buf[offset+len];
+    sbyte str[len];
+    i32 i;
+
+    for(i = 0; i < e->sh_size; i++)
+        str[i] = buf[e->sh_offset + i];
+
+    strTableEntry = str;
 }
  
 void elf_write_stringname(FILE* fout, i32 index) {
-	while(strTableEntry[index] != '\0') 
-		fprintf(fout, "%c",strTableEntry[index++]);
-	fprintf(fout, "%s\n", "");
+    while(strTableEntry[index] != '\0') 
+        fprintf(fout, "%c",strTableEntry[index++]);
+    fprintf(fout, "%s\n", "");
 }
 

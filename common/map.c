@@ -33,18 +33,18 @@
  */
 void* map_filemap(void* start, off_t size, i32 fd) {
     void* ret = NULL;
-    
+
     if((ret = mmap(start
-		, size
-		, PROT_READ
-		, MAP_SHARED
-		, fd
-		, (off_t)ALIGNOFFSET(fd))) == MAP_FAILED)
+                    , size
+                    , PROT_READ
+                    , MAP_SHARED
+                    , fd
+                    , (off_t)ALIGNOFFSET(fd))) == MAP_FAILED)
     {
         close(fd);
-	    log_fatal("mmap %s", strerror(errno));
+        log_fatal("mmap %s", strerror(errno));
     }
-   
+
     log_debug("file mapped to %p", ret); 
 
     return ret;
@@ -61,7 +61,7 @@ void* map_write(void* mapaddr, const void* src, size_t n) {
     void* ret = NULL;
 
     if(mapaddr != NULL) 
-	    ret = memmove(mapaddr, src, n);	    
+        ret = memmove(mapaddr, src, n);	    
     else
         log_error("invalid mapping address");
 
@@ -80,9 +80,9 @@ i32 map_mprotect(void* mapaddr, size_t len, i32 prot) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
-       if((ret = mprotect(mapaddr, len, prot)) == -1) {
-           log_debug("mprotect %s", strerror(errno));
-       }
+        if((ret = mprotect(mapaddr, len, prot)) == -1) {
+            log_debug("mprotect %s", strerror(errno));
+        }
     } else {
         log_error("invalid mapping address");
     }
@@ -101,21 +101,21 @@ i32 map_sync(void* mapaddr, off_t size) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
-    	if((ret = msync(mapaddr
-                    , size
-                    , MS_SYNC) == -1))
+        if((ret = msync(mapaddr
+                        , size
+                        , MS_SYNC) == -1))
         {
-	        log_error("msync: %s", strerror(errno));
+            log_error("msync: %s", strerror(errno));
             return ret;
         }
-    }else{	   
+    }else{
         log_error("invalid mapping address");
     }
 
-   return ret; 
+    return ret;
 }
 
-		
+
 /**
  * This function unmaps memory segment
  *
@@ -127,9 +127,9 @@ i32 map_fileunmap(void* mapaddr, off_t size) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
-	    if((ret = munmap(mapaddr, size)) == -1) {
-	        log_error("munmap: %s", strerror(errno));
-    	} else {
+        if((ret = munmap(mapaddr, size)) == -1) {
+            log_error("munmap: %s", strerror(errno));
+        } else {
             log_debug("file unmaped from %p", mapaddr);
         }
     }else{

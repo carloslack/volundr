@@ -141,30 +141,30 @@ int main(int argc, char** argv)
     }
 
     while ((c = getopt(argc, argv, "f:hv")) != -1) {
-      switch (c) {
-        // output file
-        case 'f': {
-            ASSERT_OPT_ONCE(fout_path == NULL);
-            fout_path = optarg;
-            break;
+        switch (c) {
+            // output file
+            case 'f': {
+                          ASSERT_OPT_ONCE(fout_path == NULL);
+                          fout_path = optarg;
+                          break;
+                      }
+                      // version
+            case 'v': {
+                          version();
+                          return 0;
+                          break;
+                      }
+                      // help
+            case 'h': {
+                          usage(argv[0]);
+                          return 0;
+                      }
+                      // elf file
+            default: {
+                         exit(EXIT_FAILURE);
+                         break;
+                     }
         }
-        // version
-        case 'v': {
-            version();
-            return 0;
-            break;
-        }
-        // help
-        case 'h': {
-            usage(argv[0]);
-            return 0;
-        }
-        // elf file
-        default: {
-            exit(EXIT_FAILURE);
-            break;
-         }
-      }
     }
     if(optind >= argc) {
         log_error("You must provide an ELF image.");

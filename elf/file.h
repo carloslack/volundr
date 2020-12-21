@@ -8,9 +8,9 @@
 #include "../common/utils.h" // use relative path (change Makefile)
 
 typedef struct {
-	__mode_t mode;
-	__uid_t uid;
-	__gid_t gid;
+    __mode_t mode;
+    __uid_t uid;
+    __gid_t gid;
 } fileInfo_t;
 
 
