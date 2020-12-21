@@ -1,0 +1,45 @@
+
+(sorted by priority)
+
+- use config.h (to define ELF_*)
+- extend file memory mapping
+- replace all fread() (and friends) by memory mapping (mmap() and friends)
+- log_trace && _TRACE
+- consider creating elf_meta_*.
+- autotools
+- section to segment mapping (see readelf)
+- change file_read to something more generic (consider reading from mem)
+- store section names in meta data structure (create elf_read_all_shnames)
+- make install / make evil_install
+- use doxygen
+- support section types: HASH, GNU_HASH, VERSYM, VERNEED, REL, DYNAMIC
+- svn $Id$ + watermark
+- implement ELF_DONTUSE_META (?)
+- implement NOT_PARANOID mode (to drop most of funcs asserts)
+  they are not that useful anyway.
+- volatile ELF structure (will be changed on-the-fly)
+- make non-gnu version (removing __attribute__, typeof, etc)
+- remove complex and unecessary data structures/types
+- remove unused fatware (unused functions, macros, etc) - use profiler!
+- "static" volundr
+- extend asm syscalls implementations and make use of them
+
+
+
+(future versions)
+
+- kmem trick
+- trivial injection (entrypoint hijack)
+- hash tables
+- relocation algorithms/functionalities
+- string tables
+- dynamic sections
+- alignment constraints
+- other injection tekneeqz!
+
+
+
+(always-used)
+
+- use elf_{word,half,off}_t types where appropriate.
+- use design by contract comments in function descriptions. (please!)

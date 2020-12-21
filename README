@@ -1,0 +1,11 @@
+volundr-0.1/        = Evil agent ;)
+volundr-0.1/elf/    = ELF library
+volundr-0.1/common  = Common library
+
+evil macros:
+
+    __DEBUG__               : turn debug on    
+    __ELF32__ || __ELF64__  : size of ELF word
+    __ELF_SYSV__            : operating system specification
+
+

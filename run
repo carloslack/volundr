@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ $# < 1 ]] 
+then
+    echo "usage: $0 <file>";
+    exit 1;
+fi
+
+if [[ ! -e volundr ]]
+then
+    make
+fi
+
+echo ""
+echo "-------[ Volundr v0.1:"
+echo ""
+
+ulimit -c unlimited
+export LD_LIBRARY_PATH=./elf:./common:./asm
+./volundr $1;
