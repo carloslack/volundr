@@ -30,8 +30,8 @@ off_t file_size(FILE* fp)
 {
     off_t size;
     int r = fseeko(fp, 0L, SEEK_END);
-	if(r<0)
-		return 0;
+    if(r<0)
+        return 0;
     size = ftello(fp);
     rewind(fp);
     return (off_t)size;

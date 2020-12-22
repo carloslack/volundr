@@ -6,6 +6,7 @@
 
 #include "asm.h"
 
+#if 0
 void asm_exit(i32 sys, i32 code) {
     __asm__ __volatile__(
             "movl %0, %%eax\n\t"
@@ -41,16 +42,16 @@ i32 asm_kill(i32 sys, pid_t pid
     return ret;
 }
 
-i32 asm_mkdir(i32 sys, const sbyte* path
+i64 asm_mkdir(i32 sys, const sbyte* path
         , mode_t mode) 
 {
-    i32 ret;
+    i64 ret;
     __asm__ __volatile__(
             "movl %1, %%eax\n\t"
-            "movl %2, %%ebx\n\t"
+            "movq %2, %%rcx\n\t"
             "movl %3, %%ecx\n\t"
             "int $0x80\n\t"
-            "movl %%eax, %0"
+            "mov %%rax, %0"
             :"=r"(ret)
             :"r"(sys), "b"(path), "c"(mode)
     );
@@ -60,10 +61,10 @@ i32 asm_mkdir(i32 sys, const sbyte* path
 i32 asm_rmdir(i32 sys, const sbyte* path) {
     i32 ret;
     __asm__ __volatile__(
-            "movl %1, %%eax\n\t"
+            "movl %1, %%rax\n\t"
             "movl %2, %%ebx\n\t"
             "int $0x80\n\t"
-            "movl %%eax, %0"
+            "movl %%rax, %0"
             :"=r"(ret)
             :"r"(sys), "b"(path)
     );
@@ -149,3 +150,4 @@ i32 asm_mount(i32 sys
     return ret;
 }
 
+#endif

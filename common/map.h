@@ -18,7 +18,7 @@
  *  @author  v00d00
  */
 
-/* Copies a file from given file descritor to memory 
+/* Copies a file from given file descritor to memory
  * from start address (usually (void*)0) to size
  */
 void* map_filemap   (void* start, off_t size, i32 fd);

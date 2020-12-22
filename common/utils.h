@@ -46,10 +46,10 @@ FILE*   open_output         (const sbyte *); // XXX rename to file_open_output?
 char*   get_output_name     (const sbyte *, const sbyte*);
 sbyte*  get_binary_name     (const sbyte*);
 
-_INLINE void* smalloc       (size_t);
-_INLINE void* scalloc       (size_t, size_t);
-_INLINE void* srealloc      (void *, size_t);
-_INLINE void  sfree         (void**);
+void* smalloc       (size_t);
+void* scalloc       (size_t, size_t);
+void* srealloc      (void *, size_t);
+void  sfree         (void**);
 
 char*   sstrdup             (const char*);
 

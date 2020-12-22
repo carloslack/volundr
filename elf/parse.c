@@ -64,16 +64,16 @@ elf_t *elf_parse_content(void *data, FILE* fp)
 
     struct stat st;
     i32 fdesc = fileno(fp);
-    
+
     // create interface
     elf_t *elfo;
     elfo = smalloc(sizeof(elf_t));
     elfo->data = (unsigned char*)data;
 
     /*
-    * ATTENTION: this is just a testing for mmapping
-    * Here we just map a file and then unmap it.
-    */
+     * ATTENTION: this is just a testing for mmapping
+     * Here we just map a file and then unmap it.
+     */
     fstat(fdesc, &st)?log_fatal("fstat %s", strerror(errno)):0;
     elfo->fsize = st.st_size;
     elfo->mapaddr = map_filemap((void*)0
@@ -142,7 +142,7 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 
     if(vol_size != elf_size) {
         log_error("Invalid program header size : "
-                  "rcvd: %d xpctd: %d", elf_size, vol_size);
+                "rcvd: %d xpctd: %d", elf_size, vol_size);
     }
 #endif
     int i;
@@ -180,7 +180,7 @@ elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
 
     if(vol_size != elf_size) {
         log_error("Invalid program header size : "
-                  "rcvd: %d xpctd: %d", elf_size, vol_size);
+                "rcvd: %d xpctd: %d", elf_size, vol_size);
     }
 #endif
     int i;
@@ -375,7 +375,7 @@ elf_sym_t **elf_parse_all_syms(const elf_t *elfo, const elf_shdr_t *symtab)
 {
     ASSERT_ARG_RET_NULL(elfo && symtab);
     ASSERT_CON_RET_NULL(symtab->sh_type == SHT_SYMTAB ||
-                        symtab->sh_type == SHT_DYNSYM );
+            symtab->sh_type == SHT_DYNSYM );
 #ifdef PARANOID_CHECK
     // TODO: check if symtab is really in elfo.
     // TODO: check if SHT_NOBIT
@@ -384,7 +384,7 @@ elf_sym_t **elf_parse_all_syms(const elf_t *elfo, const elf_shdr_t *symtab)
     elf_sym_t **syms = smalloc((SENTNUM(symtab)+1) * sizeof(elf_sym_t*));
     for(i=0; i<SENTNUM(symtab); i++) {
         syms[i] = (elf_sym_t*)
-                  (elfo->data + symtab->sh_offset + symtab->sh_entsize*i);
+            (elfo->data + symtab->sh_offset + symtab->sh_entsize*i);
     }
     syms[i] = (elf_sym_t*)0;
     return syms;
@@ -413,7 +413,7 @@ elf_sym_t *elf_parse_sym( const elf_t *elfo
 #endif
 
     return (elf_sym_t*)
-           (elfo->data + symtab->sh_offset + symtab->sh_entsize*index);
+        (elfo->data + symtab->sh_offset + symtab->sh_entsize*index);
 }
 
 /** @} */
@@ -437,7 +437,7 @@ sbyte* elf_parse_strtab(const elf_t *elfo, const elf_shdr_t *strtab)
     ASSERT_ARG_RET_NULL(elfo && strtab);
     if(strtab->sh_type != SHT_STRTAB) {
         log_error("Not a string table section (%d : %d).",
-                    strtab->sh_name, strtab->sh_type);
+                strtab->sh_name, strtab->sh_type);
         return NULL;
     }
     return (sbyte*)elfo->data + strtab->sh_offset;

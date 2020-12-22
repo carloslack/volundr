@@ -9,12 +9,12 @@ bool elf_validate_eheader(const elf_ehdr_t* ehdr)
         return false;
     }
     if((ehdr->e_ident[0] != ELFMAG0) &&
-       (ehdr->e_ident[1] != ELFMAG1) &&
-       (ehdr->e_ident[2] != ELFMAG2) &&
-       (ehdr->e_ident[3] != ELFMAG3)) {
+            (ehdr->e_ident[1] != ELFMAG1) &&
+            (ehdr->e_ident[2] != ELFMAG2) &&
+            (ehdr->e_ident[3] != ELFMAG3)) {
         return false;
     }
-	return true;
+    return true;
 }
 
 bool elf_validate_filetype(FILE *f)

@@ -47,8 +47,7 @@ static void print_helper(bool *value, bool what) {
     }
 }
 
-bool elf_print_elf(FILE *fout, const elf_t *elfo)
-{
+bool elf_print_elf(FILE *fout, const elf_t *elfo) {
     if(!elf_print_header(fout, elfo)) {
         log_error("failed reading headers");
         return false;
@@ -83,8 +82,7 @@ bool elf_print_elf(FILE *fout, const elf_t *elfo)
     return true;
 }
 
-bool elf_print_header(FILE* fout, const elf_t* elfo)
-{
+bool elf_print_header(FILE* fout, const elf_t* elfo) {
     //TODO: remove the use of structures for printing to make it readable
     //
     bool ctrl = false;
@@ -96,7 +94,7 @@ bool elf_print_header(FILE* fout, const elf_t* elfo)
     elf_ehdr_t *ehdr = elfo->ehdr;
 
     fprintf( fout, "**** ELF HEADER FILE : [%d bytes] ****\n"
-           , ehdr->e_shoff + ehdr->e_shnum * sizeof(elf_shdr_t));
+            , ehdr->e_shoff + ehdr->e_shnum * sizeof(elf_shdr_t));
 
     fprintf(fout, "[Elf Header]\n");
 
@@ -108,27 +106,27 @@ bool elf_print_header(FILE* fout, const elf_t* elfo)
     fprintf(fout, "e_ident[EI_CLASS]: %d ", ehdr->e_ident[EI_CLASS]);
 
     ehdr->e_ident[EI_CLASS] == ELFCLASSNONE ? fprintf(fout, "Invalid class\n")
-                                            : print_helper(&ctrl, true);
+        : print_helper(&ctrl, true);
 
     ehdr->e_ident[EI_CLASS] == ELFCLASS32 ? fprintf(fout, "32-Bit object\n")
-                                            : print_helper(&ctrl, true);
+        : print_helper(&ctrl, true);
 
     ehdr->e_ident[EI_CLASS] == ELFCLASS64 ? fprintf(fout, "64-Bit object\n")
-                                            : print_helper(&ctrl, true);
+        : print_helper(&ctrl, true);
 
     !ctrl ? fprintf(fout, "Unknown\n") : print_helper(&ctrl, false);
 
     fprintf(fout, "e_ident[EI_DATA]: %d ", ehdr->e_ident[EI_DATA]);
 
     ( ehdr->e_ident[EI_DATA] == ELFDATANONE )
-            ? fprintf(fout,"Invalid data encoding\n")
-            : print_helper(&ctrl, true);
+        ? fprintf(fout,"Invalid data encoding\n")
+        : print_helper(&ctrl, true);
 
     ehdr->e_ident[EI_DATA] == ELFDATA2LSB ? fprintf(fout, "LSB\n")
-                                          : print_helper(&ctrl, true);
+        : print_helper(&ctrl, true);
 
     ehdr->e_ident[EI_DATA] == ELFDATA2MSB ? fprintf(fout, "MSB\n")
-                                          : print_helper(&ctrl, true);
+        : print_helper(&ctrl, true);
     !ctrl ? fprintf(fout, "Unknown\n") : 0;
     fprintf(fout, "e_ident[EI_VERSION]: %d\n", ehdr->e_ident[EI_VERSION]);
     fprintf(fout, "e_ident[EI_PAD]: %d\n", ehdr->e_ident[EI_PAD]);
@@ -256,12 +254,12 @@ bool elf_print_sections(FILE *fout, const elf_t* elfo)
                 case 9: fprintf(fout, _section[j].format,shdrs[i]->sh_entsize);
                         break;
                 default:
-                break;
+                        break;
             }
         }
     }
     return true;
- }
+}
 
 /**
  * Prints Unix System V Section .shtrtab.
@@ -325,11 +323,11 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
 
     // introduction
     fprintf(fout, "[SYMTAB] Symtab %s has %d symbols:\n\n"
-                , symtab_name, SENTNUM(symtab));
+            , symtab_name, SENTNUM(symtab));
 
     // output table header
     fprintf(fout, "%6s %10s %6s %6s %6s %6s %6s %6s \t%6s\n",
-           "Num", "Val", "Size", "Info", "(b,", "t)", "Other", "Shndx", "Name");
+            "Num", "Val", "Size", "Info", "(b,", "t)", "Other", "Shndx", "Name");
 
     sbyte *dynstr = elf_parse_dynstr(elfo);
     if(dynstr == NULL) {
@@ -342,16 +340,16 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
         elf_sym_t *sym = syms[i];
         // TODO: e_name to BIND and TYPE
         fprintf( fout
-               , "%6d %10x %6d %6d(%6d,%6d) %6x %6d \t%6s\n"
-               , i                        // Num
-               , sym->st_value            // Val
-               , sym->st_size             // Size
-               , sym->st_info             // Info
-               , ST_BIND(sym->st_info)    // ( Bind
-               , ST_TYPE(sym->st_info)    // , Type )
-               , sym->st_other            // Other
-               , sym->st_shndx            // Shdnx
-               , SYMNAME(sym, dynstr)     // Name
+                , "%6d %10x %6d %6d(%6d,%6d) %6x %6d \t%6s\n"
+                , i                        // Num
+                , sym->st_value            // Val
+                , sym->st_size             // Size
+                , sym->st_info             // Info
+                , ST_BIND(sym->st_info)    // ( Bind
+                , ST_TYPE(sym->st_info)    // , Type )
+                , sym->st_other            // Other
+                , sym->st_shndx            // Shdnx
+                , SYMNAME(sym, dynstr)     // Name
                );
     }
     return true;
