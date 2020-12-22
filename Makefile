@@ -1,8 +1,8 @@
 CC=gcc
 SHLIBS=-lelf -lcommon -lasm -fPIC
 LDPATH=-L./elf -L./common -L./asm
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF32__ -fPIC -DDEBUG $(LDPATH)
-OUT=../volundr0.1_hash/nada/volundr
+CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -fPIC -DDEBUG $(LDPATH)
+OUT=./volundr
 OBJS=volundr.o
 LIB=$(OUT)
 

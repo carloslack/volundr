@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF32__ -DDEBUG# <- shouldn't be declared here. XXX
+CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -DDEBUG# <- shouldn't be declared here. XXX
 PROJ=asm
 OBJS=asm.o
 LIB=lib$(PROJ).so

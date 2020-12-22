@@ -29,7 +29,7 @@ elf_ehdr_t* elf_parse_ehdr(const elf_t*);
 elf_phdr_t** elf_parse_phdrs(const elf_t*);
 
 /* read all section headers */
-_INLINE elf_shdr_t** elf_parse_shdrs(const elf_t*);
+elf_shdr_t** elf_parse_shdrs(const elf_t*);
 
 
 /*
