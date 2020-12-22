@@ -96,18 +96,16 @@ i32 _log_error(const char *f, int l, const sbyte* fmt, ...)
 
 i32 _log_fatal(const char *f, int l, const sbyte* fmt, ...)
 {
-    i32 r;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
     fprintf(stdout, "[!] ");
     fprintf(stdout, "[%s:%d] ", f, l);
 #endif
-    r = vfprintf(stderr, fmt, ap);
+    vfprintf(stderr, fmt, ap);
     fprintf(stdout, " : aborting...\n");
     va_end(ap);
     abort();
-    //return r;
 }
 
 i32 _log_info_buff(const char *f, int l, const sbyte* fmt, ...)

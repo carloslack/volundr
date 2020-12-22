@@ -2,7 +2,7 @@
 #include <asm/unistd.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "../common/common.h"
+#include "common.h"
 
 #define _EXIT(a1)               asm_exit(__NR_exit, a1)
 #define _FORK()                 asm_fork(__NR_fork)

@@ -40,7 +40,7 @@ bool elf_validate_filetype(FILE *f)
     // restore initial position
     fsetpos(f, &pos);
 
-    return elf_validate_eheader(elfHeader);
+    return elf_validate_eheader((const elf_ehdr_t*)elfHeader);
 }
 
 bool elf_validate_index(const elf_t *elfo, elf_half_t index)

@@ -26,7 +26,7 @@ typedef int16_t   i16;
 typedef int32_t   i32;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
-typedef int64_t  i64;
+typedef int64_t   i64;
 typedef int16_t   s16;
 typedef char      sbyte;
 typedef int       bool;
