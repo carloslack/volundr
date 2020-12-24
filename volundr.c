@@ -3,8 +3,7 @@
  *
  * [Völundr] the ruler of the elves
  *
- * Author: Carlos Carvalho
- * Contact: carloslack@gmail.com
+ * Author: hash
  *
  * Brief: Elf file reader / Elf file parasite( well, not yet...)
  */
