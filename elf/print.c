@@ -93,7 +93,7 @@ bool elf_print_header(FILE* fout, const elf_t* elfo) {
 
     elf_ehdr_t *ehdr = elfo->ehdr;
 
-    fprintf( fout, "**** ELF HEADER FILE : [%d bytes] ****\n"
+    fprintf( fout, "**** ELF HEADER FILE : [%lu bytes] ****\n"
             , ehdr->e_shoff + ehdr->e_shnum * sizeof(elf_shdr_t));
 
     fprintf(fout, "[Elf Header]\n");
@@ -322,7 +322,7 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
     }
 
     // introduction
-    fprintf(fout, "[SYMTAB] Symtab %s has %d symbols:\n\n"
+    fprintf(fout, "[SYMTAB] Symtab %s has %lu symbols:\n\n"
             , symtab_name, SENTNUM(symtab));
 
     // output table header

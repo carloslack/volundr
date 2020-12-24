@@ -1,14 +1,14 @@
 CC=gcc
-SHLIBS=-lelf -lcommon -lasm -fPIC
+SHLIBS=-lelf -lcommon -lsyscalls -fPIC
 LDPATH=-L./elf -L./common -L./asm
 CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -fPIC -DDEBUG $(LDPATH)
 OUT=./volundr
 OBJS=volundr.o
 LIB=$(OUT)
 
-.PHONY: volundr.o common/libcommon.so elf/libelf.so asm/libasm.so
+.PHONY: volundr.o common/libcommon.so elf/libelf.so asm/syscalls.so
 
-$(OUT): $(OBJS) common/libcommon.so elf/libelf.so asm/libasm.so 
+$(OUT): $(OBJS) common/libcommon.so elf/libelf.so asm/syscalls.so 
 	$(CC) -o $(OUT) $(OBJS) $(CFLAGS) $(SHLIBS)
 	@echo Done.
 
@@ -23,7 +23,7 @@ common/libcommon.so: common/common.h
 elf/libelf.so: elf/elf.h
 	cd elf && make
 
-asm/libasm.so: asm/asm.h
+asm/syscalls.so: asm/asm.h
 	cd asm && make
 
 files:

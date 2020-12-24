@@ -1,14 +1,29 @@
-CC=gcc
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -DDEBUG# <- shouldn't be declared here. XXX
-PROJ=asm
-OBJS=asm.o
-LIB=lib$(PROJ).so
+#
+# asm Makefile
+#
+#
 
-$(LIB): $(OBJS)
-	$(CC) -shared -o $(LIB) $(OBJS)
+AS= 		as
+LD= 		ld
+SFLAGS= 	-statistics -fatal-warnings -size-check=error
+CFLAGS=		-Wall -Werror -I/usr/include/x86_64-linux-gnu/asm
+LFLAGS=		-L. -lS -ltest
+LIBSRC= 	./syscalls.S
+LIBTESTSRC= 	./syscalls.S
+LIBOBJS= 	./syscalls.o
+LIBTESTOBJS= 	./syscalls.o
+LIB=		./libsyscalls.so
+LIBFLAGS=$(SFLAGS) 
 
-asm.o: asm.c
-	$(CC) -c -o asm.o asm.c $(CFLAGS)
+lib:
+	$(AS) $(LIBSRC) $(LIBFLAGS) -o $(LIBOBJS)
+	$(LD) $(LIBOBJS) -r -o $(LIB) 
+
+all:
+	make clean
+	make lib
+
 
 clean:
-	rm -rf $(PROJ) $(OBJS) $(LIB)
+	rm -rf *.o *.so
+	@echo "Clean."

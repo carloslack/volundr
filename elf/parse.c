@@ -79,7 +79,10 @@ elf_t *elf_parse_content(void *data, FILE* fp)
     elfo->mapaddr = map_filemap((void*)0
             , elfo->fsize
             , fdesc);
-    i32 ret = map_fileunmap(elfo->mapaddr, elfo->fsize); 
+    if (map_fileunmap(elfo->mapaddr, elfo->fsize) == -1) {
+        log_warning("Ooops! Error mapping fd %d of size %d",
+                fileno(fp), elfo->fsize);
+    }
 
     // read ELF headers
     elfo->ehdr  = elf_parse_ehdr(elfo);
