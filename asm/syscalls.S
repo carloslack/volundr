@@ -24,11 +24,13 @@ FN _asm_exit
     movl %esi, %edi             # status
     xor %rsi, %rsi
     syscall
+    ret
 
 #   void _asm_fork      (int);
 FN _asm_fork
     movl %edi, %eax             # NR syscall
     syscall
+    ret
 
 #   int _asm_close      (int, int);
 FN _asm_close
