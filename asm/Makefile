@@ -6,12 +6,10 @@
 AS= 		as
 LD= 		ld
 SFLAGS= 	-statistics -fatal-warnings -size-check=error
-CFLAGS=		-Wall -Werror -I/usr/include/x86_64-linux-gnu/asm
-LFLAGS=		-L. -lS -ltest
+CFLAGS=		-Wall -Werror
+LFLAGS=		-L.
 LIBSRC= 	./syscalls.S
-LIBTESTSRC= 	./syscalls.S
 LIBOBJS= 	./syscalls.o
-LIBTESTOBJS= 	./syscalls.o
 LIB=		./libsyscalls.so
 LIBFLAGS=$(SFLAGS) 
 
