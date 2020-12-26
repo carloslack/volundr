@@ -40,30 +40,10 @@ enum {
 };
 
 /* Architecture independet macros */
-#ifdef __ELF32__
-#define ST_BIND(i)      (ELF32_ST_BIND(i))
-#define ST_TYPE(i)      (ELF32_ST_TYPE(i))
-#define ST_INFO(b,t)    (ELF32_ST_INFO(b,t))
-#elif defined __ELF64__
 #define ST_BIND(i)      (ELF64_ST_BIND(i))
 #define ST_TYPE(i)      (ELF64_ST_TYPE(i))
 #define ST_INFO(b,t)    (ELF64_ST_INFO(b,t))
-#endif
 
-#ifdef __ELF32__
-typedef Elf32_Addr      elf_addr_t;
-typedef Elf32_Half      elf_half_t;
-typedef Elf32_Off       elf_off_t;
-typedef Elf32_Sword     elf_sword_t;
-typedef Elf32_Word      elf_word_t;
-typedef Elf32_Ehdr      elf_ehdr_t;
-typedef Elf32_Shdr      elf_shdr_t;
-typedef Elf32_Phdr      elf_phdr_t;
-typedef Elf32_Sym       elf_sym_t;
-# ifdef __ELF_SYSV__
-typedef Elf32_Dyn       elf_dyn_t;
-# endif // __ELF_SYSV__
-#elif defined __ELF64__
 typedef Elf64_Addr      elf_addr_t;
 typedef Elf64_Half      elf_half_t;
 typedef Elf64_Off       elf_off_t;
@@ -76,7 +56,6 @@ typedef Elf32_Sym       elf_sym_t;
 # ifdef __ELF_SYSV__
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
-#endif // __ELF32__ || __ELF64__
 
 
 /*

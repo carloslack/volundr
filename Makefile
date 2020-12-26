@@ -1,7 +1,7 @@
 CC=gcc
 SHLIBS=-lelf -lcommon -lsyscalls -fPIC
 LDPATH=-L./elf -L./common -L./asm
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -fPIC -DDEBUG $(LDPATH)
+CFLAGS=-O0 -g -ggdb -Wall -fPIC -DDEBUG $(LDPATH)
 OUT=./volundr
 OBJS=volundr.o
 LIB=$(OUT)
