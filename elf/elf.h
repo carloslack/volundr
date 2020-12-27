@@ -7,7 +7,6 @@
  * @defgroup elf LibELF
  */
 
-#include "../common/common.h" // XXX : relative path please.
 
 #if defined( PARANOID_CHECK ) && defined( LOOSE_CHECK )
 # error "Conflicting pre-processor definition: PARANOID_CHECK, LOOSE_CHECK"

@@ -7,6 +7,7 @@
  *
  */
 #include "map.h"
+#include "asm.h"
 
 /**
  * @defgroup map Map
@@ -41,7 +42,7 @@ void* map_filemap(void* start, off_t size, i32 fd) {
                     , fd
                     , (off_t)ALIGNOFFSET(fd))) == MAP_FAILED)
     {
-        close(fd);
+        asm_close(fd);
         log_fatal("mmap %s", strerror(errno));
     }
 

@@ -9,90 +9,82 @@
  *  function declaration
  */
 .macro FN fn
-    .globl \fn   
+    .globl \fn
     .type \fn, @function;\fn:
 .endm
 
+/**
+ * x86_64-linux-gnu/asm/unistd_64.h
+ */
+.equ SYS_write, 1
+.equ SYS_open, 2
+.equ SYS_close, 3
+.equ SYS_fork, 57
+.equ SYS_exit, 60
+.equ SYS_kill, 62
+.equ SYS_mkdir, 83
+.equ SYS_rmdir, 84
+.equ SYS_chown, 92
+
 .text
 
-#   Shift arguments backwards because
-#   of syscall number that comes first
-
-#   void _asm_exit      (int, int);
-FN _asm_exit
-    movl %edi, %eax             # NR syscall
-    movl %esi, %edi             # status
-    xor %rsi, %rsi
+#   void asm_exit      (int, int);
+FN asm_exit
+    movl $SYS_exit, %eax             # NR syscall
     syscall
     ret
 
-#   void _asm_fork      (int);
-FN _asm_fork
-    movl %edi, %eax             # NR syscall
+#   void asm_fork      (int);
+FN asm_fork
+    movl $SYS_fork, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_close      (int, int);
-FN _asm_close
-    movl %edi, %eax             # NR syscall
-    movl %esi, %edi             # int fd
-    xor %rsi, %rsi
+#   int asm_close      (int, int);
+FN asm_close
+    movl $SYS_close, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_mkdir      (int, const sbyte*, mode_t);
-FN _asm_mkdir
-    movl %edi, %eax             # NR syscall
-    movq %rsi, %rdi             # const char *pathname
-    movl %edx, %esi             # mode_t mode
-    xorl %edx, %edx
+#   int asm_mkdir      (int, const sbyte*, mode_t);
+FN asm_mkdir
+    movl $SYS_mkdir, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_kill       (int, pid_t, int);
-FN _asm_kill
-    movl %edi, %eax             # NR syscall
-    movl %esi, %edi             # pid_t pid
-    movl %edx, %esi             # signal
-    xorl %edx, %edx
+#   int asm_kill       (int, pid_t, int);
+FN asm_kill
+    movl $SYS_kill, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_rmdir      (int, const sbyte*);
-FN _asm_rmdir
-    movl %edi, %eax             # NR syscall
-    movq %rsi, %rdi             # const char *pathname
-    xorq %rsi, %rsi
+#   int asm_rmdir      (int, const sbyte*);
+FN asm_rmdir
+    movl $SYS_rmdir, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_chown      (int, const sbyte*, uid_t, gid_t);
-FN _asm_chown
-    movl %edi, %eax             # NR syscall
-    movq %rsi, %rdi             # const char *pathname
-    movl %edx, %esi             # uid_t owner
-    movl %ecx, %edx             # gid_t group
-    xorl %ecx, %ecx
+#   int asm_chown      (int, const sbyte*, uid_t, gid_t);
+FN asm_chown
+    movl $SYS_chown, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_chown      (int, const sbyte*, uid_t, gid_t);
-FN _asm_open
-    movl %edi, %eax             # NR syscall
-    movq %rsi, %rdi             # const char *pathname
-    movl %edx, %esi             # int flags
-    movl %ecx, %edx             # int mode
-    xorl %ecx, %ecx
+#   int asm_chown      (int, const sbyte*, uid_t, gid_t);
+FN asm_open
+    movl $SYS_open, %eax             # NR syscall
     syscall
     ret
 
-#   int _asm_write      (int, int, const void*, size_t);
-FN _asm_write
-    movl %edi, %eax             # NR syscall
-    movl %esi, %edi             # int fd
-    movq %rdx, %rsi             # const void *buf
-    movq %rcx, %rdx             # size_t count
-    xorq %rcx, %rcx
+#   int asm_write      (int, int, const void*, size_t);
+FN asm_write
+    movl $SYS_write, %eax             # NR syscall
+    syscall
+    ret
+
+#   FILE *asm_fopen     (const char*, const char*);
+FN asm_fopen
+    movl $SYS_open, %eax             # NR syscall
     syscall
     ret
 

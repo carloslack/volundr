@@ -1,4 +1,5 @@
 #include "destroy.h"
+#include "utils.h"
 
 #if 0
 bool destroy_meta(elf_t* elf) {

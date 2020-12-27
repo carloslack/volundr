@@ -12,9 +12,9 @@
 #include "parse.h"
 #include "write.h"
 #include "validate.h"
-#include "../common/utils.h" // XXX : use relative path (change Makefile)
-#include "../common/log.h"
-#include "../common/map.h"
+#include "utils.h" // XXX : use relative path (change Makefile)
+#include "log.h"
+#include "map.h"
 
 /**
  * @defgroup parse Parse

@@ -99,7 +99,6 @@ typedef Elf64_Dyn       elf_dyn_t;
 typedef struct elf_info {
     i32 i;                       // TODO ??
     sbyte* name;                 // TODO ??
-    sbyte* format;               // TODO ??
 } elf_info_t;
 
 /*
