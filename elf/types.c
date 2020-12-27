@@ -49,4 +49,35 @@ elf_info_t _program[]={
     {-1, NULL, NULL},
 };
 
+elf_info_t _type[]={
+    {0, "NOTYPE", SBYTE},
+    {1, "OBJECT", SBYTE},
+    {2, "FUNC", SBYTE},
+    {3, "SECTION", SBYTE},
+    {4, "FILE", SBYTE},
+    {10, "LOOS", SBYTE},
+    {12, "HIOS", SBYTE},
+    {13, "LOPROC", SBYTE}, // ignore sparc
+    {15, "HIPROC", SBYTE},
+    {-1, NULL, NULL},
+};
+
+elf_info_t _info[]={
+    {0, "LOCAL", SBYTE},
+    {1, "GLOBAL", SBYTE},
+    {2, "WEAK", SBYTE},
+    {10, "LOOS", SBYTE},
+    {12, "HIOS", SBYTE},
+    {13, "LOPROC", SBYTE},
+    {15, "HIPROC", SBYTE},
+    {-1, NULL, NULL},
+};
+
+elf_info_t _visibility[]={
+    {0, "DEFAULT", SBYTE},
+    {1, "INTERNAL", SBYTE},
+    {2, "HIDDEN", SBYTE},
+    {10, "PROTECTED", SBYTE},
+    {-1, NULL, NULL},
+};
 //mdata mData;

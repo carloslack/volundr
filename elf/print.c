@@ -209,6 +209,39 @@ bool elf_print_programs(FILE* fout, const elf_t *elfo) // XXX : either programs
     return true;
 }
 
+elf_info_t *get_type(int type_nr) {
+    static elf_info_t type;
+    for (int i = 0; _type[i].i != -1; ++i) {
+        if (type_nr == _type[i].i) {
+            type = _type[i];
+            break;
+        }
+    }
+    return &type;
+}
+
+elf_info_t *get_info(int info_nr) {
+    static elf_info_t info;
+    for (int i = 0; _info[i].i != -1; ++i) {
+        if (info_nr == _info[i].i) {
+            info = _info[i];
+            break;
+        }
+    }
+    return &info;
+}
+
+elf_info_t *get_visibility(int visibility_nr) {
+    static elf_info_t visibility;
+    for (int i = 0; _visibility[i].i != -1; ++i) {
+        if (visibility_nr == _visibility[i].i) {
+            visibility = _visibility[i];
+            break;
+        }
+    }
+    return &visibility;
+}
+
 bool elf_print_sections(FILE *fout, const elf_t* elfo)
 {
     //TODO: verify which and why specific data should be kept
@@ -338,18 +371,16 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
     int i;
     for(i=0; i<SENTNUM(symtab) && syms[i] != NULL; i++) {
         elf_sym_t *sym = syms[i];
-        // TODO: e_name to BIND and TYPE
         fprintf( fout
-                , "%6d %10x %6d %6d(%6d,%6d) %6x %6d \t%6s\n"
+                , "     %d: %016x %6ld %s %s %s %d %s\n"
                 , i                        // Num
                 , sym->st_value            // Val
                 , sym->st_size             // Size
-                , sym->st_info             // Info
-                , ST_BIND(sym->st_info)    // ( Bind
-                , ST_TYPE(sym->st_info)    // , Type )
-                , sym->st_other            // Other
+                , get_type(ST_TYPE(sym->st_info))->name            // Info
+                , get_info(ST_BIND(sym->st_info))->name// ( Bind
+                , get_visibility(sym->st_other)->name            // Other
                 , sym->st_shndx            // Shdnx
-                , SYMNAME(sym, dynstr)     // Name
+                , SYMNAME(sym, dynstr)     // Name  FIXME buggy on unstripped symbols
                );
     }
     return true;

@@ -23,6 +23,7 @@
 #define nADDR32 nHALF32
 #define OFF32 HALF32
 #define nOFF32 nHALF32
+#define SBYTE "%s"
 
 #ifndef PT_PAX_FLAGS
 #define PT_PAX_FLAGS 0x65041580 /* Indicates PaX flag markings */
@@ -52,7 +53,7 @@ typedef Elf64_Word      elf_word_t;
 typedef Elf64_Ehdr      elf_ehdr_t;
 typedef Elf64_Phdr      elf_phdr_t;
 typedef Elf64_Shdr      elf_shdr_t;
-typedef Elf32_Sym       elf_sym_t;
+typedef Elf64_Sym       elf_sym_t;
 # ifdef __ELF_SYSV__
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
@@ -125,5 +126,8 @@ typedef struct _elf
 extern elf_info_t _section[];
 extern elf_info_t _header[];
 extern elf_info_t _program[];
+extern elf_info_t _type[];
+extern elf_info_t _info[];
+extern elf_info_t _visibility[];
 
 #endif
