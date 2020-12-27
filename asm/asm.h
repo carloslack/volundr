@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <asm/unistd.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <sys/types.h>
 
 #define asm_fork()              _asm_fork(__NR_fork)
@@ -12,6 +13,7 @@
 #define asm_chown(a1,a2,a3)     _asm_chown(__NR_chown, a1, a2, a3)
 #define asm_open(a1,a2,a3)      _asm_open(__NR_open, a1, a2, a3)
 #define asm_write(a1,a2,a3)     _asm_write(__NR_write, a1, a2, a3)
+#define asm_fopen(a1,a2)        _asm_fopen(__NR_open, a1, a2)
 
 void _asm_fork      (int nr);
 void _asm_exit      (int nr, int code);
@@ -22,3 +24,4 @@ int _asm_kill       (int nr, pid_t pid, int sig);
 int _asm_chown      (int nr, const char* path, uid_t owner, gid_t group);
 int _asm_open       (int nr, const char* path, int flags, mode_t mode);
 int _asm_write      (int nr, int fd, const void* buf, size_t count);
+FILE *_asm_fopen    (int nr, const char *path, const char *mode);

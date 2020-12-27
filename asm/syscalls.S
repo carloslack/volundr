@@ -96,3 +96,11 @@ FN _asm_write
     syscall
     ret
 
+#   void _asm_fopen     (const char*, const char*);
+FN _asm_fopen
+    movl %edi, %eax             # NR syscall
+    movq %rsi, %rdi             # const char *path
+    movq %rdx, %rdi             # const char *mode
+    xorq %rdx, %rdx
+    syscall
+    ret

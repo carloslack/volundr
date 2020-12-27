@@ -1,6 +1,6 @@
 #include "validate.h"
 #include "types.h"
-#include "../common/log.h" // XXX : use relative path (change Makefile)
+#include "log.h" // XXX : use relative path (change Makefile)
 
 bool elf_validate_eheader(const elf_ehdr_t* ehdr)
 {

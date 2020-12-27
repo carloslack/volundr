@@ -22,9 +22,10 @@
 #include "elf/types.h"
 #include "elf/file.h"
 #include "elf/parse.h"
-#include "common/utils.h"
-#include "common/log.h"
-#include "common/map.h"
+#include "utils.h"
+#include "log.h"
+#include "map.h"
+#include "asm.h"
 
 /** local functions */
 static void usage(sbyte*);
@@ -35,7 +36,7 @@ static void version(void);
 elf_t *vol_open_file(const char *path, const char *mode)
 {
     ASSERT_ARG_RET_NULL(path && mode);
-    FILE *fp = fopen(path, mode);
+    FILE *fp = asm_fopen(path, mode);
 
     if(fp == NULL) {
         log_error("can't open file : %s : %s", path, strerror(errno));
@@ -136,7 +137,7 @@ int main(int argc, char** argv)
 
     if(argc<2) {
         usage(argv[0]);
-        exit(EXIT_FAILURE);
+        asm_exit(EXIT_FAILURE);
     }
 
     while ((c = getopt(argc, argv, "f:hv")) != -1) {
@@ -160,14 +161,14 @@ int main(int argc, char** argv)
                       }
                       // elf file
             default: {
-                         exit(EXIT_FAILURE);
+                         asm_exit(EXIT_FAILURE);
                          break;
                      }
         }
     }
     if(optind >= argc) {
         log_error("You must provide an ELF image.");
-        exit(EXIT_FAILURE);
+        asm_exit(EXIT_FAILURE);
     }
 
     // decide where to print output messages
@@ -177,7 +178,7 @@ int main(int argc, char** argv)
         fout = file_open_ow(fout_path);
         if(!fout) {
             log_error("Error reading output file : %s\n", strerror(errno));
-            exit(1);
+            asm_exit(1);
         }
     }
 

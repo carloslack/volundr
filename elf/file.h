@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "types.h"
-#include "../common/utils.h" // use relative path (change Makefile)
 
 typedef struct {
     __mode_t mode;

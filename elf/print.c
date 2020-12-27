@@ -20,9 +20,9 @@
 #include "e_names.h"
 #include "write.h"
 #include "parse.h"
-#include "../common/common.h"
-#include "../common/log.h"
-#include "../common/utils.h"
+#include "common.h"
+#include "log.h"
+#include "utils.h"
 
 #if 0
 #define defout def_output_once;
@@ -211,6 +211,7 @@ bool elf_print_programs(FILE* fout, const elf_t *elfo) // XXX : either programs
 
 elf_info_t *get_type(int type_nr) {
     static elf_info_t type;
+    memset(&type, 0, sizeof(elf_info_t));
     for (int i = 0; _type[i].i != -1; ++i) {
         if (type_nr == _type[i].i) {
             type = _type[i];
@@ -222,6 +223,7 @@ elf_info_t *get_type(int type_nr) {
 
 elf_info_t *get_info(int info_nr) {
     static elf_info_t info;
+    memset(&info, 0, sizeof(elf_info_t));
     for (int i = 0; _info[i].i != -1; ++i) {
         if (info_nr == _info[i].i) {
             info = _info[i];
@@ -233,6 +235,7 @@ elf_info_t *get_info(int info_nr) {
 
 elf_info_t *get_visibility(int visibility_nr) {
     static elf_info_t visibility;
+    memset(&visibility, 0, sizeof(elf_info_t));
     for (int i = 0; _visibility[i].i != -1; ++i) {
         if (visibility_nr == _visibility[i].i) {
             visibility = _visibility[i];
@@ -359,8 +362,9 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
             , symtab_name, SENTNUM(symtab));
 
     // output table header
-    fprintf(fout, "%6s %10s %6s %6s %6s %6s %6s %6s \t%6s\n",
-            "Num", "Val", "Size", "Info", "(b,", "t)", "Other", "Shndx", "Name");
+    // Try to format it nicely
+    fprintf(fout, "%6s %10s %13s %7s %12s %3s %11s %s\n",
+            "Num", "Val", "Size", "Type", "Bind", "Vis", "Shndx", "Name");
 
     sbyte *dynstr = elf_parse_dynstr(elfo);
     if(dynstr == NULL) {
@@ -372,7 +376,7 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
     for(i=0; i<SENTNUM(symtab) && syms[i] != NULL; i++) {
         elf_sym_t *sym = syms[i];
         fprintf( fout
-                , "     %d: %016x %6ld %s %s %s %d %s\n"
+                , "%6d: %016x %6ld %10s %10s %6s %6d %6s\n"
                 , i                        // Num
                 , sym->st_value            // Val
                 , sym->st_size             // Size

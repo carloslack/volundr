@@ -1,6 +1,6 @@
 CC=gcc
 # -D* shouldn't be declared here. XXX use config.h
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF32__ -DDEBUG -fPIC
+CFLAGS=-O0 -g -ggdb -Wall -D__ELF32__ -DDEBUG -fPIC -I../asm
 PROJ=common
 OBJS=log.o utils.o map.o
 LIB=lib$(PROJ).so
