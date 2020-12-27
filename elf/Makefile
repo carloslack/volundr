@@ -5,7 +5,7 @@
 
 CC=gcc
 # -D* shouldn't be declared here. XXX use config.h
-CFLAGS=-O0 -g -ggdb -Wall -D__ELF64__ -DDEBUG -fPIC
+CFLAGS=-O0 -g -ggdb -Wall -DDEBUG -fPIC
 PROJ=elf
 LDPATH=-L../common/
 OBJS=print.o validate.o write.o types.o e_names.o file.o parse.o destroy.o
