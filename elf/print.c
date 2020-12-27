@@ -39,14 +39,6 @@ bool elf_print_init(FILE *fp)
 }
 #endif
 
-static void print_helper(bool *value, bool what) {
-    if(what == true) {
-        *value = true;
-    }else{
-        *value = false;
-    }
-}
-
 bool elf_print_elf(FILE *fout, const elf_t *elfo) {
     if(!elf_print_header(fout, elfo)) {
         log_error("failed reading headers");
@@ -83,9 +75,6 @@ bool elf_print_elf(FILE *fout, const elf_t *elfo) {
 }
 
 bool elf_print_header(FILE* fout, const elf_t* elfo) {
-    //TODO: remove the use of structures for printing to make it readable
-    //
-    bool ctrl = false;
     if(fout == NULL || elfo == NULL) {
         log_debug("elf_print_header : invalid argument\n");
         return false;
@@ -104,29 +93,25 @@ bool elf_print_header(FILE* fout, const elf_t* elfo) {
     fprintf(fout, "e_ident[EI_MAG3]: %c\n", ehdr->e_ident[EI_MAG3]);
     fprintf(fout, "e_ident[EI_CLASS]: %d ", ehdr->e_ident[EI_CLASS]);
 
-    ehdr->e_ident[EI_CLASS] == ELFCLASSNONE ? fprintf(fout, "Invalid class\n")
-        : print_helper(&ctrl, true);
-
-    ehdr->e_ident[EI_CLASS] == ELFCLASS32 ? fprintf(fout, "32-Bit object\n")
-        : print_helper(&ctrl, true);
-
-    ehdr->e_ident[EI_CLASS] == ELFCLASS64 ? fprintf(fout, "64-Bit object\n")
-        : print_helper(&ctrl, true);
-
-    !ctrl ? fprintf(fout, "Unknown\n") : print_helper(&ctrl, false);
+    if (ehdr->e_ident[EI_CLASS] == ELFCLASSNONE)
+        fprintf(fout, "Invalid class\n");
+    else if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
+        fprintf(fout, "32-Bit object\n");
+    else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+        fprintf(fout, "64-Bit object\n");
+    else
+        fprintf(fout, "Class unknown\n");
 
     fprintf(fout, "e_ident[EI_DATA]: %d ", ehdr->e_ident[EI_DATA]);
 
-    ( ehdr->e_ident[EI_DATA] == ELFDATANONE )
-        ? fprintf(fout,"Invalid data encoding\n")
-        : print_helper(&ctrl, true);
-
-    ehdr->e_ident[EI_DATA] == ELFDATA2LSB ? fprintf(fout, "LSB\n")
-        : print_helper(&ctrl, true);
-
-    ehdr->e_ident[EI_DATA] == ELFDATA2MSB ? fprintf(fout, "MSB\n")
-        : print_helper(&ctrl, true);
-    !ctrl ? fprintf(fout, "Unknown\n") : 0;
+    if (ehdr->e_ident[EI_DATA] == ELFDATANONE)
+        fprintf(fout,"Invalid data encoding\n");
+    else if (ehdr->e_ident[EI_DATA] == ELFDATA2LSB)
+        fprintf(fout, "LSB\n");
+    else if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+        fprintf(fout, "MSB\n");
+    else
+        fprintf(fout, "Unknown - %d\n", ehdr->e_ident[EI_DATA]);
 
     fprintf(fout, "e_ident[EI_VERSION]: %d\n", ehdr->e_ident[EI_VERSION]);
     fprintf(fout, "e_ident[EI_PAD]: %d\n", ehdr->e_ident[EI_PAD]);
@@ -225,7 +210,7 @@ bool elf_print_sections(FILE *fout, const elf_t* elfo)
         return false;
     }
 
-    u16 i,j;
+    u16 i;
     elf_shdr_t **shdrs = elfo->shdrs;
     i32 n_secs = elfo->ehdr->e_shnum;
 
