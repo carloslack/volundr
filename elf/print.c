@@ -98,7 +98,6 @@ bool elf_print_header(FILE* fout, const elf_t* elfo) {
 
     fprintf(fout, "[Elf Header]\n");
 
-    fprintf(fout, "%s", _header[0].name);
     fprintf(fout, "e_ident[EI_MAG0]: %02x\n", ehdr->e_ident[EI_MAG0]);
     fprintf(fout, "e_ident[EI_MAG1]: %c\n", ehdr->e_ident[EI_MAG1]);
     fprintf(fout, "e_ident[EI_MAG2]: %c\n", ehdr->e_ident[EI_MAG2]);
@@ -128,37 +127,24 @@ bool elf_print_header(FILE* fout, const elf_t* elfo) {
     ehdr->e_ident[EI_DATA] == ELFDATA2MSB ? fprintf(fout, "MSB\n")
         : print_helper(&ctrl, true);
     !ctrl ? fprintf(fout, "Unknown\n") : 0;
+
     fprintf(fout, "e_ident[EI_VERSION]: %d\n", ehdr->e_ident[EI_VERSION]);
     fprintf(fout, "e_ident[EI_PAD]: %d\n", ehdr->e_ident[EI_PAD]);
-    fprintf(fout, "%s", _header[1].name);
-    fprintf(fout, _header[1].format,ehdr->e_type);
-    fprintf(fout, "\n%s", _header[2].name);
-    fprintf(fout, "%s ", e_header_type(ehdr->e_type));
-    fprintf(fout, _header[2].format, ehdr->e_machine);
-    fprintf(fout, "\n%s", _header[3].name);
-    fprintf(fout, "%s ", e_header_machine(ehdr->e_machine));
-    fprintf(fout, _header[3].format,ehdr->e_version);
-    fprintf(fout, "\n%s", _header[4].name);
-    fprintf(fout, "%s ", e_header_version(ehdr->e_version));
-    fprintf(fout, _header[4].format,ehdr->e_entry);
-    fprintf(fout, "%s", _header[5].name);
-    fprintf(fout, _header[5].format,ehdr->e_phoff);
-    fprintf(fout, "%s", _header[6].name);
-    fprintf(fout, _header[6].format,ehdr->e_shoff);
-    fprintf(fout, "%s", _header[7].name);
-    fprintf(fout,  _header[7].format,ehdr->e_flags);
-    fprintf(fout, "%s", _header[8].name);
-    fprintf(fout, _header[8].format,ehdr->e_ehsize);
-    fprintf(fout, "%s", _header[9].name);
-    fprintf(fout, _header[9].format,ehdr->e_phentsize);
-    fprintf(fout, "%s", _header[10].name);
-    fprintf(fout, _header[10].format,ehdr->e_phnum);
-    fprintf(fout, "%s", _header[11].name);
-    fprintf(fout, _header[11].format,ehdr->e_shentsize);
-    fprintf(fout, "%s", _header[12].name);
-    fprintf(fout, _header[12].format,ehdr->e_shnum);
-    fprintf(fout, "%s", _header[13].name);
-    fprintf(fout, _header[13].format,ehdr->e_shstrndx);
+    fprintf(fout, "e_type: 0x%x ", ehdr->e_type);
+    fprintf(fout, " [%s]\n", e_header_type(ehdr->e_type));
+    fprintf(fout, "e_machine: 0x%x", ehdr->e_machine);
+    fprintf(fout, " [%s]\n", e_header_machine(ehdr->e_machine));
+    fprintf(fout, "e_version: 0x%x\n", ehdr->e_version);
+    fprintf(fout, "e_entry: %s 0x%lx\n", e_header_version(ehdr->e_version), ehdr->e_entry);
+    fprintf(fout, "e_phoff: 0x%lx\n", ehdr->e_phoff);
+    fprintf(fout, "e_shoff: 0x%lx\n", ehdr->e_shoff);
+    fprintf(fout, "e_flags: 0x%x\n", ehdr->e_flags);
+    fprintf(fout, "e_ehsize: %d\n", ehdr->e_ehsize);
+    fprintf(fout, "e_phentsize: %d\n", ehdr->e_phentsize);
+    fprintf(fout, "e_phnum: %d\n", ehdr->e_phnum);
+    fprintf(fout, "e_shentsize: %d\n", ehdr->e_shentsize);
+    fprintf(fout, "e_shnum: %d\n", ehdr->e_shnum);
+    fprintf(fout, "e_shstrndx: 0x%x\n", ehdr->e_shstrndx);
 
     return true;
 }
@@ -171,7 +157,7 @@ bool elf_print_programs(FILE* fout, const elf_t *elfo) // XXX : either programs
         return false;
     }
 
-    u16 y,j;
+    u16 y;
     elf_ehdr_t *ehdr = elfo->ehdr;
     elf_phdr_t **phdrs = elfo->phdrs;
 
@@ -180,31 +166,15 @@ bool elf_print_programs(FILE* fout, const elf_t *elfo) // XXX : either programs
     //       h+=ehdr->e_phentsize;
 
     int phnum = ehdr->e_phnum;
-    for(y = 0, j = 0; y < phnum; y++, j=0) {
-
+    for(y = 0; y < phnum; y++) {
         fprintf(fout, "\n[Elf Program %d]\n", y);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_type);
-        fprintf(fout, "%s\n", e_program_type(phdrs[y]->p_type));
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_offset);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_vaddr);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_paddr);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_filesz);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_memsz);
-
-        fprintf(fout, "%s", _program[j].name);
-        fprintf(fout, _program[j++].format, phdrs[y]->p_align);
+        fprintf(fout, "p_type 0x%x [%s]\n", phdrs[y]->p_type, e_program_type(phdrs[y]->p_type));
+        fprintf(fout, "p_offset 0x%lx\n", phdrs[y]->p_offset);
+        fprintf(fout, "p_vaddr 0x%lx\n", phdrs[y]->p_vaddr);
+        fprintf(fout, "p_paddr 0x%lx\n", phdrs[y]->p_paddr);
+        fprintf(fout, "p_filesz 0x%lx\n", phdrs[y]->p_filesz);
+        fprintf(fout, "p_namesz 0x%lx\n", phdrs[y]->p_memsz);
+        fprintf(fout, "p_align 0x%lx\n", phdrs[y]->p_align);
     }
     return true;
 }
@@ -261,38 +231,19 @@ bool elf_print_sections(FILE *fout, const elf_t* elfo)
 
     for(i=0; i<n_secs; i++) {
         sbyte *shname = elf_parse_shname(elfo, shdrs[i]);
-        if(strlen(shname) == 0)
-            shname = "<NULL>";
+        if(!strlen(shname))
+            shname = "NULL";
         fprintf(fout, "\n[Elf Section %s]\n", shname);
-        for(j=0; _section[j].name != NULL; j++) {
-            fprintf(fout, "%s", _section[j].name);
-
-            // XXX TODO : remove switch?
-            switch(_section[j].i) {
-                case 0: fprintf(fout, _section[j].format,shdrs[i]->sh_name);
-                        break;
-                case 1: fprintf(fout, _section[j].format,shdrs[i]->sh_type);
-                        break;
-                case 2: fprintf(fout, _section[j].format,shdrs[i]->sh_flags);
-                        break;
-                case 3: fprintf(fout, _section[j].format,shdrs[i]->sh_addr);
-                        break;
-                case 4: fprintf(fout, _section[j].format,shdrs[i]->sh_offset);
-                        break;
-                case 5: fprintf(fout, _section[j].format,shdrs[i]->sh_size);
-                        break;
-                case 6: fprintf(fout, _section[j].format,shdrs[i]->sh_link);
-                        break;
-                case 7: fprintf(fout, _section[j].format,shdrs[i]->sh_info);
-                        break;
-                case 8: fprintf(fout,_section[j].format,shdrs[i]->sh_addralign);
-                        break;
-                case 9: fprintf(fout, _section[j].format,shdrs[i]->sh_entsize);
-                        break;
-                default:
-                        break;
-            }
-        }
+        fprintf(fout, "sh_name: 0x%x\n", shdrs[i]->sh_name);
+        fprintf(fout, "sh_type: 0x%x\n", shdrs[i]->sh_type);
+        fprintf(fout, "sh_flags: 0x%lx\n",shdrs[i]->sh_flags);
+        fprintf(fout, "sh_addr: 0x%lx\n", shdrs[i]->sh_addr);
+        fprintf(fout, "sh_offset: 0x%lx\n", shdrs[i]->sh_offset);
+        fprintf(fout, "sh_size: 0x%lx\n", shdrs[i]->sh_size);
+        fprintf(fout, "sh_link: 0x%x\n", shdrs[i]->sh_link);
+        fprintf(fout, "sh_info: 0x%x\n", shdrs[i]->sh_info);
+        fprintf(fout, "sh_addralign: 0x%lx\n", shdrs[i]->sh_addralign);
+        fprintf(fout, "sh_entsize: 0x%lu\n" ,shdrs[i]->sh_entsize);
     }
     return true;
 }
@@ -363,7 +314,7 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
 
     // output table header
     // Try to format it nicely
-    fprintf(fout, "%6s %10s %13s %7s %12s %3s %11s %s\n",
+    fprintf(fout, "%6s %10s %13s %7s %12s %4s %10s %s\n",
             "Num", "Val", "Size", "Type", "Bind", "Vis", "Shndx", "Name");
 
     sbyte *dynstr = elf_parse_dynstr(elfo);
