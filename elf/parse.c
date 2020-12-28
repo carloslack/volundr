@@ -45,8 +45,7 @@
 elf_t* elf_parse_file(FILE *fp)
 {
     ASSERT_ARG_RET_NULL(fp);
-    void *data  = file_read_all(fp, NULL);
-    return elf_parse_content(data, fp);
+    return elf_parse_content(file_read_all(fp));
 }
 
 /**
@@ -58,31 +57,16 @@ elf_t* elf_parse_file(FILE *fp)
  *
  * @return An interface to the provided ELF image.
  */
-elf_t *elf_parse_content(void *data, FILE* fp)
+elf_t *elf_parse_content(void *data)
 {
     ASSERT_ARG_RET_NULL(data);
 
     struct stat st;
-    i32 fdesc = fileno(fp);
 
     // create interface
     elf_t *elfo;
     elfo = smalloc(sizeof(elf_t));
     elfo->data = (unsigned char*)data;
-
-    /*
-     * ATTENTION: this is just a testing for mmapping
-     * Here we just map a file and then unmap it.
-     */
-    fstat(fdesc, &st)?log_fatal("fstat %s", strerror(errno)):0;
-    elfo->fsize = st.st_size;
-    elfo->mapaddr = map_filemap((void*)0
-            , elfo->fsize
-            , fdesc);
-    if (map_fileunmap(elfo->mapaddr, elfo->fsize) == -1) {
-        log_warning("Ooops! Error mapping fd %d of size %d",
-                fileno(fp), elfo->fsize);
-    }
 
     // read ELF headers
     elfo->ehdr  = elf_parse_ehdr(elfo);

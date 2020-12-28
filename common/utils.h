@@ -36,11 +36,8 @@
 
 off_t   file_size           (FILE*);
 FILE*   file_open           (const sbyte *, const sbyte *mode);
-void*   file_read_all       (FILE *, int *);
-i16     file_set_pos        (FILE *, off_t);
-off_t   file_get_pos        (FILE*);
+void*   file_read_all       (FILE *);
 i16     file_read           (void*, off_t, off_t, FILE*);
-i16     file_read_norewind  (void*, off_t, off_t, FILE*, off_t*);
 
 FILE*   open_output         (const sbyte *); // XXX rename to file_open_output?
 char*   get_output_name     (const sbyte *, const sbyte*);

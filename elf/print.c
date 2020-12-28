@@ -189,6 +189,22 @@ static elf_info_t *get_visibility(int visibility_nr) {
     return NULL;
 }
 
+static elf_info_t *get_index(int index_nr) {
+    for (int i = 0; _index[i].i != -1; ++i) {
+        if (index_nr == _index[i].i)
+            return &_index[i];
+    }
+
+    /* Did not find - return same value */
+    static elf_info_t rv;
+    char buf[32] = {0};
+    snprintf(buf, sizeof(buf), "%d", index_nr);
+    rv.i = 0;
+    rv.name = buf;
+
+    return &rv;
+}
+
 bool elf_print_sections(FILE *fout, const elf_t* elfo)
 {
     //TODO: verify which and why specific data should be kept
@@ -312,6 +328,7 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
         elf_info_t *type = get_type(ST_TYPE(sym->st_info));
         elf_info_t *info = get_info(ST_BIND(sym->st_info));
         elf_info_t *vis = get_visibility(sym->st_other);
+        elf_info_t *index = get_index(sym->st_shndx);
 
 #warning "FIXME"
         char *sname = "\/\/FIXME";
@@ -319,14 +336,14 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
             sname = SYMNAME(sym, dynstr);
 
         fprintf( fout
-                , "%6d: %016x %6ld %10s %10s %6s %6d %6s\n"
+                , "%6d: %016x %6ld %10s %10s %6s %6s %6s\n"
                 , i                        // Num
                 , sym->st_value            // Val
                 , sym->st_size             // Size
                 , type ? type->name : ""           // Info
                 , info ? info->name : ""// ( Bind
                 , vis ? vis->name   : ""            // Other
-                , sym->st_shndx            // Shdnx
+                , index ? index->name : ""           // Shdnx
                 , sname     // Name  FIXME buggy on unstripped symbols
                );
     }
@@ -347,8 +364,7 @@ bool elf_print_all_symtabs(FILE *fout, const elf_t *elfo)
         return false;
 
     // print all symbol tables
-    int i;
-    for(i=0; sym_tables[i] != NULL; i++) {
+    for(int i=0; sym_tables[i] != NULL; i++) {
         elf_print_symtab(fout, elfo, sym_tables[i]);
     }
     return true;

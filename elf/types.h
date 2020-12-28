@@ -128,5 +128,6 @@ extern elf_info_t _program[];
 extern elf_info_t _type[];
 extern elf_info_t _info[];
 extern elf_info_t _visibility[];
+extern elf_info_t _index[];
 
 #endif

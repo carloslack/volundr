@@ -36,4 +36,12 @@ elf_info_t _visibility[]={
     {10, "PROTECTED"},
     {-1, NULL},
 };
+
+elf_info_t _index[]={
+    {SHN_ABS, "ABS"},
+    {SHN_COMMON, "COM"},
+    {SHN_UNDEF, "UND"},
+    {SHN_XINDEX, "COM"},
+    {-1, NULL},
+};
 //mdata mData;
