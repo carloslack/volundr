@@ -17,7 +17,7 @@
 
 /* read ELF file and return its image */
 elf_t *elf_parse_file(FILE *);
-elf_t *elf_parse_content(void *, FILE*);
+elf_t *elf_parse_content(void *);
 
 /*
  * Headers

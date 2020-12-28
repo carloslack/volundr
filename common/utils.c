@@ -10,10 +10,15 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 #include "utils.h"
 #include "log.h"
 #include "common.h"
+#include "asm.h"
 
 _INLINE
 FILE* file_open(const sbyte* filein, const sbyte *mode)
@@ -26,89 +31,23 @@ FILE* file_open(const sbyte* filein, const sbyte *mode)
     return fin;
 }
 
-off_t file_size(FILE* fp)
+void *file_read_all(FILE *fp)
 {
-    off_t size;
-    int r = fseeko(fp, 0L, SEEK_END);
-    if(r<0)
-        return 0;
-    size = ftello(fp);
-    rewind(fp);
-    return (off_t)size;
-}
+    struct stat st;
 
-i16 file_read(void *to, off_t from, off_t n, FILE *fp)
-{
-    off_t cur;
-    if(file_read_norewind(to, from, n, fp, &cur)==CMM_OK) {
-        if(fseeko(fp, cur, SEEK_SET)==0) {
-            return CMM_OK;
-        }
-    }
-    log_debug("could not read file : %s\n", strerror(errno));
-    return CMM_ERR;
-}
-
-i16 file_read_norewind(void *to, off_t from, off_t n, FILE *fp, off_t *bkp)
-{
-    if(!fp||!to) {
-        log_debug("invalid argument : %s", (!fp) ? "fp" : "to");
-        common_errno = CMM_ERR_EINVLD;
-        //errno = EINVAL; // XXX??
-        return CMM_ERR;
-    }
-    off_t cur = ftello(fp); // get current offset
-    if(cur<0 || fseeko(fp, from, SEEK_SET)<0) { // goto desired offset
-        log_debug("seek error : %s", strerror(errno));
-        return CMM_ERR;
+    if (fstat(fileno(fp), &st) < 0) {
+        log_fatal("Error: fstat\n");
+        asm_exit(-1);
     }
 
-    if(fread(to, n, 1, fp)<0) {
-        log_debug("read error : %s", strerror(errno));
-        return CMM_ERR;
+    void *data = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
+    if (MAP_FAILED == (unsigned int*)data) {
+        log_fatal("Error: mmap\n");
+        asm_exit(-1);
     }
 
-    // FUXOR DEBUG
-    if(n==1240)
-        dump_buff(to, n);
-    // FUXOR DEBUG
-
-    if(bkp)
-        *bkp=cur;
-    return CMM_OK;
-}
-
-void *file_read_all(FILE *fp, int *n)
-{
-    off_t size = file_size(fp);
-    if(size<0)
-        log_fatal("No readable data in ELF file");
-
-    void *data = smalloc(size);
-    if(file_read(data,0,size-1,fp) != CMM_OK)
-        log_fatal("Could not read from ELF file");
-
-    if(n != NULL)
-        *n = size;
     return data;
 }
-
-_INLINE
-off_t file_get_pos(FILE *file)
-{
-    return file ? (off_t)ftello(file) : CMM_ERR;
-}
-
-_INLINE
-i16 file_set_pos(FILE *file, off_t offset)
-{
-    if( fseeko(file, offset, SEEK_SET)<0) {
-        perror("file_set_post:fseek");
-        return CMM_ERR;
-    }
-    return CMM_OK;
-}
-
 
 sbyte* get_binary_name(const sbyte* name)
 {
