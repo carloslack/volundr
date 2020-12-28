@@ -71,6 +71,7 @@ bool elf_print_elf(FILE *fout, const elf_t *elfo) {
     } else {
         log_info("symbols ok.");
     }
+
     return true;
 }
 
@@ -164,40 +165,28 @@ bool elf_print_programs(FILE* fout, const elf_t *elfo) // XXX : either programs
     return true;
 }
 
-elf_info_t *get_type(int type_nr) {
-    static elf_info_t type;
-    memset(&type, 0, sizeof(elf_info_t));
+static elf_info_t *get_type(int type_nr) {
     for (int i = 0; _type[i].i != -1; ++i) {
-        if (type_nr == _type[i].i) {
-            type = _type[i];
-            break;
-        }
+        if (type_nr == _type[i].i)
+            return &_type[i];
     }
-    return &type;
+    return NULL;
 }
 
-elf_info_t *get_info(int info_nr) {
-    static elf_info_t info;
-    memset(&info, 0, sizeof(elf_info_t));
-    for (int i = 0; _info[i].i != -1; ++i) {
+static elf_info_t *get_info(int info_nr) {
+    for (int i = 0; _info[i].i != -1; ++i)
         if (info_nr == _info[i].i) {
-            info = _info[i];
-            break;
-        }
+            return &_info[i];
     }
-    return &info;
+    return NULL;
 }
 
-elf_info_t *get_visibility(int visibility_nr) {
-    static elf_info_t visibility;
-    memset(&visibility, 0, sizeof(elf_info_t));
+static elf_info_t *get_visibility(int visibility_nr) {
     for (int i = 0; _visibility[i].i != -1; ++i) {
-        if (visibility_nr == _visibility[i].i) {
-            visibility = _visibility[i];
-            break;
-        }
+        if (visibility_nr == _visibility[i].i)
+            return &_visibility[i];
     }
-    return &visibility;
+    return NULL;
 }
 
 bool elf_print_sections(FILE *fout, const elf_t* elfo)
@@ -220,7 +209,7 @@ bool elf_print_sections(FILE *fout, const elf_t* elfo)
             shname = "NULL";
         fprintf(fout, "\n[Elf Section %s]\n", shname);
         fprintf(fout, "sh_name: 0x%x\n", shdrs[i]->sh_name);
-        fprintf(fout, "sh_type: 0x%x\n", shdrs[i]->sh_type);
+        fprintf(fout, "sh_type: %d\n", shdrs[i]->sh_type);
         fprintf(fout, "sh_flags: 0x%lx\n",shdrs[i]->sh_flags);
         fprintf(fout, "sh_addr: 0x%lx\n", shdrs[i]->sh_addr);
         fprintf(fout, "sh_offset: 0x%lx\n", shdrs[i]->sh_offset);
@@ -287,6 +276,10 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
         return false;
     }
 
+    //elf_shdr_t **sym_tables = elf_parse_all_symtabs(elfo);
+    //if(sym_tables == NULL)
+    //    return false;
+
     sbyte *symtab_name = elf_parse_shname(elfo, symtab);
     if(symtab_name == NULL) {
         symtab_name = "NULL";
@@ -302,25 +295,39 @@ bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)
     fprintf(fout, "%6s %10s %13s %7s %12s %4s %10s %s\n",
             "Num", "Val", "Size", "Type", "Bind", "Vis", "Shndx", "Name");
 
+    //sbyte *strtab =  elf_parse_shstrtab(elfo);
+    //if(strtab == NULL) {
+    //    log_error("Could not read strtab table");
+    //    return false;
+    //}
+
     sbyte *dynstr = elf_parse_dynstr(elfo);
     if(dynstr == NULL) {
         log_error("Could not read dynamic string table");
         return false;
     }
 
-    int i;
-    for(i=0; i<SENTNUM(symtab) && syms[i] != NULL; i++) {
+    for(int i=0; i<SENTNUM(symtab) && syms[i]; i++) {
         elf_sym_t *sym = syms[i];
+        elf_info_t *type = get_type(ST_TYPE(sym->st_info));
+        elf_info_t *info = get_info(ST_BIND(sym->st_info));
+        elf_info_t *vis = get_visibility(sym->st_other);
+
+#warning "FIXME"
+        char *sname = "\/\/FIXME";
+        if (!strcmp(symtab_name, ".dynsym"))
+            sname = SYMNAME(sym, dynstr);
+
         fprintf( fout
                 , "%6d: %016x %6ld %10s %10s %6s %6d %6s\n"
                 , i                        // Num
                 , sym->st_value            // Val
                 , sym->st_size             // Size
-                , get_type(ST_TYPE(sym->st_info))->name            // Info
-                , get_info(ST_BIND(sym->st_info))->name// ( Bind
-                , get_visibility(sym->st_other)->name            // Other
+                , type ? type->name : ""           // Info
+                , info ? info->name : ""// ( Bind
+                , vis ? vis->name   : ""            // Other
                 , sym->st_shndx            // Shdnx
-                , SYMNAME(sym, dynstr)     // Name  FIXME buggy on unstripped symbols
+                , sname     // Name  FIXME buggy on unstripped symbols
                );
     }
     return true;
