@@ -1,3 +1,13 @@
+/*
+ * Völundr 0.1 / volundr.c
+ *
+ * [Völundr] the ruler of the elves
+ *
+ * Author: hash
+ *
+ * Brief: Elf file reader / Elf file parasite( well, not just yet...)
+ */
+
 #ifndef _ELF_TYPES_H
 #define _ELF_TYPES_H
 
@@ -6,9 +16,9 @@
 #include <sys/stat.h>
 #include <stdio.h>
 
-#include "common.h" // XXX use relative path (change Makefile)
-#include "utils.h" // XXX use relative path (change Makefile)
-#include "log.h" // XXX use relative path (change Makefile)
+#include "common.h"
+#include "utils.h"
+#include "log.h"
 #ifdef _TYPES_DECLARE
 #define _TYPES_XTRN
 #else
