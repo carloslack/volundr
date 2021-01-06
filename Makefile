@@ -1,19 +1,17 @@
 CC=gcc
 SHLIBS=-lelfo -lcommon -lsyscalls -fPIC
-LDPATH=-L./vlibs/elf -L./vlibs/common -L./vlibs/asm
-CFLAGS=-O0 -g -ggdb -Wall -fPIC -DDEBUG $(LDPATH) -Ivlibs/common -Ivlibs/asm -Ivlibs/elf
+LIBDIR=./volundr
+LDPATH=-L./$(LIBDIR)/elf -L./$(LIBDIR)/common -L./$(LIBDIR)/asm
+CFLAGS=-O0 -g -ggdb -Wall -fPIC -DDEBUG $(LDPATH) -I$(LIBDIR)/common -I$(LIBDIR)/asm -I$(LIBDIR)/elf
 OUT=./example
 LIB=$(OUT)
-.PHONY: elf/libelfo.so volundr.o common/libcommon.so asm/syscalls.so
-
-#  gcc volundr.c -Lvlibs -lvolundr -I vlibs/elf -I vlibs/common/ -I vlibs/asm/
 
 all:
-	make -C vlibs
-	$(CC) example.c -Lvlibs -lvolundr -I vlibs/elf -I vlibs/common/ -I vlibs/asm/ -o $(OUT)
+	make -C $(LIBDIR)
+	$(CC) example.c -L$(LIBDIR) -lvolundr -I $(LIBDIR)/elf -I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ -o $(OUT)
 
 clean:
-	make -C vlibs clean
+	make -C $(LIBDIR) clean
 	@rm -f example
 
 
