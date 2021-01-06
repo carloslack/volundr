@@ -1,13 +1,13 @@
 #!/bin/bash
 
-if [[ ! -e volundr ]]
+if [[ ! -e example ]]
 then
     make
 fi
 
 ulimit -c unlimited
-export LD_LIBRARY_PATH=./vlibs/elf:./vlibs/common:./vlibs/asm
-#strace ./volundr $*;
-#valgrind ./volundr $*;
-#gdb ./volundr $*;
-./volundr $*;
+export LD_LIBRARY_PATH=vlibs/
+#strace ./example $*;
+#valgrind ./example $*;
+#gdb ./example $*;
+./example $*;
