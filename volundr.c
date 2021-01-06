@@ -18,44 +18,27 @@
 #include <string.h>
 #include <errno.h>
 
-#include "volundr.h"
-#include "elf/types.h"
-#include "elf/file.h"
-#include "elf/parse.h"
+#include "elfo.h"
+#include "file.h"
+#include "parse.h"
 #include "utils.h"
 #include "log.h"
 #include "map.h"
 #include "asm.h"
+#include "print.h"
+#include "validate.h"
+#include "destroy.h"
 
-/** local functions */
-static void usage(sbyte*);
-static void version(void);
+enum vflags {
+    V_ALL, V_HEADER = 1, V_PROGRAM = 2,
+    V_SECTION = 4, V_SYM = 8
+};
 
-// TODO: ifdef GNU
-
-elf_t *vol_open_file(const char *path, const char *mode)
+static bool _vol_print_file(FILE *felf, FILE *fout, enum vflags flags)
 {
-    ASSERT_ARG_RET_NULL(path && mode);
-    FILE *fp = asm_fopen(path, mode);
+    ASSERT_ARG_RET_FALSE(felf && fout);
 
-    if(fp == NULL) {
-        log_error("can't open file : %s : %s", path, strerror(errno));
-        return NULL;
-    }
-    return elf_parse_file(fp);
-}
-
-bool vol_print_file(const char *elf_file_path, FILE *fout)
-{
-    ASSERT_ARG_RET_FALSE(elf_file_path && fout);
-
-    // open elf file
-    FILE *felf = file_open_ro(elf_file_path);
-    if(felf == NULL) {
-        log_error("Could not read ELF file");
-        return false;
-    }
-
+    log_debug("whatever");
     // validate it
     if(!elf_validate_filetype(felf)) {
         log_warning("Not a valid ELF file");
@@ -64,8 +47,39 @@ bool vol_print_file(const char *elf_file_path, FILE *fout)
 
     // read, parse and print
     elf_t *elfo = elf_parse_file(felf);
-    (void) elf_print_elf(fout, elfo);
-    // TODO: elf_destroy_elf(elfo);
+    elf_set_my_elfo(elfo);
+
+
+    if (!flags || flags & V_HEADER) {
+        if(!elf_print_header(fout)) {
+            log_error("failed reading headers");
+            return false;
+        }
+    }
+
+    if (!flags || flags & V_PROGRAM) {
+        if(!elf_print_programs(fout)) {
+            log_error("failed reading programs");
+            return false;
+        }
+    }
+
+    if (!flags || flags & V_SECTION) {
+        if(!elf_print_sections(fout)) {
+            log_error("failed reading sections");
+            return false;
+        }
+    }
+
+    if (!flags || flags & V_SYM) {
+        elf_shdr_t **sym_tables = elf_parse_all_symtabs();
+        if (sym_tables) {
+            for(int i=0; sym_tables[i] != NULL; i++) {
+                elf_print_symtab(fout, sym_tables[i]);
+            }
+        }
+    }
+
 
     fclose(felf);
     return true;
@@ -93,11 +107,17 @@ bool vol_print_file(const char *elf_file_path, FILE *fout)
 /**
  * @brief Prints usage to standard output.
  */
-static void usage(sbyte* it)
+static void usage(char *prog)
 {
-    version();
-    printf( "Use %s [ARGS] <elf-file> \n"
-            "-f <output> \t : write output to file\n", it);
+    log_it( "Usage %s <OPTION>... \n"
+            "-f <elf file>      Input binary to be analysed\n"
+            "-o <output file>   Log output into file instead of stdout\n"
+            "-v                 Show program version\n"
+            "-t                 Show header\n"
+            "-p                 Show programs\n"
+            "-s                 Show sections\n"
+            "-y                 Show symbols\n"
+            "-h                 Show this help\n", prog);
 }
 
 /**
@@ -105,25 +125,18 @@ static void usage(sbyte* it)
  */
 static void version(void)
 {
-    printf("Völundr %s\n", VERSION);
+    log_it("Völundr %s\n", elf_get_version());
 }
 
 /** @} local */
 
 /**
- * @brief .ctors
- */
-static void __CONSTRUCTOR__ inVolundr() {
-    // Here we initialize data, behavior, environment, etc..
-    //log_debug("Initialization takes place");
-}
-
-/**
  * @brief .dtors
  */
-static void __DESTRUCTOR__ outVolundr() {
-    // Here we unitialize data, free memory, behavior, environment, etc...
-    //log_debug("Cleaning up");
+static void __attribute__((destructor))  outVolundr() {
+    elf_t *elfo = elf_get_my_elfo();
+    elf_destroy_program(elfo);
+    elf_destroy_section(elfo);
 }
 
 /**
@@ -131,62 +144,50 @@ static void __DESTRUCTOR__ outVolundr() {
  */
 int main(int argc, char** argv)
 {
-    int c, i;
-    char *fout_path = NULL;
-    FILE *fout;
+    int c, flags = V_ALL;
+    char *binfile = NULL, *output = NULL;
+    FILE *fout = stdout;
 
-    if(argc<2) {
+    while ((c = getopt(argc, argv, "f:o:tpcsyhv")) != -1) {
+        switch (c) {
+            case 'f':
+                binfile = optarg;
+                break;
+            case 'o':
+                output = optarg;
+                break;
+            case 't':
+                flags |= V_HEADER;
+                break;
+            case 'p':
+                flags |= V_PROGRAM;
+                break;
+            case 's':
+                flags |= V_SECTION;
+                break;
+            case 'y':
+                flags |= V_SYM;
+                break;
+            case 'h':
+                usage(argv[0]);
+                asm_exit(EXIT_SUCCESS);
+            case 'v':
+                version();
+                asm_exit(EXIT_SUCCESS);
+            default:
+                usage(argv[0]);
+                asm_exit(EXIT_SUCCESS);
+        }
+    }
+    if (!binfile) {
         usage(argv[0]);
         asm_exit(EXIT_FAILURE);
     }
 
-    while ((c = getopt(argc, argv, "f:hv")) != -1) {
-        switch (c) {
-            // output file
-            case 'f': {
-                          ASSERT_OPT_ONCE(fout_path == NULL);
-                          fout_path = optarg;
-                          break;
-                      }
-                      // version
-            case 'v': {
-                          version();
-                          return 0;
-                          break;
-                      }
-                      // help
-            case 'h': {
-                          usage(argv[0]);
-                          return 0;
-                      }
-                      // elf file
-            default: {
-                         asm_exit(EXIT_FAILURE);
-                         break;
-                     }
-        }
-    }
-    if(optind >= argc) {
-        log_error("You must provide an ELF image.");
-        asm_exit(EXIT_FAILURE);
-    }
-
-    // decide where to print output messages
-    if(fout_path == NULL) {
-        fout = stdout;
-    } else { // open output stream.
-        fout = file_open_ow(fout_path);
-        if(!fout) {
-            log_error("Error reading output file : %s\n", strerror(errno));
-            asm_exit(1);
-        }
-    }
-
-    // finally...
-    for(i=optind; i<argc; i++) {
-        printf("\nVolundr -> %s\n\n", argv[i]);
-        vol_print_file(argv[i], fout);
-    }
+    if (output != NULL)
+        fout = file_open_ow(output);
+    FILE *felf = file_open_ro(binfile);
+    _vol_print_file(felf, fout, flags);
 
     return 0;
 }

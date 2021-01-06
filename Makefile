@@ -1,42 +1,41 @@
 CC=gcc
-SHLIBS=-lelf -lcommon -lsyscalls -fPIC
-LDPATH=-L./elf -L./common -L./asm
-CFLAGS=-O0 -g -ggdb -Wall -fPIC -DDEBUG $(LDPATH) -Icommon -Iasm
+SHLIBS=-lelfo -lcommon -lsyscalls -fPIC
+LDPATH=-L./vlibs/elf -L./vlibs/common -L./vlibs/asm
+CFLAGS=-O0 -g -ggdb -Wall -fPIC -DDEBUG $(LDPATH) -Ivlibs/common -Ivlibs/asm -Ivlibs/elf
 OUT=./volundr
 OBJS=volundr.o
 LIB=$(OUT)
+.PHONY: elf/libelfo.so volundr.o common/libcommon.so asm/syscalls.so
 
-.PHONY: volundr.o common/libcommon.so elf/libelf.so asm/syscalls.so
-
-$(OUT): $(OBJS) common/libcommon.so elf/libelf.so asm/syscalls.so 
+$(OUT): $(OBJS) vlibs/common/libcommon.so vlibs/elf/libelfo.so vlibs/asm/syscalls.so
 	$(CC) -o $(OUT) $(OBJS) $(CFLAGS) $(SHLIBS)
 	@echo Done.
 
 volundr.o: volundr.c
-	make files
+	make devtags
 	$(CC) -c -o volundr.o volundr.c $(CFLAGS)
 	chmod +x run
 
-common/libcommon.so: common/common.h
-	cd common && make
+vlibs/common/libcommon.so:
+	make -C vlibs/common
 
-elf/libelf.so: elf/elf.h
-	cd elf && make
+vlibs/elf/libelfo.so:
+	make -C vlibs/elf
 
-asm/syscalls.so: asm/asm.h
-	cd asm && make
+vlibs/asm/syscalls.so:
+	make -C vlibs/asm
 
-files:
+devtags:
 	rm -rf TAGS tags
-	find . -iname "*.c" | ctags -a * 
+	find . -iname "*.c" | ctags -a *
 	find . -iname "*.h" | ctags -a *
-	ctags -R *
+	ctags -R .
 	tree -nif > FILES
 
 clean:
-	rm -rf $(OUT) $(OBJS) *.so;
-	rm -rf core* *~ *-ELF.txt elf/*~ common/*~ asm/*~ # XXX debug only
-	rm -rf FILES TAGS tags
-	cd common && make clean;
-	cd elf && make clean;
-	cd asm && make clean;
+	make -C vlibs/common clean
+	make -C vlibs/elf clean
+	make -C vlibs/asm clean
+	rm -f $(OUT) $(OBJS) *.so;
+	rm -f core* *~ *-ELF.txt vlibs/elf/*~ vlibs/common/*~ vlibs/asm/*~
+	rm -f FILES TAGS tags

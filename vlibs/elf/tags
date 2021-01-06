@@ -1,0 +1,168 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ADDR32	types.h	22;"	d
+ALIGNOFFSET	types.h	94;"	d
+ASBYTE	types.h	88;"	d
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-O0 -g -ggdb -Wall -DDEBUG -fPIC -I..\/common$/;"	m
+E_EM_386	e_names.h	21;"	d
+E_EM_68K	e_names.h	22;"	d
+E_EM_860	e_names.h	24;"	d
+E_EM_88K	e_names.h	23;"	d
+E_EM_M32	e_names.h	19;"	d
+E_EM_MIPS	e_names.h	25;"	d
+E_EM_MIPS_RS3_LE	e_names.h	26;"	d
+E_EM_NONE	e_names.h	18;"	d
+E_EM_SPARC	e_names.h	20;"	d
+E_ET_CORE	e_names.h	11;"	d
+E_ET_DYN	e_names.h	10;"	d
+E_ET_EXEC	e_names.h	9;"	d
+E_ET_HIOS	e_names.h	14;"	d
+E_ET_HIPROC	e_names.h	16;"	d
+E_ET_LOOS	e_names.h	13;"	d
+E_ET_LOPROC	e_names.h	15;"	d
+E_ET_NONE	e_names.h	7;"	d
+E_ET_NUM	e_names.h	12;"	d
+E_ET_REL	e_names.h	8;"	d
+E_PHENTSIZE	types.h	/^    E_PHENTSIZE,$/;"	e	enum:__anon1
+E_PHNUM	types.h	/^    E_PHNUM,$/;"	e	enum:__anon1
+E_PHOFF	types.h	/^    E_PHOFF,$/;"	e	enum:__anon1
+E_PT_DYNAMIC	e_names.h	30;"	d
+E_PT_GNU_EH_FRAME	e_names.h	38;"	d
+E_PT_GNU_RELRO	e_names.h	40;"	d
+E_PT_GNU_STACK	e_names.h	39;"	d
+E_PT_INTERP	e_names.h	31;"	d
+E_PT_LOAD	e_names.h	29;"	d
+E_PT_LOOS	e_names.h	37;"	d
+E_PT_NOTE	e_names.h	32;"	d
+E_PT_NULL	e_names.h	28;"	d
+E_PT_NUM	e_names.h	36;"	d
+E_PT_PAX_FLAGS	e_names.h	41;"	d
+E_PT_PHDR	e_names.h	34;"	d
+E_PT_SHLIB	e_names.h	33;"	d
+E_PT_TLS	e_names.h	35;"	d
+E_SHENTSIZE	types.h	/^    E_SHENTSIZE = 0,$/;"	e	enum:__anon1
+E_SHSTRNDX	types.h	/^    E_SHSTRNDX,$/;"	e	enum:__anon1
+HALF32	types.h	16;"	d
+INT	types.h	18;"	d
+LDPATH	Makefile	/^LDPATH=-L..\/common\/$/;"	m
+LIB	Makefile	/^LIB=lib$(PROJ).so$/;"	m
+NAME2STR	types.h	73;"	d
+OBJS	Makefile	/^OBJS=print.o validate.o write.o types.o e_names.o file.o parse.o destroy.o$/;"	m
+OFF32	types.h	24;"	d
+PHNUM	types.h	67;"	d
+PROJ	Makefile	/^PROJ=elf$/;"	m
+PT_PAX_FLAGS	types.h	29;"	d
+SBYTE	types.h	26;"	d
+SENTNUM	types.h	91;"	d
+SHNAME	types.h	76;"	d
+SHNUM	types.h	70;"	d
+SHSIZE	types.h	82;"	d
+SHSTRTAB	types.h	85;"	d
+ST_BIND	types.h	44;"	d
+ST_INFO	types.h	46;"	d
+ST_TYPE	types.h	45;"	d
+SYMNAME	types.h	79;"	d
+USEMAP	elf.h	15;"	d
+WORD32	types.h	20;"	d
+_ELF_H	elf.h	2;"	d
+_ELF_PARSE_H	parse.h	2;"	d
+_ELF_PRINT_H	print.h	2;"	d
+_ELF_TYPES_H	types.h	2;"	d
+_ELF_TYPES_OWNER	types.c	1;"	d	file:
+_ELF_VALIDATE_H	validate.h	2;"	d
+_ELF_WRITE_H	write.h	2;"	d
+_ENAMES_H	e_names.h	2;"	d
+_FILE_H	file.h	2;"	d
+_HASH_H	hash.h	2;"	d
+_TYPES_DECLARE	types.c	4;"	d	file:
+_TYPES_DECLARE	types.c	6;"	d	file:
+_TYPES_XTRN	types.h	11;"	d
+_TYPES_XTRN	types.h	13;"	d
+_elf	types.h	/^typedef struct _elf$/;"	s
+_info	types.c	/^elf_info_t _info[]={$/;"	v
+_type	types.c	/^elf_info_t _type[]={$/;"	v
+_visibility	types.c	/^elf_info_t _visibility[]={$/;"	v
+data	types.h	/^    unsigned char *data;$/;"	m	struct:_elf
+destroy_header	destroy.c	/^bool destroy_header(elf_t* elf) {$/;"	f
+destroy_program	destroy.c	/^bool destroy_program(elf_t* elf) {$/;"	f
+destroy_section	destroy.c	/^bool destroy_section(elf_t* elf) {$/;"	f
+e_header_machine	e_names.c	/^const sbyte* e_header_machine(i32 machine) {$/;"	f
+e_header_type	e_names.c	/^const sbyte* e_header_type(i32 type) {$/;"	f
+e_header_version	e_names.c	/^const sbyte* e_header_version(i32 version) {$/;"	f
+e_program_type	e_names.c	/^const sbyte* e_program_type(i32 type) {$/;"	f
+ehdr	types.h	/^    elf_ehdr_t *ehdr;$/;"	m	struct:_elf
+elf_addr_t	types.h	/^typedef Elf64_Addr      elf_addr_t;$/;"	t
+elf_dyn_t	types.h	/^typedef Elf64_Dyn       elf_dyn_t;$/;"	t
+elf_ehdr_t	types.h	/^typedef Elf64_Ehdr      elf_ehdr_t;$/;"	t
+elf_half_t	types.h	/^typedef Elf64_Half      elf_half_t;$/;"	t
+elf_hash	hash.c	/^unsigned long elf_hash(const unsigned char *name) {$/;"	f
+elf_info	types.h	/^typedef struct elf_info {$/;"	s
+elf_info_t	types.h	/^} elf_info_t;$/;"	t	typeref:struct:elf_info
+elf_off_t	types.h	/^typedef Elf64_Off       elf_off_t;$/;"	t
+elf_parse_all_strtabs	parse.c	/^elf_shdr_t **elf_parse_all_strtabs(const elf_t *elfo)$/;"	f
+elf_parse_all_syms	parse.c	/^elf_sym_t **elf_parse_all_syms(const elf_t *elfo, const elf_shdr_t *symtab)$/;"	f
+elf_parse_all_symtabs	parse.c	/^elf_shdr_t **elf_parse_all_symtabs(const elf_t *elfo)$/;"	f
+elf_parse_content	parse.c	/^elf_t *elf_parse_content(void *data, FILE* fp)$/;"	f
+elf_parse_dynstr	parse.c	/^sbyte* elf_parse_dynstr(const elf_t *elfo)$/;"	f
+elf_parse_ehdr	parse.c	/^elf_ehdr_t* elf_parse_ehdr(const elf_t *elfo)$/;"	f
+elf_parse_file	parse.c	/^elf_t* elf_parse_file(FILE *fp)$/;"	f
+elf_parse_phdrs	parse.c	/^elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)$/;"	f
+elf_parse_shdr_byname	parse.c	/^elf_shdr_t *elf_parse_shdr_byname(const elf_t *elfo, const sbyte *name)$/;"	f
+elf_parse_shdr_idx_byname	parse.c	/^elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const sbyte *name)$/;"	f
+elf_parse_shdrs	parse.c	/^elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)$/;"	f
+elf_parse_shdrs_bytype	parse.c	/^elf_shdr_t **elf_parse_shdrs_bytype( const elf_t *elfo$/;"	f
+elf_parse_shname	parse.c	/^sbyte *elf_parse_shname(const elf_t *elfo, const elf_shdr_t *shdr)$/;"	f
+elf_parse_shname_byindex	parse.c	/^sbyte *elf_parse_shname_byindex(const elf_t *elfo, elf_word_t shidx)$/;"	f
+elf_parse_shstrtab	parse.c	/^sbyte* elf_parse_shstrtab(const elf_t *elfo)$/;"	f
+elf_parse_strtab	parse.c	/^sbyte* elf_parse_strtab(const elf_t *elfo, const elf_shdr_t *strtab)$/;"	f
+elf_parse_strtab_byindex	parse.c	/^sbyte* elf_parse_strtab_byindex( const elf_t *elfo$/;"	f
+elf_parse_sym	parse.c	/^elf_sym_t *elf_parse_sym( const elf_t *elfo$/;"	f
+elf_phdr_t	types.h	/^typedef Elf64_Phdr      elf_phdr_t;$/;"	t
+elf_print_all_symtabs	print.c	/^bool elf_print_all_symtabs(FILE *fout, const elf_t *elfo)$/;"	f
+elf_print_elf	print.c	/^bool elf_print_elf(FILE *fout, const elf_t *elfo) {$/;"	f
+elf_print_header	print.c	/^bool elf_print_header(FILE* fout, const elf_t* elfo) {$/;"	f
+elf_print_programs	print.c	/^bool elf_print_programs(FILE* fout, const elf_t *elfo) \/\/ XXX : either programs$/;"	f
+elf_print_sections	print.c	/^bool elf_print_sections(FILE *fout, const elf_t* elfo)$/;"	f
+elf_print_shstrtab	print.c	/^bool elf_print_shstrtab(FILE *fout, const elf_t *elfo)$/;"	f
+elf_print_strtab	print.c	/^bool elf_print_strtab(FILE *fout, const elf_t *elfo)$/;"	f
+elf_print_symtab	print.c	/^bool elf_print_symtab(FILE *fout, const elf_t* elfo, const elf_shdr_t *symtab)$/;"	f
+elf_shdr_t	types.h	/^typedef Elf64_Shdr      elf_shdr_t;$/;"	t
+elf_sword_t	types.h	/^typedef Elf64_Sword     elf_sword_t;$/;"	t
+elf_sym_t	types.h	/^typedef Elf64_Sym       elf_sym_t;$/;"	t
+elf_t	types.h	/^} elf_t;$/;"	t	typeref:struct:_elf
+elf_validate_eheader	validate.c	/^bool elf_validate_eheader(const elf_ehdr_t* ehdr)$/;"	f
+elf_validate_filetype	validate.c	/^bool elf_validate_filetype(FILE *f)$/;"	f
+elf_validate_index	validate.c	/^bool elf_validate_index(const elf_t *elfo, elf_half_t index)$/;"	f
+elf_word_t	types.h	/^typedef Elf64_Word      elf_word_t;$/;"	t
+elf_write_stringname	write.c	/^void elf_write_stringname(FILE* fout, i32 index) {$/;"	f
+elf_write_strtab	write.c	/^void elf_write_strtab(i32 offset, i32 len, const sbyte* buf) {$/;"	f
+false	types.h	32;"	d
+fileInfo	file.c	/^static fileInfo_t fileInfo;$/;"	v	file:
+fileInfo_t	file.h	/^} fileInfo_t;$/;"	t	typeref:struct:__anon2
+fsize	types.h	/^    off_t fsize;$/;"	m	struct:_elf
+get_info	print.c	/^static elf_info_t *get_info(int info_nr) {$/;"	f	file:
+get_output_file_perm	file.c	/^fileInfo_t get_output_file_perm() {$/;"	f
+get_type	print.c	/^static elf_info_t *get_type(int type_nr) {$/;"	f	file:
+get_visibility	print.c	/^static elf_info_t *get_visibility(int visibility_nr) {$/;"	f	file:
+gid	file.h	/^    __gid_t gid;$/;"	m	struct:__anon2
+i	types.h	/^    i32 i;                       \/\/ TODO ??$/;"	m	struct:elf_info
+mapaddr	types.h	/^    void* mapaddr;$/;"	m	struct:_elf
+mode	file.h	/^    __mode_t mode;$/;"	m	struct:__anon2
+nADDR32	types.h	23;"	d
+nHALF32	types.h	17;"	d
+nINT	types.h	19;"	d
+nOFF32	types.h	25;"	d
+nWORD32	types.h	21;"	d
+name	types.h	/^    sbyte* name;                 \/\/ TODO ??$/;"	m	struct:elf_info
+phdrs	types.h	/^    elf_phdr_t **phdrs;$/;"	m	struct:_elf
+set_output_file_perm	file.c	/^void set_output_file_perm(const sbyte* filein) {$/;"	f
+shdrs	types.h	/^    elf_shdr_t **shdrs;$/;"	m	struct:_elf
+strTableEntry	write.c	/^sbyte* strTableEntry; \/\/ XXX ???$/;"	v
+strTableOffset	write.c	/^u32 strTableOffset; \/\/ XXX ???$/;"	v
+true	types.h	33;"	d
+uid	file.h	/^    __uid_t uid;$/;"	m	struct:__anon2
