@@ -53,4 +53,5 @@ char*   sstrdup             (const char*);
 
 void    dump_buff           (void *, u32);
 void    dump_buff_hex       (void *, u32);
+unsigned long hash_string(const unsigned char *);
 #endif
