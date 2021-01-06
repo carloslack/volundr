@@ -42,7 +42,7 @@ FN asm_fork
     syscall
     ret
 
-#   int asm_close      (int, int);
+#   int asm_close      (int);
 FN asm_close
     movl $SYS_close, %eax
     syscall

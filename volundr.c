@@ -19,7 +19,6 @@
 #include <errno.h>
 
 #include "elfo.h"
-#include "file.h"
 #include "parse.h"
 #include "utils.h"
 #include "log.h"
@@ -74,14 +73,11 @@ static bool _vol_print_file(FILE *felf, FILE *fout, enum vflags flags)
     if (!flags || flags & V_SYM) {
         elf_shdr_t **sym_tables = elf_parse_all_symtabs();
         if (sym_tables) {
-            for(int i=0; sym_tables[i] != NULL; i++) {
+            for(int i=0; sym_tables[i] != NULL; i++)
                 elf_print_symtab(fout, sym_tables[i]);
-            }
         }
     }
 
-
-    fclose(felf);
     return true;
 }
 
@@ -186,8 +182,12 @@ int main(int argc, char** argv)
 
     if (output != NULL)
         fout = file_open_ow(output);
+
     FILE *felf = file_open_ro(binfile);
-    _vol_print_file(felf, fout, flags);
+    if (felf) {
+        _vol_print_file(felf, fout, flags);
+        asm_close(fileno(felf));
+    }
 
     return 0;
 }
