@@ -1,21 +1,13 @@
 #!/bin/bash
 
-if [[ $# < 1 ]] 
-then
-    echo "usage: $0 <file>";
-    exit 1;
-fi
-
 if [[ ! -e volundr ]]
 then
     make
 fi
 
-echo ""
-echo "-------[ Volundr v0.1:"
-echo ""
-
 ulimit -c unlimited
-export LD_LIBRARY_PATH=./elf:./common:./asm
-#strace ./volundr $1;
-./volundr $1;
+export LD_LIBRARY_PATH=./vlibs/elf:./vlibs/common:./vlibs/asm
+#strace ./volundr $*;
+#valgrind ./volundr $*;
+#gdb ./volundr $*;
+./volundr $*;

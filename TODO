@@ -1,6 +1,8 @@
 
 (sorted by priority)
 
+- Turn shared libraries into proper API's
+- properly allocate data structures into elfo & free them
 - use config.h (to define ELF_*)
 - extend file memory mapping
 - replace all fread() (and friends) by memory mapping (mmap() and friends)
@@ -12,6 +14,7 @@
 - store section names in meta data structure (create elf_read_all_shnames)
 - make install / make evil_install
 - use doxygen
+- check nanming convention
 - support section types: HASH, GNU_HASH, VERSYM, VERNEED, REL, DYNAMIC
 - svn $Id$ + watermark
 - implement ELF_DONTUSE_META (?)
