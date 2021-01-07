@@ -34,6 +34,12 @@ do {                                                \
     }                                               \
 } while(0)
 
+/**
+ * This is a special case because we'll always want to print
+ * Shndx, it can be either a number or a string, e.g.: ABS or UND or <#n>
+ * in the same fashion as readelf.
+ * Note: Not thread-safe.
+ */
 static elf_info_t *get_index(int index_nr) {
     int index;
     ELF_DICT(&index, index, index_nr);
