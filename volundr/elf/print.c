@@ -15,11 +15,13 @@
  * This module is responsible for all user output messages.
  */
 
-#include "print.h"
+#include "common.h"
+#include "utils.h"
+#include "log.h"
 #include "elfo.h"
+#include "print.h"
 #include "write.h"
 #include "parse.h"
-#include "common.h"
 #include "log.h"
 #include "utils.h"
 

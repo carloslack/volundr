@@ -12,11 +12,13 @@
 
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
-#include "elfo.h"
-#include "parse.h"
+#include "common.h"
 #include "utils.h"
 #include "log.h"
+#include "elfo.h"
+#include "parse.h"
 #include "map.h"
 #include "asm.h"
 #include "print.h"
@@ -167,8 +169,10 @@ int main(int argc, char** argv)
     elf_t *elfo = elf_get_my_elfo();
 
     /* Do some cleanup */
-    elf_destroy_program(elfo);
-    elf_destroy_section(elfo);
+    assert(elf_destroy_header(elfo));
+    assert(elf_destroy_program(elfo));
+    assert(elf_destroy_section(elfo));
+    assert(elf_destroy_elfo(elfo));
 
     return 0;
 }

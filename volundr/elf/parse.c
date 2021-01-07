@@ -9,10 +9,13 @@
 #include <string.h>
 #include <errno.h>
 
+#include "common.h"
+#include "utils.h"
+#include "log.h"
+#include "elfo.h"
 #include "parse.h"
 #include "write.h"
 #include "validate.h"
-#include "utils.h"
 #include "log.h"
 #include "map.h"
 
@@ -165,12 +168,17 @@ static elf_shdr_t *_elf_parse_shdr_byname(const elf_t *elfo, const sbyte *name)
 elf_t *elf_parse_file(FILE *fp)
 {
     ASSERT_ARG_RET_NULL(fp);
-    void *data = file_read_all(fp);
+    elf_t *elfo;
+    struct mapped_file user_data;
+    elfo = smalloc(sizeof(elf_t));
+
+    bool rc = file_read_all(&user_data, fp);
+    ASSERT_ARG_RET_FALSE(rc);
 
     // create interface
-    elf_t *elfo;
-    elfo = smalloc(sizeof(elf_t));
-    elfo->data = (unsigned char*)data;
+    elfo->data = (unsigned char*)user_data.data;
+    elfo->fsize = user_data.st.st_size;
+    elfo->mapaddr = user_data.mapaddr;
 
     // read ELF headers
     elfo->ehdr  = _elf_parse_ehdr(elfo);

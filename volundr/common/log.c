@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "common.h"
+#include "utils.h"
 #include "log.h"
+#include "elfo.h"
 
 i32 _log_it(const char *f, int l, const sbyte* fmt, ...)
 {

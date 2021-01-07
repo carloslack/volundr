@@ -16,9 +16,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 
-#include "common.h"
-#include "utils.h"
-#include "log.h"
 #ifdef _TYPES_DECLARE
 #define _TYPES_XTRN
 #else
@@ -69,6 +66,36 @@ typedef Elf64_Sym       elf_sym_t;
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
 
+/*
+ * ELF Object ADT
+ * NOTE: All arrays of types are null terminated.
+ */
+typedef struct elf
+{
+    /* elf headers */
+    elf_sym_t **syms;
+    elf_ehdr_t *ehdr;
+    elf_phdr_t **phdrs;
+    elf_shdr_t **shdrs;
+    elf_shdr_t *dynstr;
+    elf_shdr_t *strtab;
+    elf_shdr_t *shstrtab;
+    /* ELF raw image */
+    unsigned char *data;
+    /* info for mapping */
+    void* mapaddr;
+    off_t fsize;
+} elf_t;
+
+/*
+ * ELF general information abstraction
+ */
+typedef struct elf_info {
+    i32 idx;
+    i32 i;                       // TODO ??
+    sbyte* name;                 // TODO ??
+} elf_info_t;
+
 
 /*
  * Some other handy macros
@@ -100,37 +127,6 @@ typedef Elf64_Dyn       elf_dyn_t;
 
 /* number of elements in section x, where x equals a pointer to elf_shdr_t */
 #define SENTNUM(x)      (((x)->sh_size)/((x)->sh_entsize))
-
-/*
- * ELF general information abstraction
- */
-typedef struct elf_info {
-    i32 idx;
-    i32 i;                       // TODO ??
-    sbyte* name;                 // TODO ??
-} elf_info_t;
-
-/*
- * ELF Object ADT
- * NOTE: All arrays of types are null terminated.
- */
-typedef struct _elf
-{
-    /* elf headers */
-    elf_sym_t **syms;
-    elf_ehdr_t *ehdr;
-    elf_phdr_t **phdrs;
-    elf_shdr_t **shdrs;
-    elf_shdr_t *dynstr;
-    elf_shdr_t *strtab;
-    elf_shdr_t *shstrtab;
-    /* ELF raw image */
-    unsigned char *data;
-    /* info for mapping */
-    void* mapaddr;
-    off_t fsize;
-
-} elf_t;
 
 /* Translate raw data to user message */
 extern elf_info_t   _section[];

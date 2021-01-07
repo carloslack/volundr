@@ -3,7 +3,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "common.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define FINFOUT 2
 #define MAXFOPEN 128
@@ -35,9 +37,15 @@
 #define file_open_ro(x) (file_open(x, "rb"))
 #define file_open_ow(x) (file_open(x, "w+"))
 
+struct mapped_file{
+    struct  stat    st;
+    void    *mapaddr;
+    void    *data;
+};
+
 off_t   file_size           (FILE*);
 FILE*   file_open           (const sbyte *, const sbyte *mode);
-void*   file_read_all       (FILE *);
+bool    file_read_all       (struct mapped_file *, FILE *);
 i16     file_read           (void*, off_t, off_t, FILE*);
 
 FILE*   open_output         (const sbyte *); // XXX rename to file_open_output?

@@ -4,7 +4,7 @@ PROJ=volundr
 
 CC=$(shell which gcc)
 AS=$(shell which as)
-CFLAGS=-O0 -g -ggdb -Wall -fPIC -I. -Icommon -Iasm
+CFLAGS=-O0 -g -ggdb -Wall -fPIC -I. -Icommon -Iasm -Ielf
 #LDPATH=-L./common/
 
 elf_SRCS=$(wildcard elf/*.c)
@@ -24,7 +24,7 @@ all:
 
 
 libs: $(elf_OBJS) $(common_OBJS)
-	$(CC) -shared -o $(LIB) $(elf_OBJS) $(common_OBJS) $(asm_OBJS) -fPIC
+	$(CC) -shared -o $(LIB) $(elf_OBJS) $(common_OBJS) $(asm_OBJS) $(CFLAGS)
 
 
 clean:
