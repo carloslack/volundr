@@ -42,7 +42,8 @@ static elf_info_t *get_index(int index_nr) {
 
     /* Not there - return same value */
     static elf_info_t rv;
-    char buf[32] = {0};
+    static char buf[32];
+    memset(buf, 0, sizeof(buf)); /* Let Valgrind know it is actually initialized */
     snprintf(buf, sizeof(buf), "%d", index_nr);
     rv.i = 0;
     rv.name = buf;
@@ -219,6 +220,7 @@ bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab)
 
     for(int i=0; i<SENTNUM(symtab) && syms[i]; i++) {
         int type,vis,bind;
+        ;
         elf_sym_t *sym = syms[i];
         elf_info_t *index = get_index(sym->st_shndx);
         ELF_DICT(&type, type, ST_TYPE(sym->st_info));
