@@ -81,7 +81,7 @@ typedef struct elf
     elf_shdr_t *strtab;
     elf_shdr_t *shstrtab;
     /* ELF raw image */
-    unsigned char *data;
+    //unsigned char *data;
     /* info for mapping */
     void* mapaddr;
     off_t fsize;

@@ -40,7 +40,6 @@
 struct mapped_file{
     struct  stat    st;
     void    *mapaddr;
-    void    *data;
 };
 
 off_t   file_size           (FILE*);

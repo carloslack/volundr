@@ -38,7 +38,7 @@
  *
  * Contract:
  * @note This function depends on populating elf_t's raw image element
- * (elf_t->data). Currently the only possibility is reading ELF from
+ * (elf_t->mapaddr). Currently the only possibility is reading ELF from
  * a disk file (by calling @ref elf_parse_file).
  * @see elf_parse_file
  *
@@ -47,8 +47,8 @@
 static elf_ehdr_t* _elf_parse_ehdr(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
-    ASSERT_CON_RET_NULL(elfo->data);
-    return (elf_ehdr_t*)elfo->data;
+    ASSERT_CON_RET_NULL(elfo->mapaddr);
+    return (elf_ehdr_t*)elfo->mapaddr;
 }
 
 /**
@@ -67,7 +67,7 @@ static elf_ehdr_t* _elf_parse_ehdr(const elf_t *elfo)
 static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
-    ASSERT_CON_RET_NULL(elfo->data && elfo->ehdr);
+    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
 
 #ifdef PARANOID_CHECK
     // check for inconsistency
@@ -81,7 +81,7 @@ static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
 #endif
     int i;
     elf_phdr_t **array = smalloc((PHNUM(elfo)+1) * sizeof(elf_phdr_t*));
-    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->data + elfo->ehdr->e_phoff);
+    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->mapaddr + elfo->ehdr->e_phoff);
 
     for(i=0; i<PHNUM(elfo); i++) { array[i] = ptr++; }
     array[i] = (elf_phdr_t*)0;
@@ -104,7 +104,7 @@ static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
 static elf_shdr_t** _elf_parse_shdrs(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
-    ASSERT_CON_RET_NULL(elfo->data && elfo->ehdr);
+    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
 
 #ifdef PARANOID_CHECK
     // check for inconsistency
@@ -118,7 +118,7 @@ static elf_shdr_t** _elf_parse_shdrs(const elf_t *elfo)
 #endif
     int i;
     elf_shdr_t **array = smalloc((SHNUM(elfo)+1) * sizeof(elf_shdr_t*));
-    elf_shdr_t *ptr = (elf_shdr_t*)(elfo->data + elfo->ehdr->e_shoff);
+    elf_shdr_t *ptr = (elf_shdr_t*)(elfo->mapaddr + elfo->ehdr->e_shoff);
 
     for(i=0; i<SHNUM(elfo); i++) { array[i] = ptr++; }
     array[i] = (elf_shdr_t*)0;
@@ -176,7 +176,6 @@ elf_t *elf_parse_file(FILE *fp)
     ASSERT_ARG_RET_FALSE(rc);
 
     // create interface
-    elfo->data = (unsigned char*)user_data.data;
     elfo->fsize = user_data.st.st_size;
     elfo->mapaddr = user_data.mapaddr;
 
@@ -360,7 +359,7 @@ elf_sym_t **elf_parse_all_syms(const elf_shdr_t *symtab)
     int i;
     for(i=0; i<SENTNUM(symtab); i++) {
         syms[i] = (elf_sym_t*)
-            (elfo->data + symtab->sh_offset + symtab->sh_entsize*i);
+            (elfo->mapaddr + symtab->sh_offset + symtab->sh_entsize*i);
     }
     syms[i] = (elf_sym_t*)0;
     return syms;
@@ -379,7 +378,7 @@ elf_sym_t *elf_parse_sym(const elf_shdr_t *symtab, elf_word_t index)
 {
     const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     ASSERT_ARG_RET_NULL(symtab);
-    ASSERT_CON_RET_NULL(elfo->data);
+    ASSERT_CON_RET_NULL(elfo->mapaddr);
 
     if(index >= SENTNUM(symtab))
         return NULL; // symbol not found
@@ -389,7 +388,7 @@ elf_sym_t *elf_parse_sym(const elf_shdr_t *symtab, elf_word_t index)
 #endif
 
     return (elf_sym_t*)
-        (elfo->data + symtab->sh_offset + symtab->sh_entsize*index);
+        (elfo->mapaddr + symtab->sh_offset + symtab->sh_entsize*index);
 }
 #endif
 /** @} */
@@ -463,7 +462,7 @@ sbyte* elf_parse_shstrtab(elf_sym_t **syms)
         return NULL;
     }
     elf_shdr_t *shstrtab = elfo->shdrs[elfo->ehdr->e_shstrndx];
-    return (char*)elfo->data + shstrtab->sh_offset;
+    return (char*)elfo->mapaddr + shstrtab->sh_offset;
 }
 
 /**
@@ -483,7 +482,7 @@ sbyte* elf_parse_section_by_name(const char *name)
         log_debug("%s not found!", name);
         return NULL;
     }
-    return (char*)elfo->data + sct->sh_offset;
+    return (char*)elfo->mapaddr + sct->sh_offset;
 }
 
 /** @} */
