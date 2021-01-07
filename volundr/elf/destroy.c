@@ -24,8 +24,7 @@ bool elf_destroy_header(elf_t *elf)
     bool ret = false;
     if(elf) {
         elf_t **e = &elf;
-        /** Ehdr here is just mapped memory
-         * whereas mapaddr == data
+        /** Ehdr here is just the pointer to mmap'ed memory
          */
         if (!map_fileunmap((*e)->mapaddr, (*e)->fsize))
             ret = true;

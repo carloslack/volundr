@@ -24,7 +24,7 @@
 
 FILE* file_open(const sbyte* filein, const sbyte *mode)
 {
-    FILE* fin = fopen(filein, mode);
+    FILE *fin = fopen(filein, mode);
     if(!fin) {
         log_error("error opening %s : %s", filein, strerror(errno));
         return NULL;
@@ -32,22 +32,20 @@ FILE* file_open(const sbyte* filein, const sbyte *mode)
     return fin;
 }
 
-#define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
 bool file_read_all(struct mapped_file *user_data, FILE *fp)
 {
     struct stat st;
-    void *data = NULL;
+    void *mapaddr = NULL;
 
     if (fstat(fileno(fp), &st) < 0) {
         log_fatal("Error: fstat\n");
         asm_exit(-1);
     }
 
-     map_filemap(NULL, st.st_size, fileno(fp), &data);
+     map_filemap(NULL, st.st_size, fileno(fp), &mapaddr);
 
      user_data->st = st;
-     user_data->mapaddr = data;
-     user_data->data = data;
+     user_data->mapaddr = mapaddr;
 
     return true;
 }
@@ -73,7 +71,7 @@ sbyte* get_binary_name(const sbyte* name)
 sbyte *get_output_name(const sbyte* base, const sbyte* radix)
 {
     char *new_name = NULL;
-    if(base != NULL)
+    if(NULL != base)
     {
         sbyte* biname = get_binary_name(base);
         new_name = malloc(strlen(biname)+strlen(radix)+1);
@@ -86,7 +84,7 @@ sbyte *get_output_name(const sbyte* base, const sbyte* radix)
 void *smalloc(size_t size)
 {
     void *p = malloc(size);
-    if(p == NULL) {
+    if(NULL == p) {
         perror("malloc");
         abort();
     }
@@ -96,7 +94,7 @@ void *smalloc(size_t size)
 void *scalloc(size_t size, size_t n)
 {
     void *p = calloc(size,n);
-    if(p == NULL) {
+    if(NULL == p) {
         perror("calloc");
         abort();
     }
@@ -114,7 +112,7 @@ void sfree(void **ptr)
 void *srealloc(void *ptr, size_t size)
 {
     void *tmp = realloc(ptr, size);
-    if(tmp == NULL && size)
+    if(NULL == tmp && size)
         log_fatal("realloc failed");
     return tmp;
 }
@@ -122,7 +120,7 @@ void *srealloc(void *ptr, size_t size)
 char *sstrdup(const char *str)
 {
     char *p = strdup(str);
-    if(p==NULL)
+    if(NULL == p)
         log_fatal("strdup failed"); // noreturn
     return p;
 }
