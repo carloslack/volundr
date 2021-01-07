@@ -293,25 +293,25 @@ sbyte *elf_parse_shname(const elf_shdr_t *shdr)
  */
 elf_shdr_t **elf_parse_shdrs_bytype(elf_word_t *types, u32 ntypes)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
+    elf_t *elfo = elf_get_my_elfo();
     ASSERT_ARG_RET_NULL(types);
     ASSERT_CON_RET_NULL(elfo->shdrs);
 
     // rather spend some extra space than calling realloc several times.
-    elf_shdr_t **sections = smalloc(SHNUM(elfo)*sizeof(elf_shdr_t*));
+    elfo->symtab = smalloc(SHNUM(elfo)*sizeof(elf_shdr_t*));
 
     int i,j,cnt = 0;
     for(i=0; i<elfo->ehdr->e_shnum && elfo->shdrs[i]; i++) {
         for(j=0; j<ntypes; j++) {
             if(elfo->shdrs[i]->sh_type == types[j]) {
-                sections[cnt++] = elfo->shdrs[i];
+                elfo->symtab[cnt++] = elfo->shdrs[i];
                 break;
             }
         }
     }
-    sections[cnt] = NULL;
-    sections = srealloc(sections, (cnt+1)*sizeof(elf_shdr_t));
-    return sections;
+    elfo->symtab[cnt] = NULL;
+    elfo->symtab = srealloc(elfo->symtab, (cnt+1)*sizeof(elf_shdr_t));
+    return elfo->symtab;
 }
 
 /** @} */

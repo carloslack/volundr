@@ -169,10 +169,15 @@ int main(int argc, char** argv)
     elf_t *elfo = elf_get_my_elfo();
 
     /* Do some cleanup */
+    elf_destroy_symtab(elfo);
     assert(elf_destroy_header(elfo));
     assert(elf_destroy_program(elfo));
     assert(elf_destroy_section(elfo));
     assert(elf_destroy_elfo(elfo));
+
+    if (fout != stdout)
+        file_close(fout);
+    file_close(felf);
 
     return 0;
 }

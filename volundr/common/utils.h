@@ -36,6 +36,7 @@
 #define file_open_rw(x) (file_open(x, "a+"))
 #define file_open_ro(x) (file_open(x, "rb"))
 #define file_open_ow(x) (file_open(x, "w+"))
+#define file_close(x) (fclose(x))
 
 struct mapped_file{
     struct  stat    st;

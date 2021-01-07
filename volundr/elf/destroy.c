@@ -56,6 +56,15 @@ bool elf_destroy_section(elf_t *elf)
     return ret;
 }
 
+bool elf_destroy_symtab(elf_t *elf) {
+    bool ret = false;
+    if(elf) {
+        free(elf->symtab);
+        ret = true;
+    }
+    return ret;
+}
+
 bool elf_destroy_elfo(elf_t *elf)
 {
     bool ret = false;

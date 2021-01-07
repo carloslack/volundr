@@ -80,6 +80,8 @@ typedef struct elf
     elf_shdr_t *dynstr;
     elf_shdr_t *strtab;
     elf_shdr_t *shstrtab;
+
+    elf_shdr_t **symtab;
     /* ELF raw image */
     //unsigned char *data;
     /* info for mapping */
