@@ -15,11 +15,13 @@
  * This module is responsible for all user output messages.
  */
 
-#include "print.h"
+#include "common.h"
+#include "utils.h"
+#include "log.h"
 #include "elfo.h"
+#include "print.h"
 #include "write.h"
 #include "parse.h"
-#include "common.h"
 #include "log.h"
 #include "utils.h"
 
@@ -34,6 +36,12 @@ do {                                                \
     }                                               \
 } while(0)
 
+/**
+ * This is a special case because we'll always want to print
+ * Shndx, it can be either a number or a string, e.g.: ABS or UND or <#n>
+ * in the same fashion as readelf.
+ * Note: Not thread-safe.
+ */
 static elf_info_t *get_index(int index_nr) {
     int index;
     ELF_DICT(&index, index, index_nr);
@@ -42,7 +50,8 @@ static elf_info_t *get_index(int index_nr) {
 
     /* Not there - return same value */
     static elf_info_t rv;
-    char buf[32] = {0};
+    static char buf[32];
+    memset(buf, 0, sizeof(buf)); /* Let Valgrind know it is actually initialized */
     snprintf(buf, sizeof(buf), "%d", index_nr);
     rv.i = 0;
     rv.name = buf;
@@ -219,6 +228,7 @@ bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab)
 
     for(int i=0; i<SENTNUM(symtab) && syms[i]; i++) {
         int type,vis,bind;
+        ;
         elf_sym_t *sym = syms[i];
         elf_info_t *index = get_index(sym->st_shndx);
         ELF_DICT(&type, type, ST_TYPE(sym->st_info));

@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common.h"
 
 // TODO: add __PRETTY_FUNCTION__ to output
 

@@ -21,6 +21,7 @@
 .equ SYS_close,     3
 .equ SYS_mmap,      9
 .equ SYS_mprotect,  10
+.equ SYS_munmap,    11
 .equ SYS_fork,      57
 .equ SYS_exit,      60
 .equ SYS_kill,      62
@@ -52,6 +53,12 @@ FN asm_close
 FN asm_mmap
     movl $SYS_mmap, %eax
     mov %rcx, %r10                      # copy %rcx to %r10 - rcx is userlevel, %r10 kernel
+    syscall
+    ret
+
+#   int asm_munmap(void *, size_t);
+FN asm_munmap
+    movl $SYS_munmap, %eax
     syscall
     ret
 

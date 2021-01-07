@@ -15,9 +15,10 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+#include "common.h"
 #include "utils.h"
 #include "log.h"
-#include "common.h"
+#include "elfo.h"
 #include "asm.h"
 #include "map.h"
 
@@ -32,7 +33,7 @@ FILE* file_open(const sbyte* filein, const sbyte *mode)
 }
 
 #define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
-void *file_read_all(FILE *fp)
+bool file_read_all(struct mapped_file *user_data, FILE *fp)
 {
     struct stat st;
     void *data = NULL;
@@ -42,8 +43,13 @@ void *file_read_all(FILE *fp)
         asm_exit(-1);
     }
 
-    map_filemap(NULL, st.st_size, fileno(fp), &data);
-    return data;
+     map_filemap(NULL, st.st_size, fileno(fp), &data);
+
+     user_data->st = st;
+     user_data->mapaddr = data;
+     user_data->data = data;
+
+    return true;
 }
 
 sbyte* get_binary_name(const sbyte* name)

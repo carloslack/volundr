@@ -1,27 +1,24 @@
-/*
- * Völundr 0.1 / volundr.c
- *
- * [Völundr] the ruler of the elves
- *
- * Author: hash
- *
- * Brief: Elf file reader / Elf file parasite( well, not yet...)
- */
-
 /**
- * @defgroup volundr Volundr
+ *  example.c
+ *  Example code that shows the use of
+ *  volundr library
+ *  - hash
  *
- *     @file volundr.c
- *    @brief The evil parasite.
+ *  Compile:
+ *      make
+ *  Run
+ *      ./run -h
  */
 
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
-#include "elfo.h"
-#include "parse.h"
+#include "common.h"
 #include "utils.h"
 #include "log.h"
+#include "elfo.h"
+#include "parse.h"
 #include "map.h"
 #include "asm.h"
 #include "print.h"
@@ -32,73 +29,6 @@ enum vflags {
     V_ALL, V_HEADER = 1, V_PROGRAM = 2,
     V_SECTION = 4, V_SYM = 8
 };
-
-static bool _vol_print_file(FILE *felf, FILE *fout, enum vflags flags)
-{
-    ASSERT_ARG_RET_FALSE(felf && fout);
-
-    log_debug("whatever");
-    // validate it
-    if(!elf_validate_filetype(felf)) {
-        log_warning("Not a valid ELF file");
-        return false;
-    }
-
-    // read, parse and print
-    elf_t *elfo = elf_parse_file(felf);
-    elf_set_my_elfo(elfo);
-
-
-    if (!flags || flags & V_HEADER) {
-        if(!elf_print_header(fout)) {
-            log_error("failed reading headers");
-            return false;
-        }
-    }
-
-    if (!flags || flags & V_PROGRAM) {
-        if(!elf_print_programs(fout)) {
-            log_error("failed reading programs");
-            return false;
-        }
-    }
-
-    if (!flags || flags & V_SECTION) {
-        if(!elf_print_sections(fout)) {
-            log_error("failed reading sections");
-            return false;
-        }
-    }
-
-    if (!flags || flags & V_SYM) {
-        elf_shdr_t **sym_tables = elf_parse_all_symtabs();
-        if (sym_tables) {
-            for(int i=0; sym_tables[i] != NULL; i++)
-                elf_print_symtab(fout, sym_tables[i]);
-        }
-    }
-
-    return true;
-}
-
-/**
- * Main program
- *
- * @defgroup main Main
- * @ingroup volundr
- * @addtogroup
- * @{
- */
-
-/**
- * @defgroup local Local
- * @ingroup main
- *
- * Local functions.
- *
- * @addtogroup
- * @{
- */
 
 /**
  * @brief Prints usage to standard output.
@@ -123,16 +53,59 @@ static void version(void)
 {
     log_it("Völundr %s\n", elf_get_version());
 }
-
-/** @} local */
-
 /**
- * @brief .dtors
+ * @brief parse and print elf header, program, sections and symbols
  */
-static void __attribute__((destructor))  outVolundr() {
-    elf_t *elfo = elf_get_my_elfo();
-    elf_destroy_program(elfo);
-    elf_destroy_section(elfo);
+static bool dump_elf_data(FILE *felf, FILE *fout, enum vflags flags)
+{
+    ASSERT_ARG_RET_FALSE(felf && fout);
+
+    log_debug("whatever");
+    // validate it
+    if(!elf_validate_filetype(felf)) {
+        log_warning("Not a valid ELF file");
+        return false;
+    }
+
+    /* Load the file in the hope it is an ELF */
+    elf_t *elfo = elf_parse_file(felf);
+    elf_set_my_elfo(elfo);
+
+
+    /* Display ELF Header */
+    if (!flags || flags & V_HEADER) {
+        if(!elf_print_header(fout)) {
+            log_error("failed reading headers");
+            return false;
+        }
+    }
+
+    /* Display programs section */
+    if (!flags || flags & V_PROGRAM) {
+        if(!elf_print_programs(fout)) {
+            log_error("failed reading programs");
+            return false;
+        }
+    }
+
+    /* Display ELF sections */
+    if (!flags || flags & V_SECTION) {
+        if(!elf_print_sections(fout)) {
+            log_error("failed reading sections");
+            return false;
+        }
+    }
+
+    /* Display symbols */
+    if (!flags || flags & V_SYM) {
+        elf_shdr_t **sym_tables = elf_parse_all_symtabs();
+        if (sym_tables) {
+            for(int i=0; sym_tables[i] != NULL; i++)
+                elf_print_symtab(fout, sym_tables[i]);
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -185,9 +158,21 @@ int main(int argc, char** argv)
 
     FILE *felf = file_open_ro(binfile);
     if (felf) {
-        _vol_print_file(felf, fout, flags);
+        /* Go! */
+        dump_elf_data(felf, fout, flags);
+
+        /* volundr implements some x64 syscalls */
         asm_close(fileno(felf));
     }
+
+    /* Get the main elf object */
+    elf_t *elfo = elf_get_my_elfo();
+
+    /* Do some cleanup */
+    assert(elf_destroy_header(elfo));
+    assert(elf_destroy_program(elfo));
+    assert(elf_destroy_section(elfo));
+    assert(elf_destroy_elfo(elfo));
 
     return 0;
 }

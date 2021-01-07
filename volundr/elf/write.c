@@ -1,3 +1,7 @@
+#include "common.h"
+#include "utils.h"
+#include "log.h"
+#include "elfo.h"
 #include "write.h"
 #include "log.h"
 

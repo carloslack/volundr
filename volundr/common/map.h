@@ -8,10 +8,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include "utils.h"
-#include "log.h"
-#include "../elf/elfo.h"
-
 /**
  *    @file  map.h
  *   @brief  provides mechanisms to create an ELF image on memory (definition module).

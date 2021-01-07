@@ -6,6 +6,10 @@
  *   TODO: testings
  *
  */
+#include "common.h"
+#include "utils.h"
+#include "log.h"
+#include "elfo.h"
 #include "map.h"
 #include "asm.h"
 /* x = offset to be aligned for mmap pages */
@@ -132,7 +136,7 @@ i32 map_fileunmap(void* mapaddr, off_t size) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
-        if((ret = munmap(mapaddr, size)) == -1) {
+        if((ret = asm_munmap(mapaddr, size)) == -1) {
             log_error("munmap: %s", strerror(errno));
         } else {
             log_debug("file unmaped from %p", mapaddr);

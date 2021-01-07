@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <elf.h>
 #define _TYPES_DECLARE
+#include "common.h"
+#include "utils.h"
+#include "log.h"
 #include "elfo.h"
 #undef _TYPES_DECLARE
 

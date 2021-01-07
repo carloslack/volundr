@@ -8,8 +8,6 @@
  */
 
 #include <stdio.h>
-#include "elfo.h"
-#include "destroy.h"
 
 /*
  * Interfaces

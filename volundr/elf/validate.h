@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <elf.h>
-#include "elfo.h"
 
 bool elf_validate_eheader(const elf_ehdr_t*);
 bool elf_validate_filetype(FILE *); 

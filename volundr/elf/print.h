@@ -3,7 +3,6 @@
 
 #include <elf.h>
 #include <stdio.h>
-#include "elfo.h"
 
 bool elf_print_header(FILE *);
 bool elf_print_programs(FILE *);

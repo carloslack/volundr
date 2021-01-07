@@ -27,5 +27,6 @@ int asm_write       (int fd, const void* buf, size_t count);
 FILE *asm_fopen     (const char *path, const char *mode);
 void *asm_mmap      (void *addr, size_t length, int prot,
         int fd, int flags, off_t offset);
+int asm_munmap(void *addr, size_t length);
 int asm_mprotect(void *addr, size_t len, int prot);
 
