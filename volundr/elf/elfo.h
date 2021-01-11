@@ -8,12 +8,18 @@
  * Brief: Elf file reader / Elf file parasite( well, not just yet...)
  */
 
+/**
+ *    @file  elfo.h
+ *   @brief  Main volundr data
+ */
+
 #ifndef _ELF_TYPES_H
 #define _ELF_TYPES_H
 
 #include <elf.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <linux/limits.h>
 #include <stdio.h>
 
 #ifdef _TYPES_DECLARE
@@ -36,23 +42,16 @@
 #define true    1
 #define ELF_SUCCESS 0
 #define ELF_FAILURE -1
-#define ELFDEF -1  /* See types.c */
-
-enum {
-    E_SHENTSIZE = 0,
-    E_SHSTRNDX,
-    E_PHOFF,
-    E_PHENTSIZE,
-    E_PHNUM,
-};
+/*! @see types.c */
+#define ELFDEF -1
 
 static const char *__volundr_ver__="0.1";
 
-/* Architecture independet macros */
 #define ST_BIND(i)      (ELF64_ST_BIND(i))
 #define ST_TYPE(i)      (ELF64_ST_TYPE(i))
 #define ST_INFO(b,t)    (ELF64_ST_INFO(b,t))
 
+/*! @see /usr/include/elf.h (depending on your system) */
 typedef Elf64_Addr      elf_addr_t;
 typedef Elf64_Half      elf_half_t;
 typedef Elf64_Off       elf_off_t;
@@ -66,36 +65,55 @@ typedef Elf64_Sym       elf_sym_t;
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
 
-/*
- * ELF Object ADT
- * NOTE: All arrays of types are null terminated.
+/**
+ *  @brief ELF Object ADT - This is the main volundr structure
+ *      It keeps the references for ELF headers,
+ *      ELF image from the disk and useful variables.
+ * @note All arrays of types are null terminated.
+ *
  */
 typedef struct elf
 {
-    /* elf headers */
-    elf_sym_t **syms;
-    elf_ehdr_t *ehdr;
-    elf_phdr_t **phdrs;
-    elf_shdr_t **shdrs;
-    elf_shdr_t *dynstr;
-    elf_shdr_t *strtab;
-    elf_shdr_t *shstrtab;
-
-    elf_shdr_t **symtab;
-    /* ELF raw image */
-    //unsigned char *data;
-    /* info for mapping */
-    void* mapaddr;
-    off_t fsize;
+    /**
+     * @name Symbols
+     */
+    /*@{*/
+    elf_shdr_t  **sht_symtab;       /**< .dynsym (global symbols) reference to symbol table from the section header */
+    elf_shdr_t  **sht_dynsym;       /**< .dynsym (global symbols) reference to dynamic symbol table from the section header */
+    elf_sym_t   **syms_symtab;      /**< .symtab reference to symbol table from the section header */
+    elf_sym_t   **syms_dynsym;      /**< .symtab reference to dynamic symbol table from the section header */
+    /*@}*/
+    /**
+     * @name ELF Headers and Sections
+     */
+    /*@{*/
+    elf_ehdr_t  *ehdr;              /**< ELF file header */
+    elf_phdr_t  **phdrs;            /**< Program Segment Header */
+    elf_shdr_t  **shdrs;            /**< Section Header */
+    elf_shdr_t  *dynstr;            /**< .dynstr string table for dynamic linking */
+    elf_shdr_t  *strtab;            /**< .strtab string table for names associated with symbol table entries */
+    elf_shdr_t  *shstrtab;          /**< Section Names */
+    elf_shdr_t  **symtab;           /**< Symbol Table */
+    /*@}*/
+    /**
+     * @name ELF raw file
+     */
+    /*@{*/
+    void*       mapaddr;            /**< ELF raw image from the disk, loaded with asm_mmap() */
+    off_t       fsize;              /**< ELF total file size in disk. Also: (ehdr->e_shoff + ehdr->e_shnum) * sizeof(elf_shdr_t)) */
+    char filename[PATH_MAX];
+    /*@}*/
 } elf_t;
 
-/*
- * ELF general information abstraction
+/**
+ *  @brief Helper structure for parsing and
+ *  user output about ELF image
+ *
  */
 typedef struct elf_info {
-    i32 idx;
-    i32 i;                       // TODO ??
-    sbyte* name;                 // TODO ??
+    i32 idx;                        /**< Index used in for/while loops */
+    i32 i;                          /**< ELF code */
+    sbyte* name;                    /**< Text representing the code */
 } elf_info_t;
 
 
@@ -130,7 +148,9 @@ typedef struct elf_info {
 /* number of elements in section x, where x equals a pointer to elf_shdr_t */
 #define SENTNUM(x)      (((x)->sh_size)/((x)->sh_entsize))
 
-/* Translate raw data to user message */
+/*! Translate raw data to user message @see types.c
+ * @see types.c
+ */
 extern elf_info_t   _section[];
 extern elf_info_t   _header[];
 extern elf_info_t   _program[];
@@ -140,8 +160,16 @@ extern elf_info_t   _visibility[];
 extern elf_info_t   _index[];
 extern elf_info_t   _machine[];
 extern elf_info_t   _version[];
+extern elf_info_t   _osabi[];
+extern elf_info_t   _endianness[];
+extern elf_info_t   _file_class[];
 
+/**< opaque elfo */
 elf_t *_elfo;
+
+/*
+ * helper that returns elfo object
+ * */
 static inline elf_t *elf_set_my_elfo(elf_t *elfo) {
     ASSERT_ARG_RET_NULL(elfo);
     static bool is_set;

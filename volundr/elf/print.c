@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 /**
  * @defgroup print Print
@@ -37,10 +38,11 @@ do {                                                \
 } while(0)
 
 /**
+ * @brief
  * This is a special case because we'll always want to print
- * Shndx, it can be either a number or a string, e.g.: ABS or UND or <#n>
+ * Shndx, it can be either a number or a string, e.g.: Either ABS, UND or <#n>
  * in the same fashion as readelf.
- * Note: Not thread-safe.
+ * @Note: Not thread-safe.
  */
 static elf_info_t *get_index(int index_nr) {
     int index;
@@ -51,11 +53,20 @@ static elf_info_t *get_index(int index_nr) {
     /* Not there - return same value */
     static elf_info_t rv;
     static char buf[32];
-    memset(buf, 0, sizeof(buf)); /* Let Valgrind know it is actually initialized */
+    memset(buf, 0, sizeof(buf)); /* Let Valgrind know this is indeed initialized */
     snprintf(buf, sizeof(buf), "%d", index_nr);
     rv.i = 0;
     rv.name = buf;
     return &rv;
+}
+
+static void inline _elf_print_fname(FILE *fout, elf_t *elfo) {
+    static bool p = false;
+    if (!p) {
+        logf_it( fout, "-= Volundr reading from %s of %lu bytes =-\n",
+                elfo->filename, elfo->fsize);
+        p = true;
+    }
 }
 
 bool elf_print_header(FILE* fout) {
@@ -64,62 +75,39 @@ bool elf_print_header(FILE* fout) {
         return false;
     }
 
-    const elf_ehdr_t *ehdr = elf_get_my_elfo()->ehdr;
+    elf_t *elfo = elf_get_my_elfo();
+    const elf_ehdr_t *ehdr = elfo->ehdr;
     int index;
 
-    logf_it( fout, "**** ELF HEADER FILE : [%lu bytes] ****\n"
-            , ehdr->e_shoff + ehdr->e_shnum * sizeof(elf_shdr_t));
-
-    logf_it(fout, "[Elf Header]\n");
-
-    logf_it(fout, "e_ident[EI_MAG0]: %02x\n", ehdr->e_ident[EI_MAG0]);
-    logf_it(fout, "e_ident[EI_MAG1]: %c\n", ehdr->e_ident[EI_MAG1]);
-    logf_it(fout, "e_ident[EI_MAG2]: %c\n", ehdr->e_ident[EI_MAG2]);
-    logf_it(fout, "e_ident[EI_MAG3]: %c\n", ehdr->e_ident[EI_MAG3]);
-    logf_it(fout, "e_ident[EI_CLASS]: %d ", ehdr->e_ident[EI_CLASS]);
-
-    if (ehdr->e_ident[EI_CLASS] == ELFCLASSNONE)
-        logf_it(fout, "Invalid class\n");
-    else if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
-        logf_it(fout, "32-Bit object\n");
-    else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
-        logf_it(fout, "64-Bit object\n");
-    else
-        logf_it(fout, "Class unknown\n");
-
-    logf_it(fout, "e_ident[EI_DATA]: %d ", ehdr->e_ident[EI_DATA]);
-
-    if (ehdr->e_ident[EI_DATA] == ELFDATANONE)
-        logf_it(fout,"Invalid data encoding\n");
-    else if (ehdr->e_ident[EI_DATA] == ELFDATA2LSB)
-        logf_it(fout, "LSB\n");
-    else if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
-        logf_it(fout, "MSB\n");
-    else
-        logf_it(fout, "Unknown - %d\n", ehdr->e_ident[EI_DATA]);
-
-    logf_it(fout, "e_ident[EI_VERSION]: %d\n", ehdr->e_ident[EI_VERSION]);
-    logf_it(fout, "e_ident[EI_PAD]: %d\n", ehdr->e_ident[EI_PAD]);
-
-    ELF_DICT(&index, header, ehdr->e_type);
-    logf_it(fout, "e_type: 0x%x %s\n", ehdr->e_type, _header[index].name);
-
-    ELF_DICT(&index, machine, ehdr->e_machine);
-    logf_it(fout, "e_machine: 0x%x %s\n", ehdr->e_machine, _machine[index].name);
-
+    _elf_print_fname(fout, elfo);
+    logf_it(fout, "Elf Header:\n");
+    logf_it(fout, "Magic:                               %x %c%c%c\n", ehdr->e_ident[EI_MAG0],
+            ehdr->e_ident[EI_MAG1], ehdr->e_ident[EI_MAG2], ehdr->e_ident[EI_MAG3]);
+    ELF_DICT(&index, file_class, ehdr->e_ident[EI_CLASS]);
+    logf_it(fout, "Class:                               %s\n", _file_class[index].name);
+    ELF_DICT(&index, endianness, ehdr->e_ident[EI_DATA]);
+    logf_it(fout, "Data:                                %s\n", _endianness[index].name);
     ELF_DICT(&index, version, ehdr->e_version);
-    logf_it(fout, "e_version: 0x%x %s\n", ehdr->e_version, _version[index].name);
-
-    logf_it(fout, "e_entry: 0x%lx\n", ehdr->e_entry);
-    logf_it(fout, "e_phoff: 0x%lx\n", ehdr->e_phoff);
-    logf_it(fout, "e_shoff: 0x%lx\n", ehdr->e_shoff);
-    logf_it(fout, "e_flags: 0x%x\n", ehdr->e_flags);
-    logf_it(fout, "e_ehsize: %d\n", ehdr->e_ehsize);
-    logf_it(fout, "e_phentsize: %d\n", ehdr->e_phentsize);
-    logf_it(fout, "e_phnum: %d\n", ehdr->e_phnum);
-    logf_it(fout, "e_shentsize: %d\n", ehdr->e_shentsize);
-    logf_it(fout, "e_shnum: %d\n", ehdr->e_shnum);
-    logf_it(fout, "e_shstrndx: 0x%x\n", ehdr->e_shstrndx);
+    logf_it(fout, "Version:                             %d %s\n", ehdr->e_ident[EI_VERSION],
+            _version[index].name);
+    ELF_DICT(&index, osabi, ehdr->e_ident[EI_OSABI]);
+    logf_it(fout, "OS ABI:                              %s\n", _osabi[index].name);
+    logf_it(fout, "ABI Version:                         %d\n", ehdr->e_ident[EI_ABIVERSION]);
+    ELF_DICT(&index, header, ehdr->e_type);
+    logf_it(fout, "Type:                                %s\n", _header[index].name);
+    ELF_DICT(&index, machine, ehdr->e_machine);
+    logf_it(fout, "Machine:                             %s\n", _machine[index].name);
+    logf_it(fout, "Version:                             0x%x\n", ehdr->e_version);
+    logf_it(fout, "Entry point address:                 %016llx\n", ehdr->e_entry);
+    logf_it(fout, "Start of the program header:         %lld (bytes into file)\n", ehdr->e_phoff);
+    logf_it(fout, "Start of the section header:         %lld (bytes into file)\n", ehdr->e_shoff);
+    logf_it(fout, "Flags:                               %016llx\n", ehdr->e_flags);
+    logf_it(fout, "Size of this header:                 %d (bytes)\n", ehdr->e_ehsize);
+    logf_it(fout, "Size of program headers:             %d (bytes)\n", ehdr->e_phentsize);
+    logf_it(fout, "Number of program headers:           %d\n", ehdr->e_phnum);
+    logf_it(fout, "Size of section header:              %d (bytes)\n", ehdr->e_shentsize);
+    logf_it(fout, "Number of section headers:           %lld\n", ehdr->e_shnum);
+    logf_it(fout, "Section heander string table index:  %lld\n", ehdr->e_shstrndx);
 
     return true;
 }
@@ -136,32 +124,32 @@ bool elf_print_programs(FILE* fout) // XXX : either programs
         return false;
     }
 
-    //TODO :
-    //       elf = (elf_phdr_t*) &filein[h + ehdr->e_phoff];
-    //       h+=ehdr->e_phentsize;
+    _elf_print_fname(fout, elf_get_my_elfo());
 
+    if (ehdr->e_phnum > 0)
+        logf_it(fout, "Program Headers:\n%14s% 19s% 17s% 16s% 17s% 18s %15s %15s",
+                "Type", "Offset", "Filesz", "Vaddr", "Paddr", "Namesz", "Align", "Name" );
     for(int i = 0; i < ehdr->e_phnum; ++i) {
         const elf_phdr_t *prog = (const elf_phdr_t *)phdr[i];
         int index;
 
         ELF_DICT(&index, program, prog->p_type);
-        logf_it(fout, "\n[Elf Program %d]\n", i);
-        logf_it(fout, "p_type 0x%x %s\n", prog->p_type, _program[index].name);
-        logf_it(fout, "p_offset 0x%lx\n", prog->p_offset);
-        logf_it(fout, "p_vaddr 0x%lx\n", prog->p_vaddr);
-        logf_it(fout, "p_paddr 0x%lx\n", prog->p_paddr);
-        logf_it(fout, "p_filesz 0x%lx\n", prog->p_filesz);
-        logf_it(fout, "p_namesz 0x%lx\n", prog->p_memsz);
-        logf_it(fout, "p_align 0x%lx\n", prog->p_align);
+        logf_it(fout, "\n%6d: %016llx ", i, prog->p_type);
+        logf_it(fout, "%016llx ", prog->p_offset);
+        logf_it(fout, "%016llx ", prog->p_filesz);
+        logf_it(fout, "%016llx ", prog->p_vaddr);
+        logf_it(fout, "%016llx ", prog->p_paddr);
+        logf_it(fout, "%016llx ", prog->p_memsz);
+        logf_it(fout, "%016llx ", prog->p_align);
+        logf_it(fout, "%s ", _program[index].name);
     }
+    if (ehdr->e_phnum > 0)
+        puts("");
     return true;
 }
 
 bool elf_print_sections(FILE *fout)
 {
-    //TODO: verify which and why specific data should be kept
-    //      so this parser could feed the parasite
-
     elf_t *elfo = elf_get_my_elfo();
     const elf_ehdr_t *ehdr = (const elf_ehdr_t *)elfo->ehdr;
     const elf_shdr_t **shdrs = (const elf_shdr_t **)elfo->shdrs;
@@ -171,75 +159,63 @@ bool elf_print_sections(FILE *fout)
         return false;
     }
 
-    u16 i;
-    i32 n_secs = ehdr->e_shnum;
 
-    for(i=0; i<n_secs; i++) {
-        sbyte *shname = elf_parse_shname(shdrs[i]);
-        if(!shname || !strlen(shname))
-            shname = "NULL";
-        logf_it(fout, "\n[Elf Section %s]\n", shname);
-        logf_it(fout, "sh_name: 0x%x\n", shdrs[i]->sh_name);
-        logf_it(fout, "sh_type: %d\n", shdrs[i]->sh_type);
-        logf_it(fout, "sh_flags: 0x%lx\n",shdrs[i]->sh_flags);
-        logf_it(fout, "sh_addr: 0x%lx\n", shdrs[i]->sh_addr);
-        logf_it(fout, "sh_offset: 0x%lx\n", shdrs[i]->sh_offset);
-        logf_it(fout, "sh_size: 0x%lx\n", shdrs[i]->sh_size);
-        logf_it(fout, "sh_link: 0x%x\n", shdrs[i]->sh_link);
-        logf_it(fout, "sh_info: 0x%x\n", shdrs[i]->sh_info);
-        logf_it(fout, "sh_addralign: 0x%lx\n", shdrs[i]->sh_addralign);
-        logf_it(fout, "sh_entsize: 0x%lu\n" ,shdrs[i]->sh_entsize);
+    _elf_print_fname(fout, elf_get_my_elfo());
+
+    if (ehdr->e_shnum)
+        logf_it(fout, "Section Headers:\n%14s% 18s% 16s% 19s% 15s% 17s %16s %17s %18s",
+                "Type", "Flags", "Addr", "Offset", "Size", "Link", "Info", "Align", "Entsize", "Name" );
+    for(int i=0; i < ehdr->e_shnum; i++) {
+        char *shname = elf_get_section_header_name(shdrs[i]);
+        logf_it(fout, "\n%6d: %016llx ", i, shdrs[i]->sh_type);
+        logf_it(fout, "%016llx ",shdrs[i]->sh_flags);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_addr);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_offset);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_size);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_link);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_info);
+        logf_it(fout, "%016llx ", shdrs[i]->sh_addralign);
+        logf_it(fout, "%016llx " ,shdrs[i]->sh_entsize);
+        logf_it(fout, "%s ", shname);
     }
+    if (ehdr->e_shnum)
+        puts("");
     return true;
 }
 
-bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab)
+bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab, const elf_sym_t **syms)
 {
-    ASSERT_ARG_RET_FALSE(fout && symtab);
+    ASSERT_ARG_RET_FALSE(fout && symtab && syms);
 
-    elf_sym_t **syms = NULL;
-    syms = elf_parse_all_syms(symtab);
-    if(syms == NULL) {
-        log_error("Could not read symbols from provided symbol table");
+    unsigned char *name_off = NULL;
+    int sentnum = SENTNUM(symtab);
+    char *symtab_name = elf_get_section_header_name(symtab);
+    if(symtab_name == NULL) {
+        log_error("Could not read symbol table's name");
         return false;
     }
 
-    sbyte *symtab_name = elf_parse_shname(symtab);
-    if(symtab_name == NULL) {
-        symtab_name = "NULL";
-        log_warning("Could not read symbol table's name");
-    }
+    if (!strcmp(symtab_name, ".dynsym"))
+        name_off = elf_get_symname_offset(".dynstr");
+    else if (!strcmp(symtab_name, ".symtab"))
+        name_off = elf_get_symname_offset(".strtab");
 
-    sbyte *dynstr = elf_parse_section_by_name(".dynstr");
-    if(dynstr == NULL)
-        log_debug("Could not read dynamic string table");
-
-    sbyte *strtab = elf_parse_section_by_name(".strtab");
-    if(strtab == NULL)
-        log_debug("Could not read string table");
-
+    _elf_print_fname(fout, elf_get_my_elfo());
     // introduction
-    logf_it(fout, "[SYMTAB] Symtab %s has %lu symbols:\n\n"
-            , symtab_name, SENTNUM(symtab));
+    logf_it(fout, "%s has %lu symbols:\n"
+            , symtab_name, sentnum);
 
     // output table header
     logf_it(fout, "%6s %10s %13s %7s %12s %4s %10s %s\n",
             "Num", "Val", "Size", "Type", "Bind", "Vis", "Shndx", "Name");
 
-    for(int i=0; i<SENTNUM(symtab) && syms[i]; i++) {
+    for(int i=0; i < sentnum && syms[i]; i++) {
         int type,vis,bind;
-        ;
-        elf_sym_t *sym = syms[i];
+        const elf_sym_t *sym = syms[i];
         elf_info_t *index = get_index(sym->st_shndx);
         ELF_DICT(&type, type, ST_TYPE(sym->st_info));
         ELF_DICT(&bind, bind, ST_BIND(sym->st_info));
         ELF_DICT(&vis, visibility, sym->st_other);
-
-        char *sname = "";
-        if (symtab->sh_type == SHT_DYNSYM)
-            sname = SYMNAME(sym, dynstr);
-        else if (symtab->sh_type == SHT_SYMTAB)
-            sname = SYMNAME(sym, strtab);
 
         logf_it(fout, "%6d: %016lx %6ld %10s %10s %6s %6s %6s\n"
                 , i                         // Num
@@ -249,9 +225,10 @@ bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab)
                 , _bind[bind].name          // Bind
                 , _visibility[vis].name     // Visibility
                 , index->name               // Shdnx (never NULL)
-                , sname                     // Name
+                , SYMNAME(sym, name_off)    // Name
                );
     }
+
     return true;
 }
 

@@ -33,18 +33,40 @@
  * @addtogroup interfaces Interfaces
  * @{
  */
+
+/**
+ * Helper
+ * Lookup the Section Headers and return the one
+ * matching name.
+ */
+static elf_shdr_t *_elf_get_shdr_byname(const elf_t *elfo, const sbyte *name)
+{
+    ASSERT_ARG_RET_NULL(elfo && name != NULL);
+    ASSERT_CON_RET_NULL(elfo->shdrs);
+
+    elf_shdr_t *shdr = NULL;
+    size_t len = strlen(name);
+
+    for(int i = 0; i<SHNUM(elfo) && !shdr; i++) {
+        char *curr = elf_get_section_header_name(elfo->shdrs[i]);
+        if(curr && strlen(curr) == len && !strncmp(name, curr, len))
+            shdr = elfo->shdrs[i];
+    }
+    return shdr;
+}
+
 /**
  * @brief Read ELF Header
  *
  * Contract:
- * @note This function depends on populating elf_t's raw image element
+ * @note This function depends on populating (mmap) elf_t's raw image element
  * (elf_t->mapaddr). Currently the only possibility is reading ELF from
  * a disk file (by calling @ref elf_parse_file).
  * @see elf_parse_file
  *
  * @return A pointer to the ELF Header.
  */
-static elf_ehdr_t* _elf_parse_ehdr(const elf_t *elfo)
+elf_ehdr_t* elf_parse_ehdr(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(elfo->mapaddr);
@@ -52,19 +74,21 @@ static elf_ehdr_t* _elf_parse_ehdr(const elf_t *elfo)
 }
 
 /**
- * @brief Read Program Headers
- *
  * Contract:
  * @note This method depends on both populating the ELF object with image's
- * raw data and calling _elf_parse_ehdrs.
- * @see _elf_parse_ehdrs
+ * raw data and calling elf_parse_ehdr.
+ * @see elf_parse_ehdr
  *
  * @return An array referencing all Program Headers in ELF image.
  * @note The array itself is unique for each function call, but its elements
  * are references to the ELF raw image in @ref elf_t interface. Never try
  * freeing these elements.
+ *
+ *
+ * Parse program headers
+ *  Return an array referencing all Program Headers in ELF image
  */
-static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
+elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
@@ -81,7 +105,8 @@ static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
 #endif
     int i;
     elf_phdr_t **array = smalloc((PHNUM(elfo)+1) * sizeof(elf_phdr_t*));
-    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->mapaddr + elfo->ehdr->e_phoff);
+    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->ehdr->e_phoff +
+            (unsigned char*)elfo->mapaddr);
 
     for(i=0; i<PHNUM(elfo); i++) { array[i] = ptr++; }
     array[i] = (elf_phdr_t*)0;
@@ -93,15 +118,15 @@ static elf_phdr_t** _elf_parse_phdrs(const elf_t *elfo)
  * @brief Read Section Headers
  *
  * Contract:
- * @note This method depends on calling _elf_parse_ehdrs first.
- * @see _elf_parse_ehdrs
+ * @note This method depends on calling elf_parse_ehdr first.
+ * @see elf_parse_ehdr
  *
  * @return An array with all Section Header in ELF image.
  * @note The array itself is unique for each function call, but its elements
  * are references to the ELF raw image in @ref elf_t interface. Never try
  * freeing these elements.
  */
-static elf_shdr_t** _elf_parse_shdrs(const elf_t *elfo)
+elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
 {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
@@ -111,47 +136,20 @@ static elf_shdr_t** _elf_parse_shdrs(const elf_t *elfo)
     size_t elf_size = (size_t) elfo->ehdr->e_shentsize;
     size_t vol_size = sizeof(elf_shdr_t);
 
-    if(vol_size != elf_size) {
+    if(vol_size != elf_size)
         log_error("Invalid program header size : "
                 "rcvd: %d xpctd: %d", elf_size, vol_size);
-    }
 #endif
     int i;
     elf_shdr_t **array = smalloc((SHNUM(elfo)+1) * sizeof(elf_shdr_t*));
     elf_shdr_t *ptr = (elf_shdr_t*)(elfo->mapaddr + elfo->ehdr->e_shoff);
 
-    for(i=0; i<SHNUM(elfo); i++) { array[i] = ptr++; }
+    for(i=0; i<SHNUM(elfo); i++)
+        array[i] = ptr++;
+
     array[i] = (elf_shdr_t*)0;
 
     return array;
-}
-
-/**
- * @brief Look-up Section Header pointer from file by its name
- *
- * Contract:
- * @note This method depends on calling elf_parse_shdrs first.
- * @see elf_parse_shdrs
- *
- * @return A pointer to Section Header
- */
-static elf_shdr_t *_elf_parse_shdr_byname(const elf_t *elfo, const sbyte *name)
-{
-    ASSERT_ARG_RET_NULL(elfo && name != NULL);
-    ASSERT_CON_RET_NULL(elfo->shdrs);
-
-    int i;
-    size_t arg_len = strlen(name);
-
-    for(i=0; i<SHNUM(elfo); i++) {
-        sbyte *curr = elf_parse_shname(elfo->shdrs[i]);
-        if(curr != NULL) {
-            if(strlen(curr) == arg_len && !strncmp(name, curr, arg_len)) {
-                return elfo->shdrs[i];
-            }
-        }
-    }
-    return NULL;
 }
 
 /**
@@ -165,12 +163,11 @@ static elf_shdr_t *_elf_parse_shdr_byname(const elf_t *elfo, const sbyte *name)
  *
  * @return An interface to ELF image on disk.
  */
-elf_t *elf_parse_file(FILE *fp)
+elf_t *elf_parse_file(const char *filename, FILE *fp)
 {
-    ASSERT_ARG_RET_NULL(fp);
-    elf_t *elfo;
+    ASSERT_ARG_RET_NULL(filename && fp);
     struct mapped_file user_data;
-    elfo = smalloc(sizeof(elf_t));
+    elf_t *elfo = smalloc(sizeof(elf_t));
 
     bool rc = file_read_all(&user_data, fp);
     ASSERT_ARG_RET_FALSE(rc);
@@ -178,11 +175,17 @@ elf_t *elf_parse_file(FILE *fp)
     // create interface
     elfo->fsize = user_data.st.st_size;
     elfo->mapaddr = user_data.mapaddr;
+    strncpy(elfo->filename, filename, sizeof(elfo->filename));
+
+    elfo->syms_symtab = NULL;
+    elfo->syms_dynsym = NULL;
+    elfo->sht_symtab  = NULL;
+    elfo->sht_dynsym  = NULL;
 
     // read ELF headers
-    elfo->ehdr  = _elf_parse_ehdr(elfo);
-    elfo->phdrs = _elf_parse_phdrs(elfo);
-    elfo->shdrs = _elf_parse_shdrs(elfo);
+    elfo->ehdr  = elf_parse_ehdr(elfo);
+    elfo->phdrs = elf_parse_phdrs(elfo);
+    elfo->shdrs = elf_parse_shdrs(elfo);
 
     return elfo;
 }
@@ -225,11 +228,11 @@ elf_word_t elf_parse_shdr_idx_byname(const sbyte *name)
     if(!(elfo && elfo->shdrs && name != NULL))
         return idx;
 
-    size_t arg_len = strlen(name);
+    size_t len = strlen(name);
 
     for(elf_word_t i=0; i<SHNUM(elfo) && idx == -1; i++) {
-        sbyte *curr = elf_parse_shname(elfo->shdrs[i]);
-        if(strlen(curr) == arg_len && !strncmp(name, curr, arg_len))
+        sbyte *curr = elf_get_section_header_name(elfo->shdrs[i]);
+        if(strlen(curr) == len && !strncmp(name, curr, len))
             idx = i;
     }
     return idx;
@@ -244,7 +247,7 @@ elf_word_t elf_parse_shdr_idx_byname(const sbyte *name)
  *
  * @return A string containing section's name
  */
-sbyte *elf_parse_shname_byindex(elf_word_t shidx)
+char *elf_parse_shname_byindex(elf_word_t shidx)
 {
     const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     elf_word_t n = 0;
@@ -271,47 +274,12 @@ sbyte *elf_parse_shname_byindex(elf_word_t shidx)
  *
  * @return A string containing section's name
  */
-sbyte *elf_parse_shname(const elf_shdr_t *shdr)
+sbyte *elf_get_section_header_name(const elf_shdr_t *shdr)
 {
     ASSERT_CON_RET_NULL(shdr);
 
     sbyte *shstrtab = elf_parse_shstrtab(NULL);
     return shstrtab ? SHNAME(shdr,shstrtab) : NULL;
-}
-
-/**
- * @brief Read all section headers of a given type.
- *
- * Contract:
- * @note This method depends on calling elf_parse_shdrs first.
- * @see elf_parse_shdrs
- *
- * @return A null terminated array of section header pointers.
- * @note The array itself is unique for each function call, but its elements
- * are references to the ELF raw image in @ref elf_t interface. Never try
- * freeing these elements.
- */
-elf_shdr_t **elf_parse_shdrs_bytype(elf_word_t *types, u32 ntypes)
-{
-    elf_t *elfo = elf_get_my_elfo();
-    ASSERT_ARG_RET_NULL(types);
-    ASSERT_CON_RET_NULL(elfo->shdrs);
-
-    // rather spend some extra space than calling realloc several times.
-    elfo->symtab = smalloc(SHNUM(elfo)*sizeof(elf_shdr_t*));
-
-    int i,j,cnt = 0;
-    for(i=0; i<elfo->ehdr->e_shnum && elfo->shdrs[i]; i++) {
-        for(j=0; j<ntypes; j++) {
-            if(elfo->shdrs[i]->sh_type == types[j]) {
-                elfo->symtab[cnt++] = elfo->shdrs[i];
-                break;
-            }
-        }
-    }
-    elfo->symtab[cnt] = NULL;
-    elfo->symtab = srealloc(elfo->symtab, (cnt+1)*sizeof(elf_shdr_t));
-    return elfo->symtab;
 }
 
 /** @} */
@@ -325,6 +293,61 @@ elf_shdr_t **elf_parse_shdrs_bytype(elf_word_t *types, u32 ntypes)
  */
 
 /**
+ * @brief Store current global symbol table.
+ * @see _elf_store_symbol_table
+ * @note only call this from elf_load_section_header_global_symbols
+ * @see elf_load_section_header_global_symbols
+ */
+static void _elf_store_global_symbol_table(elf_shdr_t **shdrs,
+        elf_t *elfo, elf_word_t sh_type)
+{
+    if (sh_type == SHT_SYMTAB)
+        elfo->sht_symtab = shdrs;
+    else
+        elfo->sht_dynsym = shdrs;
+}
+/**
+ * @brief Read all section headers of a given type.
+ *
+ * Contract:
+ * @note This method depends on calling elf_parse_shdrs first.
+ * @see elf_parse_shdrs
+ *
+ * @return A null terminated array of section header pointers.
+ * @note The array itself is unique for each function call, but its elements
+ * are references to the ELF raw image in @ref elf_t interface. Never try
+ * freeing these elements.
+ * @note it stores global symbol table on elfo object
+ * @note stored object must be freed when no longer needed
+ */
+elf_shdr_t **elf_load_section_header_global_symbols(elf_word_t sh_type)
+{
+    elf_t *elfo = elf_get_my_elfo();
+    ASSERT_ARG_RET_FALSE(sh_type == SHT_SYMTAB || sh_type == SHT_DYNSYM);
+    ASSERT_CON_RET_NULL(elfo->shdrs);
+
+    int shnum = SHNUM(elfo);
+    if (!shnum) {
+        log_debug("no symbols");
+        return NULL;
+    }
+
+    int cnt = 0;
+    elf_shdr_t **shdrs = smalloc(shnum*sizeof(elf_shdr_t*));
+    for(int i=0; i<elfo->ehdr->e_shnum && elfo->shdrs[i]; i++) {
+        if(elfo->shdrs[i]->sh_type == sh_type)
+            shdrs[cnt++] = elfo->shdrs[i];
+    }
+
+    shdrs[cnt] = NULL;
+    shdrs = srealloc(shdrs, (cnt+1)*sizeof(elf_shdr_t));
+
+    _elf_store_global_symbol_table(shdrs, elfo, sh_type);
+
+    return shdrs;
+}
+
+/**
  * @brief Returns pointers to all symbol tables in ELF file.
  *
  * Contract:
@@ -336,43 +359,68 @@ elf_shdr_t **elf_parse_shdrs_bytype(elf_word_t *types, u32 ntypes)
  *
  * This method depends on calling elf_parse_shdrs first.
  */
-elf_shdr_t **elf_parse_all_symtabs(void)
+elf_shdr_t **elf_get_section_header(elf_word_t sh_type)
 {
-    elf_word_t types[] = {SHT_SYMTAB, SHT_DYNSYM};
-    elf_shdr_t **symtabs = elf_parse_shdrs_bytype(types, 2);
+    elf_shdr_t **symtabs = elf_load_section_header_global_symbols(sh_type);
     return symtabs;
 }
 
 /**
- * TODO: comments
+ * @brief Store current symbol table.
+ *  This is useful mainly for two reason: to avoid
+ *  leaking when we go out of context and to allow callee
+ *  to either keep the reference for later use, although there
+ *  is no free lunch the these pointers need to be freed when no
+ *  longer needed.
+ *  @note only call this from elf_load_section_header_symbols
+ *  @see elf_load_section_header_symbols
  */
-elf_sym_t **elf_parse_all_syms(const elf_shdr_t *symtab)
+static void _elf_store_symbol_table(elf_sym_t **syms,
+        elf_t *elfo, elf_word_t sh_type)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
+    if (sh_type == SHT_SYMTAB)
+        elfo->syms_symtab = syms;
+    else
+        elfo->syms_dynsym = syms;
+}
+/**
+ * @brief Read symbols from symbol table.
+ *
+ * @param symtab The Symbol Table
+ *
+ * @return An array of ELF Symbols. Returns NULL if there are no symbols
+ */
+
+elf_sym_t **elf_load_section_header_symbols(elf_shdr_t *symtab)
+{
     ASSERT_ARG_RET_NULL(symtab);
     ASSERT_CON_RET_NULL(symtab->sh_type == SHT_SYMTAB ||
             symtab->sh_type == SHT_DYNSYM);
 
-    size_t size = SENTNUM(symtab)+1 * sizeof(elf_sym_t*);
+    int sentnum = SENTNUM(symtab);
+    if (!sentnum) {
+        log_debug("no symbols");
+        return NULL;
+    }
+
+    elf_t *elfo = elf_get_my_elfo();
+    size_t size = sentnum+1 * sizeof(elf_sym_t*);
     elf_sym_t **syms = smalloc(size * sizeof(elf_sym_t*));
 
     int i;
-    for(i=0; i<SENTNUM(symtab); i++) {
+    for(i=0; i < sentnum; i++) {
         syms[i] = (elf_sym_t*)
-            (elfo->mapaddr + symtab->sh_offset + symtab->sh_entsize*i);
+            (symtab->sh_offset + symtab->sh_entsize*i +
+             (unsigned char*)elfo->mapaddr);
     }
     syms[i] = (elf_sym_t*)0;
+
+    /** Store the current symbol table */
+    _elf_store_symbol_table(syms, elfo, symtab->sh_type);
+
     return syms;
 }
 
-/**
- * @brief Read symbol from symbol table.
- *
- * @param symtab The Symbol Table
- * @param index Symbol's index in table (starting at 0).
- *
- * @return An ELF Symbol. Returns NULL if the symbol does not exist.
- */
 #if 0
 elf_sym_t *elf_parse_sym(const elf_shdr_t *symtab, elf_word_t index)
 {
@@ -415,7 +463,7 @@ elf_shdr_t **elf_parse_all_strtabs(void)
 {
     const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     elf_word_t types[] = {SHT_STRTAB};
-    elf_shdr_t **strtabs = elf_parse_shdrs_bytype(types, 1);
+    elf_shdr_t **strtabs = elf_load_section_header_global_symbols(types, 1);
     return strtabs;
 }
 #endif
@@ -447,7 +495,7 @@ char *elf_parse_strtab_byindex(elf_half_t sh_idx, elf_word_t *n, elf_sym_t **sym
  * Contract:
  * @note This method depends on calling both _elf_parse_ehdr and
  * elf_parse_shdrs first.
- * @see _elf_parse_ehdrs
+ * @see elf_parse_ehdr
  * @see elf_parse_shdrs
  *
  * @return An array of bytes (hopefully, a sequence of strings) containing
@@ -462,7 +510,7 @@ sbyte* elf_parse_shstrtab(elf_sym_t **syms)
         return NULL;
     }
     elf_shdr_t *shstrtab = elfo->shdrs[elfo->ehdr->e_shstrndx];
-    return (char*)elfo->mapaddr + shstrtab->sh_offset;
+    return ((char*)elfo->mapaddr + shstrtab->sh_offset);
 }
 
 /**
@@ -470,19 +518,16 @@ sbyte* elf_parse_shstrtab(elf_sym_t **syms)
  *
  * @return An array of bytes (hopefully, a sequence of strings) containing
  * all elements of .dynstr string table.
- *
- * 
- *
  */
-sbyte* elf_parse_section_by_name(const char *name)
+unsigned char* elf_get_symname_offset(const char *name)
 {
     const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
-    elf_shdr_t *sct = _elf_parse_shdr_byname(elfo, name);
+    elf_shdr_t *sct = _elf_get_shdr_byname(elfo, name);
     if(sct == NULL) {
         log_debug("%s not found!", name);
         return NULL;
     }
-    return (char*)elfo->mapaddr + sct->sh_offset;
+    return ((unsigned char*)elfo->mapaddr + sct->sh_offset);
 }
 
 /** @} */

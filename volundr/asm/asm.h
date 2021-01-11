@@ -4,29 +4,126 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-//#define asm_fork()              _asm_fork()
-//#define asm_exit(a1)            _asm_exit(a1)
-//#define asm_close(a1)           _asm_close(__NR_close, a1)
-//#define asm_mkdir(a1,a2)        _asm_mkdir(a1, a2)
-//#define asm_rmdir(a1)           _asm_rmdir(__NR_rmdir, a1)
-//#define asm_kill(a1,a2)         _asm_kill(__NR_kill, a1, a2)
-//#define asm_chown(a1,a2,a3)     _asm_chown(__NR_chown, a1, a2, a3)
-//#define asm_open(a1,a2,a3)      _asm_open(__NR_open, a1, a2, a3)
-//#define asm_write(a1,a2,a3)     _asm_write(__NR_write, a1, a2, a3)
-//#define asm_fopen(a1,a2)        _asm_fopen(a1, a2)
+/**
+ * @file  asm.h
+ * @brief  Implement x84 syscalls for general use
+ * and to avoid going through glibc
+ * @see syscalls.S
+ */
 
-void asm_fork       ();
+/*!
+ * sys_fork x86 syscall implementation
+ */
+void asm_fork       (void);
+
+/*!
+ * sys_exit x86 syscall implementation
+ * @param code exit status
+ * @see syscalls.S
+ */
 void asm_exit       (int code);
+
+/*!
+ * sys_close x86 syscall implementation
+ * @param fd file descriptor to close
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_close       (int fd);
+
+/*!
+ * sys_mkdir x86 syscall implementation
+ * @param path path
+ * @param mode mode
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_mkdir       (const char* path, mode_t mode);
+
+/*!
+ * sys_rmdir x86 syscall implementation
+ * @param path path
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_rmdir       (const char* path);
+
+/*!
+ * sys_kill x86 syscall implementation
+ * @param pid pid
+ * @param sig signal to send
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_kill        (pid_t pid, int sig);
+
+/*!
+ * sys_chown x86 syscall implementation
+ * @param path path
+ * @param owner owner uid
+ * @param group group gid
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_chown       (const char* path, uid_t owner, gid_t group);
+
+/*!
+ * sys_open x86 syscall implementation
+ * @param path path
+ * @param flags flags
+ * @param mode mode
+ * @return file descriptor
+ * @see syscalls.S
+ */
 int asm_open        (const char* path, int flags, mode_t mode);
+
+/*!
+ * sys_write x86 syscall implementation
+ * @param fd file fd
+ * @param buf buffer to write
+ * @param count buffer size
+ * @return number of bytes written
+ * @see syscalls.S
+ */
 int asm_write       (int fd, const void* buf, size_t count);
+
+/*!
+ * sys_open x86 syscall implementation
+ * @param mode mode
+ * @return file descriptor
+ * @see syscalls.S
+ */
 FILE *asm_fopen     (const char *path, const char *mode);
+
+/*!
+ * sys_mmap x86 syscall implementation
+ * @param addr start address to map
+ * @param length size of the mapping
+ * @param pror protections
+ * @param fd file descriptor
+ * @param flags mapping flags
+ * @param len size of mapping
+ * @param offset offset of mapping - usually 0
+ * @return pointer to mapped area
+ * @see syscalls.S
+ */
 void *asm_mmap      (void *addr, size_t length, int prot,
         int fd, int flags, off_t offset);
+
+/*!
+ * sys_munmap x86 syscall implementation
+ * @param addr address to unmap
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_munmap(void *addr, size_t length);
+
+/*!
+ * sys_mprotect x86 syscall implementation
+ * @param addr address to mprotect
+ * @param prot protection flags
+ * @return 0 on success
+ * @see syscalls.S
+ */
 int asm_mprotect(void *addr, size_t len, int prot);
 
