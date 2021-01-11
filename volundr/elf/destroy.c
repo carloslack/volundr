@@ -34,9 +34,9 @@
  * @see elf_parse_file
  * @return True on success
  */
-bool elf_destroy_header(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
-    elf_t **e = &elf;
+bool elf_destroy_header(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
+    elf_t **e = &elfo;
     /** Ehdr here is just the pointer to memory area */
     return !!((map_fileunmap((*e)->mapaddr,
                     (*e)->fsize)) == 0);
@@ -49,9 +49,9 @@ bool elf_destroy_header(elf_t *elf) {
  * @see elf_parse_file
  * @return True on success
  */
-bool elf_destroy_program(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
-    elf_t **e = &elf;
+bool elf_destroy_program(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
+    elf_t **e = &elfo;
     sfree((void**)&(*e)->phdrs);
     return !!((*e)->phdrs == NULL);
 }
@@ -62,9 +62,9 @@ bool elf_destroy_program(elf_t *elf) {
  * @param elfo Main EFL object
  * @return True on success
  */
-bool elf_destroy_section(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
-    elf_t **e = &elf;
+bool elf_destroy_section(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
+    elf_t **e = &elfo;
     sfree((void**)&(*e)->shdrs);
     return !!((*e)->shdrs == NULL);
 }
@@ -75,10 +75,10 @@ bool elf_destroy_section(elf_t *elf) {
  * @param elfo Main EFL object
  * @return True
  */
-bool elf_destroy_symbol_table(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
+bool elf_destroy_symbol_table(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
     /** ELF object can have no symbols */
-    elf_t **e = &elf;
+    elf_t **e = &elfo;
     if ((*e)->syms_symtab) {
         free((*e)->syms_symtab);
         (*e)->syms_symtab = NULL;
@@ -96,10 +96,10 @@ bool elf_destroy_symbol_table(elf_t *elf) {
  * @param elfo Main EFL object
  * @return True
  */
-bool elf_destroy_global_symbol_table(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
+bool elf_destroy_global_symbol_table(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
     /** ELF object can have no symbols */
-    elf_t **e = &elf;
+    elf_t **e = &elfo;
     if ((*e)->sht_symtab) {
         free((*e)->sht_symtab);
         (*e)->sht_symtab = NULL;
@@ -117,10 +117,22 @@ bool elf_destroy_global_symbol_table(elf_t *elf) {
  * @param elfo Main EFL object
  * @return True on success
  */
-bool elf_destroy_elfo(elf_t *elf) {
-    ASSERT_CON_NULL(elf);
-    elf_t **e = &elf;
+bool elf_destroy_elfo(elf_t *elfo) {
+    ASSERT_CON_NULL(elfo);
+    elf_t **e = &elfo;
     sfree((void**)e);
     return !!(*e == NULL);
 }
+
+bool elf_destroy_all(elf_t *elfo) {
+    bool rc1 = elf_destroy_program(elfo);
+    bool rc2 = elf_destroy_section(elfo);
+    bool rc3 = elf_destroy_global_symbol_table(elfo);
+    bool rc4 = elf_destroy_symbol_table(elfo);
+    bool rc5 = elf_destroy_header(elfo);
+    bool rc6 = elf_destroy_elfo(elfo);
+
+    return (rc1 && rc2 && rc3 && rc4 && rc5 && rc6);
+}
+
 /** @} */
