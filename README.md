@@ -15,605 +15,143 @@ evil macros:
 
 ## Example output
 
-    -------[ Volundr v0.1:
-
-
-    Volundr -> /bin/ls
-
-    [D] [map.c:49] file mapped to 0x7f2725925000
-    [D] [map.c:134] file unmaped from 0x7f2725925000
-    **** ELF HEADER FILE : [126584 bytes] ****
-    [Elf Header]
-    e_ident[EI_MAG0]: 7f
-    e_ident[EI_MAG1]: E
-    e_ident[EI_MAG2]: L
-    e_ident[EI_MAG3]: F
-    e_ident[EI_CLASS]: 2 64-Bit object
-    e_ident[EI_DATA]: 1 LSB
-    e_ident[EI_VERSION]: 1
-    e_ident[EI_PAD]: 0
-    e_type: 0x2  [Executable file]
-    e_machine: 0x3e [Unknown]
-    e_version: 0x1
-    e_entry: Current version 0x4049a0
-    e_phoff: 0x40
-    e_shoff: 0x1e738
-    e_flags: 0x0
-    e_ehsize: 64
-    e_phentsize: 56
-    e_phnum: 9
-    e_shentsize: 64
-    e_shnum: 29
-    e_shstrndx: 0x1c
-    [N] [print.c:55] headers ok.
-
-    [Elf Program 0]
-    p_type 0x6 [Header table entry]
-    p_offset 0x40
-    p_vaddr 0x400040
-    p_paddr 0x400040
-    p_filesz 0x1f8
-    p_namesz 0x1f8
-    p_align 0x8
-
-    [Elf Program 1]
-    p_type 0x3 [Program interpreter]
-    p_offset 0x238
-    p_vaddr 0x400238
-    p_paddr 0x400238
-    p_filesz 0x1c
-    p_namesz 0x1c
-    p_align 0x1
-
-    [Elf Program 2]
-    p_type 0x1 [Loadable segment]
-    p_offset 0x0
-    p_vaddr 0x400000
-    p_paddr 0x400000
-    p_filesz 0x1da64
-    p_namesz 0x1da64
-    p_align 0x200000
-
-    [Elf Program 3]
-    p_type 0x1 [Loadable segment]
-    p_offset 0x1de00
-    p_vaddr 0x61de00
-    p_paddr 0x61de00
-    p_filesz 0x800
-    p_namesz 0x1568
-    p_align 0x200000
-
-    [Elf Program 4]
-    p_type 0x2 [Dynamic linking]
-    p_offset 0x1de18
-    p_vaddr 0x61de18
-    p_paddr 0x61de18
-    p_filesz 0x1e0
-    p_namesz 0x1e0
-    p_align 0x8
-
-    [Elf Program 5]
-    p_type 0x4 [Auxiliary information]
-    p_offset 0x254
-    p_vaddr 0x400254
-    p_paddr 0x400254
-    p_filesz 0x44
-    p_namesz 0x44
-    p_align 0x4
-
-    [Elf Program 6]
-    p_type 0x6474e550 [GCC .eh_frame_hdr segment]
-    p_offset 0x1a5f4
-    p_vaddr 0x41a5f4
-    p_paddr 0x41a5f4
-    p_filesz 0x804
-    p_namesz 0x804
-    p_align 0x4
-
-    [Elf Program 7]
-    p_type 0x6474e551 [Stack executability]
-    p_offset 0x0
-    p_vaddr 0x0
-    p_paddr 0x0
-    p_filesz 0x0
-    p_namesz 0x0
-    p_align 0x10
-
-    [Elf Program 8]
-    p_type 0x6474e552 [Read-only after relocation]
-    p_offset 0x1de00
-    p_vaddr 0x61de00
-    p_paddr 0x61de00
-    p_filesz 0x200
-    p_namesz 0x200
-    p_align 0x1
-    [N] [print.c:62] programs ok.
-
-    [Elf Section NULL]
-    sh_name: 0x0
-    sh_type: 0x0
-    sh_flags: 0x0
-    sh_addr: 0x0
-    sh_offset: 0x0
-    sh_size: 0x0
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x0
-    sh_entsize: 0x0
-
-    [Elf Section .interp]
-    sh_name: 0xb
-    sh_type: 0x1
-    sh_flags: 0x2
-    sh_addr: 0x400238
-    sh_offset: 0x238
-    sh_size: 0x1c
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x1
-    sh_entsize: 0x0
-
-    [Elf Section .note.ABI-tag]
-    sh_name: 0x13
-    sh_type: 0x7
-    sh_flags: 0x2
-    sh_addr: 0x400254
-    sh_offset: 0x254
-    sh_size: 0x20
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x4
-    sh_entsize: 0x0
-
-    [Elf Section .note.gnu.build-id]
-    sh_name: 0x21
-    sh_type: 0x7
-    sh_flags: 0x2
-    sh_addr: 0x400274
-    sh_offset: 0x274
-    sh_size: 0x24
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x4
-    sh_entsize: 0x0
-
-    [Elf Section .gnu.hash]
-    sh_name: 0x34
-    sh_type: 0x6ffffff6
-    sh_flags: 0x2
-    sh_addr: 0x400298
-    sh_offset: 0x298
-    sh_size: 0xc0
-    sh_link: 0x5
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .dynsym]
-    sh_name: 0x3e
-    sh_type: 0xb
-    sh_flags: 0x2
-    sh_addr: 0x400358
-    sh_offset: 0x358
-    sh_size: 0xcd8
-    sh_link: 0x6
-    sh_info: 0x1
-    sh_addralign: 0x8
-    sh_entsize: 0x24
-
-    [Elf Section .dynstr]
-    sh_name: 0x46
-    sh_type: 0x3
-    sh_flags: 0x2
-    sh_addr: 0x401030
-    sh_offset: 0x1030
-    sh_size: 0x5dc
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x1
-    sh_entsize: 0x0
-
-    [Elf Section .gnu.version]
-    sh_name: 0x4e
-    sh_type: 0x6fffffff
-    sh_flags: 0x2
-    sh_addr: 0x40160c
-    sh_offset: 0x160c
-    sh_size: 0x112
-    sh_link: 0x5
-    sh_info: 0x0
-    sh_addralign: 0x2
-    sh_entsize: 0x2
-
-    [Elf Section .gnu.version_r]
-    sh_name: 0x5b
-    sh_type: 0x6ffffffe
-    sh_flags: 0x2
-    sh_addr: 0x401720
-    sh_offset: 0x1720
-    sh_size: 0x70
-    sh_link: 0x6
-    sh_info: 0x1
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .rela.dyn]
-    sh_name: 0x6a
-    sh_type: 0x4
-    sh_flags: 0x2
-    sh_addr: 0x401790
-    sh_offset: 0x1790
-    sh_size: 0xa8
-    sh_link: 0x5
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x24
-
-    [Elf Section .rela.plt]
-    sh_name: 0x74
-    sh_type: 0x4
-    sh_flags: 0x42
-    sh_addr: 0x401838
-    sh_offset: 0x1838
-    sh_size: 0xa80
-    sh_link: 0x5
-    sh_info: 0x18
-    sh_addralign: 0x8
-    sh_entsize: 0x24
-
-    [Elf Section .init]
-    sh_name: 0x7e
-    sh_type: 0x1
-    sh_flags: 0x6
-    sh_addr: 0x4022b8
-    sh_offset: 0x22b8
-    sh_size: 0x1a
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x4
-    sh_entsize: 0x0
-
-    [Elf Section .plt]
-    sh_name: 0x79
-    sh_type: 0x1
-    sh_flags: 0x6
-    sh_addr: 0x4022e0
-    sh_offset: 0x22e0
-    sh_size: 0x710
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x10
-    sh_entsize: 0x16
-
-    [Elf Section .plt.got]
-    sh_name: 0x84
-    sh_type: 0x1
-    sh_flags: 0x6
-    sh_addr: 0x4029f0
-    sh_offset: 0x29f0
-    sh_size: 0x8
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .text]
-    sh_name: 0x8d
-    sh_type: 0x1
-    sh_flags: 0x6
-    sh_addr: 0x402a00
-    sh_offset: 0x2a00
-    sh_size: 0x11259
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x10
-    sh_entsize: 0x0
-
-    [Elf Section .fini]
-    sh_name: 0x93
-    sh_type: 0x1
-    sh_flags: 0x6
-    sh_addr: 0x413c5c
-    sh_offset: 0x13c5c
-    sh_size: 0x9
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x4
-    sh_entsize: 0x0
-
-    [Elf Section .rodata]
-    sh_name: 0x99
-    sh_type: 0x1
-    sh_flags: 0x2
-    sh_addr: 0x413c80
-    sh_offset: 0x13c80
-    sh_size: 0x6974
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x20
-    sh_entsize: 0x0
-
-    [Elf Section .eh_frame_hdr]
-    sh_name: 0xa1
-    sh_type: 0x1
-    sh_flags: 0x2
-    sh_addr: 0x41a5f4
-    sh_offset: 0x1a5f4
-    sh_size: 0x804
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x4
-    sh_entsize: 0x0
-
-    [Elf Section .eh_frame]
-    sh_name: 0xaf
-    sh_type: 0x1
-    sh_flags: 0x2
-    sh_addr: 0x41adf8
-    sh_offset: 0x1adf8
-    sh_size: 0x2c6c
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .init_array]
-    sh_name: 0xb9
-    sh_type: 0xe
-    sh_flags: 0x3
-    sh_addr: 0x61de00
-    sh_offset: 0x1de00
-    sh_size: 0x8
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .fini_array]
-    sh_name: 0xc5
-    sh_type: 0xf
-    sh_flags: 0x3
-    sh_addr: 0x61de08
-    sh_offset: 0x1de08
-    sh_size: 0x8
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .jcr]
-    sh_name: 0xd1
-    sh_type: 0x1
-    sh_flags: 0x3
-    sh_addr: 0x61de10
-    sh_offset: 0x1de10
-    sh_size: 0x8
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x0
-
-    [Elf Section .dynamic]
-    sh_name: 0xd6
-    sh_type: 0x6
-    sh_flags: 0x3
-    sh_addr: 0x61de18
-    sh_offset: 0x1de18
-    sh_size: 0x1e0
-    sh_link: 0x6
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x16
-
-    [Elf Section .got]
-    sh_name: 0x88
-    sh_type: 0x1
-    sh_flags: 0x3
-    sh_addr: 0x61dff8
-    sh_offset: 0x1dff8
-    sh_size: 0x8
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x8
-
-    [Elf Section .got.plt]
-    sh_name: 0xdf
-    sh_type: 0x1
-    sh_flags: 0x3
-    sh_addr: 0x61e000
-    sh_offset: 0x1e000
-    sh_size: 0x398
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x8
-    sh_entsize: 0x8
-
-    [Elf Section .data]
-    sh_name: 0xe8
-    sh_type: 0x1
-    sh_flags: 0x3
-    sh_addr: 0x61e3a0
-    sh_offset: 0x1e3a0
-    sh_size: 0x260
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x20
-    sh_entsize: 0x0
-
-    [Elf Section .bss]
-    sh_name: 0xee
-    sh_type: 0x8
-    sh_flags: 0x3
-    sh_addr: 0x61e600
-    sh_offset: 0x1e600
-    sh_size: 0xd68
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x20
-    sh_entsize: 0x0
-
-    [Elf Section .gnu_debuglink]
-    sh_name: 0xf3
-    sh_type: 0x1
-    sh_flags: 0x0
-    sh_addr: 0x0
-    sh_offset: 0x1e600
-    sh_size: 0x34
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x1
-    sh_entsize: 0x0
-
-    [Elf Section .shstrtab]
-    sh_name: 0x1
-    sh_type: 0x3
-    sh_flags: 0x0
-    sh_addr: 0x0
-    sh_offset: 0x1e634
-    sh_size: 0x102
-    sh_link: 0x0
-    sh_info: 0x0
-    sh_addralign: 0x1
-    sh_entsize: 0x0
-    [N] [print.c:69] sections ok.
-    [SYMTAB] Symtab .dynsym has 137 symbols:
-
-       Num        Val          Size    Type         Bind  Vis      Shndx Name
-         0: 0000000000000000      0     NOTYPE      LOCAL DEFAULT      0       
-         1: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __ctype_toupper_loc
-         2: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __uflow
-         3: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getenv
-         4: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 sigprocmask
-         5: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  raise
-         6: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 localtime
-         7: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __mempcpy_chk
-         8: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  abort
-         9: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __errno_location
-        10: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strncmp
-        11: 0000000000000000      0     NOTYPE       WEAK DEFAULT      0 _ITM_deregisterTMCloneTable
-        12: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  _exit
-        13: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strcpy
-        14: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __fpending
-        15: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 isatty
-        16: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 sigaction
-        17: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 iswcntrl
-        18: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 wcswidth
-        19: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 localeconv
-        20: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 mbstowcs
-        21: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 readlink
-        22: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 clock_gettime
-        23: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 setenv
-        24: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 textdomain
-        25: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fclose
-        26: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 opendir
-        27: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getpwuid
-        28: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 bindtextdomain
-        29: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 stpcpy
-        30: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 dcgettext
-        31: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __ctype_get_mb_cur_max
-        32: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strlen
-        33: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __lxstat
-        34: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __stack_chk_fail
-        35: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getopt_long
-        36: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 mbrtowc
-        37: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strchr
-        38: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getgrgid
-        39: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __overflow
-        40: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strrchr
-        41: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fgetfilecon
-        42: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 gmtime_r
-        43: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  lseek
-        44: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 gettimeofday
-        45: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __assert_fail
-        46: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __strtoul_internal
-        47: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fnmatch
-        48: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 memset
-        49: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fscanf
-        50: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  ioctl
-        51: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  close
-        52: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 closedir
-        53: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __libc_start_main
-        54: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 memcmp
-        55: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 _setjmp
-        56: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fputs_unlocked
-        57: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 calloc
-        58: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 lgetfilecon
-        59: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strcmp
-        60: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 signal
-        61: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  dirfd
-        62: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getpwnam
-        63: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __memcpy_chk
-        64: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 sigemptyset
-        65: 0000000000000000      0     NOTYPE       WEAK DEFAULT      0 __gmon_start__
-        66: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 memcpy
-        67: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getgrnam
-        68: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getfilecon
-        69: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  tzset
-        70: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fileno
-        71: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 tcgetpgrp
-        72: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __xstat
-        73: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 readdir
-        74: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 wcwidth
-        75: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fflush
-        76: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 nl_langinfo
-        78: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __fxstat
-        79: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strcoll
-        80: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __freading
-        81: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fwrite_unlocked
-        82: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 realloc
-        83: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 stpncpy
-        84: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fdopen
-        85: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 setlocale
-        86: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __printf_chk
-        87: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 timegm
-        88: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strftime
-        89: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 mempcpy
-        90: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 memmove
-        91: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0  error
-        92: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0   open
-        93: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fseeko
-        94: 0000000000000000      0     NOTYPE       WEAK DEFAULT      0 _Jv_RegisterClasses
-        95: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 unsetenv
-        96: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strtoul
-        97: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __cxa_atexit
-        98: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 wcstombs
-        99: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 getxattr
-       100: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 freecon
-       101: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 sigismember
-       102: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0   exit
-       103: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fwrite
-       104: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __fprintf_chk
-       105: 0000000000000000      0     NOTYPE       WEAK DEFAULT      0 _ITM_registerTMCloneTable
-       106: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 fflush_unlocked
-       107: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 mbsinit
-       108: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 iswprint
-       109: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 sigaddset
-       110: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 strstr
-       111: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __ctype_tolower_loc
-       112: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __ctype_b_loc
-       113: 0000000000000000      0       FUNC     GLOBAL DEFAULT      0 __sprintf_chk
-       114: 000000000061e600      8     OBJECT     GLOBAL DEFAULT     26 __progname
-       115: 0000000000413c5c      0       FUNC     GLOBAL DEFAULT     15  _fini
-       116: 000000000061e610      4     OBJECT     GLOBAL DEFAULT     26 optind
-       117: 00000000004022b8      0       FUNC     GLOBAL DEFAULT     11  _init
-       118: 0000000000402340      0       FUNC     GLOBAL DEFAULT      0   free
-       119: 000000000061e620      8     OBJECT       WEAK DEFAULT     26 program_invocation_name
-       120: 000000000061e600      0     NOTYPE     GLOBAL DEFAULT     26 __bss_start
-       121: 000000000061f368      0     NOTYPE     GLOBAL DEFAULT     26   _end
-       122: 000000000061e620      8     OBJECT     GLOBAL DEFAULT     26 __progname_full
-       123: 0000000000412930     38       FUNC     GLOBAL DEFAULT     14 _obstack_memory_used
-       124: 000000000061e5f8      8     OBJECT     GLOBAL DEFAULT     25 obstack_alloc_failed_handler
-       125: 0000000000412750     17       FUNC     GLOBAL DEFAULT     14 _obstack_begin
-       126: 000000000061e600      0     NOTYPE     GLOBAL DEFAULT     25 _edata
-       127: 000000000061e640      8     OBJECT     GLOBAL DEFAULT     26 stderr
-       128: 00000000004128c0    106       FUNC     GLOBAL DEFAULT     14 _obstack_free
-       129: 000000000061e600      8     OBJECT       WEAK DEFAULT     26 program_invocation_short_name
-       130: 00000000004023a0      0       FUNC     GLOBAL DEFAULT      0 localtime_r
-       131: 0000000000412890     48       FUNC     GLOBAL DEFAULT     14 _obstack_allocated_p
-       132: 000000000061e618      8     OBJECT     GLOBAL DEFAULT     26 optarg
-       133: 0000000000412770     21       FUNC     GLOBAL DEFAULT     14 _obstack_begin_1
-       134: 0000000000412790    245       FUNC     GLOBAL DEFAULT     14 _obstack_newchunk
-       135: 0000000000402790      0       FUNC     GLOBAL DEFAULT      0 malloc
-       136: 000000000061e608      8     OBJECT     GLOBAL DEFAULT     26 stdout
-    [N] [print.c:80] symbols ok.
+     $ cat out.txt 
+    -= Volundr reading from a.out of 8608 bytes =-
+    Elf Header:
+    Magic:                               7f ELF
+    Class:                               64-Bit object
+    Data:                                2's complement, little endian
+    Version:                             1 Current version
+    OS ABI:                              UNIX System V ABI
+    ABI Version:                         0
+    Type:                                Executable file
+    Machine:                             AMD x86-64 architecture
+    Version:                             0x1
+    Entry point address:                 0000000000400430
+    Start of the program header:         64 (bytes into file)
+    Start of the section header:         6624 (bytes into file)
+    Flags:                               0000000000000000
+    Size of this header:                 64 (bytes)
+    Size of program headers:             56 (bytes)
+    Number of program headers:           9
+    Size of section header:              64 (bytes)
+    Number of section headers:           31
+    Section heander string table index:  28
+    Program Headers:
+          Type             Offset           Filesz           Vaddr            Paddr            Namesz           Align            Name
+     0: 0000000000000006 0000000000000040 00000000000001f8 0000000000400040 0000000000400040 00000000000001f8 0000000000000008 Header table entry 
+     1: 0000000000000003 0000000000000238 000000000000001c 0000000000400238 0000000000400238 000000000000001c 0000000000000001 Program interpreter 
+     2: 0000000000000001 0000000000000000 0000000000000714 0000000000400000 0000000000400000 0000000000000714 0000000000200000 Loadable segment 
+     3: 0000000000000001 0000000000000e10 0000000000000228 0000000000600e10 0000000000600e10 0000000000000230 0000000000200000 Loadable segment 
+     4: 0000000000000002 0000000000000e28 00000000000001d0 0000000000600e28 0000000000600e28 00000000000001d0 0000000000000008 Dynamic linking 
+     5: 0000000000000004 0000000000000254 0000000000000044 0000000000400254 0000000000400254 0000000000000044 0000000000000004 Auxiliary information 
+     6: 000000006474e550 00000000000005e8 0000000000000034 00000000004005e8 00000000004005e8 0000000000000034 0000000000000004 GCC .eh_frame_hdr segment 
+     7: 000000006474e551 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000010 Stack executability 
+     8: 000000006474e552 0000000000000e10 00000000000001f0 0000000000600e10 0000000000600e10 00000000000001f0 0000000000000001 Read-only after relocation Section Headers:
+          Type             Flags            Addr             Offset           Size             Link             Info             Align            Entsize
+     0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000  
+     1: 0000000000000001 0000000000000002 0000000000400238 0000000000000238 000000000000001c 0000000000000000 0000000000000000 0000000000000001 0000000000000000 .interp 
+     2: 0000000000000007 0000000000000002 0000000000400254 0000000000000254 0000000000000020 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .note.ABI-tag 
+     3: 0000000000000007 0000000000000002 0000000000400274 0000000000000274 0000000000000024 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .note.gnu.build-id 
+     4: 000000006ffffff6 0000000000000002 0000000000400298 0000000000000298 000000000000001c 0000000000000005 0000000000000000 0000000000000008 0000000000000000 .gnu.hash 
+     5: 000000000000000b 0000000000000002 00000000004002b8 00000000000002b8 0000000000000060 0000000000000006 0000000000000001 0000000000000008 0000000000000018 .dynsym 
+     6: 0000000000000003 0000000000000002 0000000000400318 0000000000000318 000000000000003f 0000000000000000 0000000000000000 0000000000000001 0000000000000000 .dynstr 
+     7: 000000006fffffff 0000000000000002 0000000000400358 0000000000000358 0000000000000008 0000000000000005 0000000000000000 0000000000000002 0000000000000002 .gnu.version 
+     8: 000000006ffffffe 0000000000000002 0000000000400360 0000000000000360 0000000000000020 0000000000000006 0000000000000001 0000000000000008 0000000000000000 .gnu.version_r 
+     9: 0000000000000004 0000000000000002 0000000000400380 0000000000000380 0000000000000018 0000000000000005 0000000000000000 0000000000000008 0000000000000018 .rela.dyn 
+    10: 0000000000000004 0000000000000042 0000000000400398 0000000000000398 0000000000000030 0000000000000005 0000000000000018 0000000000000008 0000000000000018 .rela.plt 
+    11: 0000000000000001 0000000000000006 00000000004003c8 00000000000003c8 000000000000001a 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .init 
+    12: 0000000000000001 0000000000000006 00000000004003f0 00000000000003f0 0000000000000030 0000000000000000 0000000000000000 0000000000000010 0000000000000010 .plt 
+    13: 0000000000000001 0000000000000006 0000000000400420 0000000000000420 0000000000000008 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .plt.got 
+    14: 0000000000000001 0000000000000006 0000000000400430 0000000000000430 00000000000001a2 0000000000000000 0000000000000000 0000000000000010 0000000000000000 .text 
+    15: 0000000000000001 0000000000000006 00000000004005d4 00000000000005d4 0000000000000009 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .fini 
+    16: 0000000000000001 0000000000000002 00000000004005e0 00000000000005e0 0000000000000008 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .rodata 
+    17: 0000000000000001 0000000000000002 00000000004005e8 00000000000005e8 0000000000000034 0000000000000000 0000000000000000 0000000000000004 0000000000000000 .eh_frame_hdr 
+    18: 0000000000000001 0000000000000002 0000000000400620 0000000000000620 00000000000000f4 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .eh_frame 
+    19: 000000000000000e 0000000000000003 0000000000600e10 0000000000000e10 0000000000000008 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .init_array 
+    20: 000000000000000f 0000000000000003 0000000000600e18 0000000000000e18 0000000000000008 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .fini_array 
+    21: 0000000000000001 0000000000000003 0000000000600e20 0000000000000e20 0000000000000008 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .jcr 
+    22: 0000000000000006 0000000000000003 0000000000600e28 0000000000000e28 00000000000001d0 0000000000000006 0000000000000000 0000000000000008 0000000000000010 .dynamic 
+    23: 0000000000000001 0000000000000003 0000000000600ff8 0000000000000ff8 0000000000000008 0000000000000000 0000000000000000 0000000000000008 0000000000000008 .got 
+    24: 0000000000000001 0000000000000003 0000000000601000 0000000000001000 0000000000000028 0000000000000000 0000000000000000 0000000000000008 0000000000000008 .got.plt 
+    25: 0000000000000001 0000000000000003 0000000000601028 0000000000001028 0000000000000010 0000000000000000 0000000000000000 0000000000000008 0000000000000000 .data 
+    26: 0000000000000008 0000000000000003 0000000000601038 0000000000001038 0000000000000008 0000000000000000 0000000000000000 0000000000000001 0000000000000000 .bss 
+    27: 0000000000000001 0000000000000030 0000000000000000 0000000000001038 0000000000000035 0000000000000000 0000000000000000 0000000000000001 0000000000000001 .comment 
+    28: 0000000000000003 0000000000000000 0000000000000000 00000000000018cd 000000000000010c 0000000000000000 0000000000000000 0000000000000001 0000000000000000 .shstrtab 
+    29: 0000000000000002 0000000000000000 0000000000000000 0000000000001070 0000000000000648 000000000000001e 000000000000002f 0000000000000008 0000000000000018 .symtab 
+    30: 0000000000000003 0000000000000000 0000000000000000 00000000000016b8 0000000000000215 0000000000000000 0000000000000000 0000000000000001 0000000000000000 .strtab .dynsym has 4 symbols:
+    Num        Val          Size    Type         Bind  Vis      Shndx Name
+      0: 0000000000000000      0     NOTYPE      LOCAL DEFAULT    UND       
+      1: 0000000000000000      0       FUNC     GLOBAL DEFAULT    UND printf
+      2: 0000000000000000      0       FUNC     GLOBAL DEFAULT    UND __libc_start_main
+      3: 0000000000000000      0     NOTYPE       WEAK DEFAULT    UND __gmon_start__
+    .symtab has 67 symbols:
+    Num        Val          Size    Type         Bind  Vis      Shndx Name
+      0: 0000000000000000      0     NOTYPE      LOCAL DEFAULT    UND       
+      1: 0000000000400238      0    SECTION      LOCAL DEFAULT      1       
+      2: 0000000000400254      0    SECTION      LOCAL DEFAULT      2       
+      3: 0000000000400274      0    SECTION      LOCAL DEFAULT      3       
+      4: 0000000000400298      0    SECTION      LOCAL DEFAULT      4       
+      5: 00000000004002b8      0    SECTION      LOCAL DEFAULT      5       
+      6: 0000000000400318      0    SECTION      LOCAL DEFAULT      6       
+      7: 0000000000400358      0    SECTION      LOCAL DEFAULT      7       
+      8: 0000000000400360      0    SECTION      LOCAL DEFAULT      8       
+      9: 0000000000400380      0    SECTION      LOCAL DEFAULT      9       
+     10: 0000000000400398      0    SECTION      LOCAL DEFAULT     10       
+     11: 00000000004003c8      0    SECTION      LOCAL DEFAULT     11       
+     12: 00000000004003f0      0    SECTION      LOCAL DEFAULT     12       
+     13: 0000000000400420      0    SECTION      LOCAL DEFAULT     13       
+     14: 0000000000400430      0    SECTION      LOCAL DEFAULT     14       
+     15: 00000000004005d4      0    SECTION      LOCAL DEFAULT     15       
+     16: 00000000004005e0      0    SECTION      LOCAL DEFAULT     16       
+     17: 00000000004005e8      0    SECTION      LOCAL DEFAULT     17       
+     18: 0000000000400620      0    SECTION      LOCAL DEFAULT     18       
+     19: 0000000000600e10      0    SECTION      LOCAL DEFAULT     19       
+     20: 0000000000600e18      0    SECTION      LOCAL DEFAULT     20       
+     21: 0000000000600e20      0    SECTION      LOCAL DEFAULT     21       
+     22: 0000000000600e28      0    SECTION      LOCAL DEFAULT     22       
+     23: 0000000000600ff8      0    SECTION      LOCAL DEFAULT     23       
+     24: 0000000000601000      0    SECTION      LOCAL DEFAULT     24       
+     25: 0000000000601028      0    SECTION      LOCAL DEFAULT     25       
+     26: 0000000000601038      0    SECTION      LOCAL DEFAULT     26       
+     27: 0000000000000000      0    SECTION      LOCAL DEFAULT     27       
+     28: 0000000000000000      0       FILE      LOCAL DEFAULT    ABS crtstuff.c
+     29: 0000000000600e20      0     OBJECT      LOCAL DEFAULT     21 __JCR_LIST__
+     30: 0000000000400460      0       FUNC      LOCAL DEFAULT     14 deregister_tm_clones
+     31: 00000000004004a0      0       FUNC      LOCAL DEFAULT     14 register_tm_clones
+     32: 00000000004004e0      0       FUNC      LOCAL DEFAULT     14 __do_global_dtors_aux
+     33: 0000000000601038      1     OBJECT      LOCAL DEFAULT     26 completed.7594
+     34: 0000000000600e18      0     OBJECT      LOCAL DEFAULT     20 __do_global_dtors_aux_fini_array_entry
+     35: 0000000000400500      0       FUNC      LOCAL DEFAULT     14 frame_dummy
+     36: 0000000000600e10      0     OBJECT      LOCAL DEFAULT     19 __frame_dummy_init_array_entry
+     37: 0000000000000000      0       FILE      LOCAL DEFAULT    ABS nada.c
+     38: 0000000000000000      0       FILE      LOCAL DEFAULT    ABS crtstuff.c
+     39: 0000000000400710      0     OBJECT      LOCAL DEFAULT     18 __FRAME_END__
+     40: 0000000000600e20      0     OBJECT      LOCAL DEFAULT     21 __JCR_END__
+     41: 0000000000000000      0       FILE      LOCAL DEFAULT    ABS       
+     42: 0000000000600e18      0     NOTYPE      LOCAL DEFAULT     19 __init_array_end
+     43: 0000000000600e28      0     OBJECT      LOCAL DEFAULT     22 _DYNAMIC
+     44: 0000000000600e10      0     NOTYPE      LOCAL DEFAULT     19 __init_array_start
+     45: 00000000004005e8      0     NOTYPE      LOCAL DEFAULT     17 __GNU_EH_FRAME_HDR
+     46: 0000000000601000      0     OBJECT      LOCAL DEFAULT     24 _GLOBAL_OFFSET_TABLE_
+     47: 00000000004005d0      2       FUNC     GLOBAL DEFAULT     14 __libc_csu_fini
+     48: 0000000000000000      0     NOTYPE       WEAK DEFAULT    UND _ITM_deregisterTMCloneTable
+     49: 0000000000601028      0     NOTYPE       WEAK DEFAULT     25 data_start
+     50: 0000000000601038      0     NOTYPE     GLOBAL DEFAULT     25 _edata
+     51: 00000000004005d4      0       FUNC     GLOBAL DEFAULT     15  _fini
+     52: 0000000000000000      0       FUNC     GLOBAL DEFAULT    UND printf@@GLIBC_2.2.5
+     53: 0000000000000000      0       FUNC     GLOBAL DEFAULT    UND __libc_start_main@@GLIBC_2.2.5
+     54: 0000000000601028      0     NOTYPE     GLOBAL DEFAULT     25 __data_start
+     55: 0000000000000000      0     NOTYPE       WEAK DEFAULT    UND __gmon_start__
+     56: 0000000000601030      0     OBJECT     GLOBAL HIDDEN     25 __dso_handle
+     57: 00000000004005e0      4     OBJECT     GLOBAL DEFAULT     16 _IO_stdin_used
+     58: 0000000000400560    101       FUNC     GLOBAL DEFAULT     14 __libc_csu_init
+     59: 0000000000601040      0     NOTYPE     GLOBAL DEFAULT     26   _end
+     60: 0000000000400430     42       FUNC     GLOBAL DEFAULT     14 _start
+     61: 0000000000601038      0     NOTYPE     GLOBAL DEFAULT     26 __bss_start
+     62: 0000000000400526     53       FUNC     GLOBAL DEFAULT     14   main
+     63: 0000000000000000      0     NOTYPE       WEAK DEFAULT    UND _Jv_RegisterClasses
+     64: 0000000000601038      0     OBJECT     GLOBAL HIDDEN     25 __TMC_END__
+     65: 0000000000000000      0     NOTYPE       WEAK DEFAULT    UND _ITM_registerTMCloneTable
+     66: 00000000004003c8      0       FUNC     GLOBAL DEFAULT     11  _init
+    
