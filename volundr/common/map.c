@@ -12,7 +12,7 @@
 #include "elfo.h"
 #include "map.h"
 #include "asm.h"
-/* x = offset to be aligned for mmap pages */
+/**< x = offset to be aligned for mmap pages */
 #define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
 
 
@@ -32,10 +32,15 @@
 
 
 /**
- * This function copies a file to memory
- *
  * @brief Copies a file from given file descritor to
  * memory from start address (usually (void*)0) to size.
+ *
+ * @param start The start address for the mapping
+ * @param size The size in bytes being requested for mapping
+ * @param fd File descriptor
+ * @param rv Memory address of mapped area
+ * @see file_open
+ * @see asm.h
  *
  * @return A valid mapping address.
  */
@@ -59,16 +64,18 @@ bool map_filemap(void* start, size_t size, int fd, void **rv) {
 }
 
 /**
- * This function write data on memory mapped segment
- *
  * @brief Copies src of size n to memory mapped segment.
+ * @param mapaddr Address of mapped memory
+ * @param src Source address
+ * @param len Size in bytes to be written
+ * @param rv Memory address of mapped area
  *
- * @return A valid mapping address.
+ * @return Whether operation was successful
  */
-bool map_write(void *mapaddr, const void* src, size_t n, void **rv) {
+bool map_write(void *mapaddr, const void *src, size_t len, void **rv) {
     bool status = false;
     if(mapaddr != NULL) {
-        *rv = memmove(mapaddr, src, n);
+        *rv = memmove(mapaddr, src, len);
         status = true;
     }
     else
@@ -78,12 +85,14 @@ bool map_write(void *mapaddr, const void* src, size_t n, void **rv) {
 }
 
 /**
- * This function changes mapping protection
- *
  * @brief Changes mapping protection from given mapping
- * address os size len.
+ * address of size len.
+ * @param mapaddr Address of mapped memory
+ * @param len Size in bytes of memory area
+ * @param prot Protection to set
+ * @see asm.h
  *
- * @return success or error
+ * @return Whether operation was successful
  */
 i32 map_mprotect(void* mapaddr, size_t len, i32 prot) {
     i32 ret = -1;
@@ -100,18 +109,18 @@ i32 map_mprotect(void* mapaddr, size_t len, i32 prot) {
 }
 
 /**
- * This function synchronizes memory to its file reference on disk.
- *
  * @brief Synchronizes memory mapped region with its file on disk.
+ * @param mapaddr Address of mapped memory
+ * @param len Size in bytes of memory area
  *
- * @return success or error
+ * @return Whether operation was successful
  */
-i32 map_sync(void* mapaddr, off_t size) {
+i32 map_sync(void* mapaddr, off_t len) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
         if((ret = msync(mapaddr
-                        , size
+                        , len
                         , MS_SYNC) == -1))
         {
             log_error("msync: %s", strerror(errno));
@@ -126,17 +135,18 @@ i32 map_sync(void* mapaddr, off_t size) {
 
 
 /**
- * This function unmaps memory segment
- *
  * @brief Unmaps memory segment from given address to given size
+ * @param mapaddr Address of mapped memory
+ * @param len Size in bytes of memory area
+ * @see asm.h
  *
- * @return success or error
+ * @return Whether operation was successful
  */
-i32 map_fileunmap(void* mapaddr, off_t size) {
+i32 map_fileunmap(void *mapaddr, off_t len) {
     i32 ret = -1;
 
     if(mapaddr != NULL) {
-        if((ret = asm_munmap(mapaddr, size)) == -1) {
+        if((ret = asm_munmap(mapaddr, len)) == -1) {
             log_error("munmap: %s", strerror(errno));
         } else {
             log_debug("file unmaped from %p", mapaddr);

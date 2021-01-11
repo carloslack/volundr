@@ -56,7 +56,7 @@ static void version(void)
 /**
  * @brief parse and print elf header, program, sections and symbols
  */
-static bool dump_elf_data(FILE *felf, FILE *fout, enum vflags flags)
+static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vflags flags)
 {
     ASSERT_ARG_RET_FALSE(felf && fout);
 
@@ -68,7 +68,7 @@ static bool dump_elf_data(FILE *felf, FILE *fout, enum vflags flags)
     }
 
     /* Load the file in the hope it is an ELF */
-    elf_t *elfo = elf_parse_file(felf);
+    elf_t *elfo = elf_parse_file(filename, felf);
     elf_set_my_elfo(elfo);
 
 
@@ -98,12 +98,29 @@ static bool dump_elf_data(FILE *felf, FILE *fout, enum vflags flags)
 
     /* Display symbols */
     if (!flags || flags & V_SYM) {
-        elf_shdr_t **sym_tables = elf_parse_all_symtabs();
-        if (sym_tables) {
-            for(int i=0; sym_tables[i] != NULL; i++)
-                elf_print_symtab(fout, sym_tables[i]);
+        elf_shdr_t **sht_dynsym = elf_get_section_header(SHT_DYNSYM);
+        if (sht_dynsym) {
+            for(int i=0; sht_dynsym[i] != NULL; i++) {
+                elf_sym_t **syms = elf_load_section_header_symbols(sht_dynsym[i]);
+                elf_print_symtab(fout, sht_dynsym[i], (const elf_sym_t**)syms);
+            }
+        }
+        elf_shdr_t **sht_symtab = elf_get_section_header(SHT_SYMTAB);
+        if (sht_symtab) {
+            for(int i=0; sht_symtab[i] != NULL; i++) {
+                elf_sym_t **syms = elf_load_section_header_symbols(sht_symtab[i]);
+                elf_print_symtab(fout, sht_symtab[i], (const elf_sym_t**)syms);
+            }
         }
     }
+
+    /* The mother of all cleanups */
+    assert(elf_destroy_program(elfo));
+    assert(elf_destroy_section(elfo));
+    assert(elf_destroy_global_symbol_table(elfo));
+    assert(elf_destroy_symbol_table(elfo));
+    assert(elf_destroy_header(elfo));
+    assert(elf_destroy_elfo(elfo));
 
     return true;
 }
@@ -159,20 +176,16 @@ int main(int argc, char** argv)
     FILE *felf = file_open_ro(binfile);
     if (felf) {
         /* Go! */
-        dump_elf_data(felf, fout, flags);
+        dump_elf_data(binfile, felf, fout, flags);
 
         /* volundr implements some x64 syscalls */
         asm_close(fileno(felf));
     }
 
-    /* Get the main elf object */
-    elf_t *elfo = elf_get_my_elfo();
 
-    /* Do some cleanup */
-    assert(elf_destroy_header(elfo));
-    assert(elf_destroy_program(elfo));
-    assert(elf_destroy_section(elfo));
-    assert(elf_destroy_elfo(elfo));
+    if (fout != stdout)
+        file_close(fout);
+    file_close(felf);
 
     return 0;
 }

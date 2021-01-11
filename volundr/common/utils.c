@@ -144,9 +144,8 @@ void dump_buff_hex(void *buf, u32 len) {
     i32 i;
     unsigned char *p = (unsigned char*)buf;
 
-    for(i = 0; i < len; i++) {
+    for(i = 0; i < len; i++)
         log_info("\\x%x", p[i]);
-    }
     log_info("\n");
 }
 
@@ -155,9 +154,8 @@ unsigned long hash_string(const unsigned char *name) {
     while (*name) {
         unsigned long g;
         h = (h << 4) + *name++;
-        if ((g = h) & 0xf0000000) {
+        if ((g = h) & 0xf0000000)
             h ^= g >> 24;
-        }
         h &= ~g;
     }
     return h;

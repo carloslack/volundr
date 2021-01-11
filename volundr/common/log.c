@@ -1,3 +1,8 @@
+/**
+ *    @file  log.c
+ *   @brief  Log wrapper interface
+ */
+
 #include <stdio.h>
 #include <stdarg.h>
 

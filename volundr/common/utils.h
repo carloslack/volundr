@@ -15,14 +15,21 @@
 
 #define ASSERT_RET(x,y,z) {             \
                 if(!(x)) {              \
-                    log_debug((y));     \
+                    log_error((y));     \
                     return z;           \
                 }                       \
+    }
+
+#define ASSERT_(x,y,z) {                \
+                if(!(x))                \
+                    log_error((y));     \
     }
 
 
 #define ASSERT_RET_NULL(x,y)    ASSERT_RET(x,y,NULL)
 #define ASSERT_RET_FALSE(x,y)   ASSERT_RET(x,y,false)
+#define ASSERT_NULL(x,y)    ASSERT_(x,y,NULL)
+#define ASSERT_FALSE(x,y)   ASSERT_(x,y,false)
 
 // argument asserts
 #define ASSERT_ARG_RET_NULL(x)  ASSERT_RET_NULL(x,ARG_MSG)
@@ -32,14 +39,21 @@
 #define ASSERT_CON_RET_NULL(x)  ASSERT_RET_NULL(x,CON_MSG)
 #define ASSERT_CON_RET_FALSE(x) ASSERT_RET_FALSE(x,CON_MSG)
 
+#define ASSERT_CON_NULL(x)  ASSERT_NULL(x,CON_MSG)
+#define ASSERT_CON_FALSE(x) ASSERT_FALSE(x,CON_MSG)
+
 // smart file opens
 #define file_open_rw(x) (file_open(x, "a+"))
 #define file_open_ro(x) (file_open(x, "rb"))
 #define file_open_ow(x) (file_open(x, "w+"))
+#define file_close(x) (fclose(x))
 
+/**
+ *  @brief Holds some data about ELF raw file from the disk
+ */
 struct mapped_file{
-    struct  stat    st;
-    void    *mapaddr;
+    struct  stat    st;     /**< stat, currently only for file size */
+    void    *mapaddr;       /**< ELF file */
 };
 
 off_t   file_size           (FILE*);
