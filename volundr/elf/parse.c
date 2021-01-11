@@ -48,7 +48,7 @@ static elf_shdr_t *_elf_get_shdr_byname(const elf_t *elfo, const sbyte *name)
     size_t len = strlen(name);
 
     for(int i = 0; i<SHNUM(elfo) && !shdr; i++) {
-        char *curr = elf_get_section_header_name(elfo->shdrs[i]);
+        char *curr = elf_get_section_header_name(elfo, elfo->shdrs[i]);
         if(curr && strlen(curr) == len && !strncmp(name, curr, len))
             shdr = elfo->shdrs[i];
     }
@@ -187,7 +187,7 @@ elf_t *elf_parse_file(const char *filename, FILE *fp)
     elfo->phdrs = elf_parse_phdrs(elfo);
     elfo->shdrs = elf_parse_shdrs(elfo);
 
-    return elfo;
+    return elf_set_my_elfo(elfo);
 }
 
 /*@} ELF.interfaces */
@@ -221,9 +221,8 @@ elf_t *elf_parse_file(const char *filename, FILE *fp)
  *
  * @return Index of given section, if any
  */
-elf_word_t elf_parse_shdr_idx_byname(const sbyte *name)
+elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const sbyte *name)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     elf_word_t idx = -1;
     if(!(elfo && elfo->shdrs && name != NULL))
         return idx;
@@ -231,7 +230,7 @@ elf_word_t elf_parse_shdr_idx_byname(const sbyte *name)
     size_t len = strlen(name);
 
     for(elf_word_t i=0; i<SHNUM(elfo) && idx == -1; i++) {
-        sbyte *curr = elf_get_section_header_name(elfo->shdrs[i]);
+        sbyte *curr = elf_get_section_header_name(elfo, elfo->shdrs[i]);
         if(strlen(curr) == len && !strncmp(name, curr, len))
             idx = i;
     }
@@ -247,16 +246,15 @@ elf_word_t elf_parse_shdr_idx_byname(const sbyte *name)
  *
  * @return A string containing section's name
  */
-char *elf_parse_shname_byindex(elf_word_t shidx)
+char *elf_parse_shname_byindex(const elf_t *elfo, elf_word_t shidx)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     elf_word_t n = 0;
     sbyte *shstrtab = NULL;
 
     ASSERT_ARG_RET_NULL(elf_validate_index(elfo, shidx));
     ASSERT_CON_RET_NULL(elfo->shdrs);
 
-    shstrtab = elf_parse_shstrtab(NULL);
+    shstrtab = elf_parse_shstrtab(elfo, NULL);
     ASSERT_RET_NULL(shstrtab && n, "Invalid .shstrtab");
 
     elf_word_t index = elfo->shdrs[shidx]->sh_name;
@@ -274,11 +272,11 @@ char *elf_parse_shname_byindex(elf_word_t shidx)
  *
  * @return A string containing section's name
  */
-sbyte *elf_get_section_header_name(const elf_shdr_t *shdr)
+sbyte *elf_get_section_header_name(const elf_t *elfo, const elf_shdr_t *shdr)
 {
     ASSERT_CON_RET_NULL(shdr);
 
-    sbyte *shstrtab = elf_parse_shstrtab(NULL);
+    sbyte *shstrtab = elf_parse_shstrtab(elfo, NULL);
     return shstrtab ? SHNAME(shdr,shstrtab) : NULL;
 }
 
@@ -298,13 +296,14 @@ sbyte *elf_get_section_header_name(const elf_shdr_t *shdr)
  * @note only call this from elf_load_section_header_global_symbols
  * @see elf_load_section_header_global_symbols
  */
-static void _elf_store_global_symbol_table(elf_shdr_t **shdrs,
-        elf_t *elfo, elf_word_t sh_type)
+static void _elf_store_global_symbol_table(const elf_t *elfo, elf_shdr_t **shdrs
+        , elf_word_t sh_type)
 {
+    elf_t *e = (elf_t*)elfo;
     if (sh_type == SHT_SYMTAB)
-        elfo->sht_symtab = shdrs;
+        e->sht_symtab = shdrs;
     else
-        elfo->sht_dynsym = shdrs;
+        e->sht_dynsym = shdrs;
 }
 /**
  * @brief Read all section headers of a given type.
@@ -320,9 +319,8 @@ static void _elf_store_global_symbol_table(elf_shdr_t **shdrs,
  * @note it stores global symbol table on elfo object
  * @note stored object must be freed when no longer needed
  */
-elf_shdr_t **elf_load_section_header_global_symbols(elf_word_t sh_type)
+elf_shdr_t **elf_load_section_header_global_symbols(const elf_t *elfo, elf_word_t sh_type)
 {
-    elf_t *elfo = elf_get_my_elfo();
     ASSERT_ARG_RET_FALSE(sh_type == SHT_SYMTAB || sh_type == SHT_DYNSYM);
     ASSERT_CON_RET_NULL(elfo->shdrs);
 
@@ -342,7 +340,7 @@ elf_shdr_t **elf_load_section_header_global_symbols(elf_word_t sh_type)
     shdrs[cnt] = NULL;
     shdrs = srealloc(shdrs, (cnt+1)*sizeof(elf_shdr_t));
 
-    _elf_store_global_symbol_table(shdrs, elfo, sh_type);
+    _elf_store_global_symbol_table(elfo, shdrs, sh_type);
 
     return shdrs;
 }
@@ -359,9 +357,9 @@ elf_shdr_t **elf_load_section_header_global_symbols(elf_word_t sh_type)
  *
  * This method depends on calling elf_parse_shdrs first.
  */
-elf_shdr_t **elf_get_section_header(elf_word_t sh_type)
+elf_shdr_t **elf_get_section_header(const elf_t *elfo, elf_word_t sh_type)
 {
-    elf_shdr_t **symtabs = elf_load_section_header_global_symbols(sh_type);
+    elf_shdr_t **symtabs = elf_load_section_header_global_symbols(elfo, sh_type);
     return symtabs;
 }
 
@@ -375,23 +373,24 @@ elf_shdr_t **elf_get_section_header(elf_word_t sh_type)
  *  @note only call this from elf_load_section_header_symbols
  *  @see elf_load_section_header_symbols
  */
-static void _elf_store_symbol_table(elf_sym_t **syms,
-        elf_t *elfo, elf_word_t sh_type)
+static void _elf_store_symbol_table(const elf_t *elfo, elf_sym_t **syms, elf_word_t sh_type)
 {
+    elf_t *e = (elf_t *)elfo;
     if (sh_type == SHT_SYMTAB)
-        elfo->syms_symtab = syms;
+        e->syms_symtab = syms;
     else
-        elfo->syms_dynsym = syms;
+        e->syms_dynsym = syms;
 }
 /**
  * @brief Read symbols from symbol table.
  *
+ * @param elfo The main elf object (handler)
  * @param symtab The Symbol Table
  *
  * @return An array of ELF Symbols. Returns NULL if there are no symbols
  */
 
-elf_sym_t **elf_load_section_header_symbols(elf_shdr_t *symtab)
+elf_sym_t **elf_load_section_header_symbols(const elf_t *elfo, elf_shdr_t *symtab)
 {
     ASSERT_ARG_RET_NULL(symtab);
     ASSERT_CON_RET_NULL(symtab->sh_type == SHT_SYMTAB ||
@@ -403,7 +402,6 @@ elf_sym_t **elf_load_section_header_symbols(elf_shdr_t *symtab)
         return NULL;
     }
 
-    elf_t *elfo = elf_get_my_elfo();
     size_t size = sentnum+1 * sizeof(elf_sym_t*);
     elf_sym_t **syms = smalloc(size * sizeof(elf_sym_t*));
 
@@ -416,7 +414,7 @@ elf_sym_t **elf_load_section_header_symbols(elf_shdr_t *symtab)
     syms[i] = (elf_sym_t*)0;
 
     /** Store the current symbol table */
-    _elf_store_symbol_table(syms, elfo, symtab->sh_type);
+    _elf_store_symbol_table(elfo, syms, symtab->sh_type);
 
     return syms;
 }
@@ -474,15 +472,15 @@ elf_shdr_t **elf_parse_all_strtabs(void)
  * @note This method depends on calling elf_parse_shdrs first.
  * @see elf_parse_shdrs
  *
+ * @param elfo The main elf object (handler)
  * @return An array of bytes (hopefully, a sequence of strings) containing
  * all elements of string table pointed by section header of given index.
  */
-char *elf_parse_strtab_byindex(elf_half_t sh_idx, elf_word_t *n, elf_sym_t **syms)
+char *elf_parse_strtab_byindex(const elf_t *elfo, elf_half_t sh_idx, elf_word_t *n, elf_sym_t **syms)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     ASSERT_ARG_RET_NULL(elf_validate_index(elfo, sh_idx));
     elf_shdr_t *shdr = elfo->shdrs[sh_idx];
-    sbyte *strings = elf_parse_shstrtab(syms);
+    sbyte *strings = elf_parse_shstrtab(elfo, syms);
     if(strings != NULL && n != NULL) {
         *n = shdr->sh_size;
     }
@@ -498,13 +496,13 @@ char *elf_parse_strtab_byindex(elf_half_t sh_idx, elf_word_t *n, elf_sym_t **sym
  * @see elf_parse_ehdr
  * @see elf_parse_shdrs
  *
+ * @param elfo The main elf object (handler)
  * @return An array of bytes (hopefully, a sequence of strings) containing
  * all elements of .shstrtab string table.
  */
-sbyte* elf_parse_shstrtab(elf_sym_t **syms)
+sbyte* elf_parse_shstrtab(const elf_t *elfo, elf_sym_t **syms)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
-    ASSERT_CON_RET_NULL(elfo->ehdr && elfo->shdrs);
+    ASSERT_CON_RET_NULL(elfo && elfo->ehdr && elfo->shdrs);
     if(elfo->ehdr->e_shstrndx == SHN_UNDEF) {
         log_debug("undefined string table");
         return NULL;
@@ -516,12 +514,12 @@ sbyte* elf_parse_shstrtab(elf_sym_t **syms)
 /**
  * @brief Read .dynstr section's string table.
  *
+ * @param elfo The main elf object (handler)
  * @return An array of bytes (hopefully, a sequence of strings) containing
  * all elements of .dynstr string table.
  */
-unsigned char* elf_get_symname_offset(const char *name)
+unsigned char* elf_get_symname_offset(const elf_t *elfo, const char *name)
 {
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
     elf_shdr_t *sct = _elf_get_shdr_byname(elfo, name);
     if(sct == NULL) {
         log_debug("%s not found!", name);
@@ -530,6 +528,28 @@ unsigned char* elf_get_symname_offset(const char *name)
     return ((unsigned char*)elfo->mapaddr + sct->sh_offset);
 }
 
+
+/************ GETTERS ************/
+/**
+ * @defgroup getters
+ * @ingroup parse
+ * @addtogroup getters Getters
+ * @{
+ */
+
+elf_ehdr_t *elf_get_elf_header(const elf_t *elfo) {
+    return elf_parse_ehdr(elfo);
+}
+
+elf_phdr_t **elf_get_elf_programs(const elf_t *elfo) {
+    return elf_parse_phdrs(elfo);
+}
+
+elf_shdr_t **elf_get_elf_sections(const elf_t *elfo) {
+    return elf_parse_shdrs(elfo);
+}
+
 /** @} */
 
+/** @} */
 /* __EOF__ */

@@ -50,6 +50,17 @@ static const char *__volundr_ver__="0.1";
 #define ST_BIND(i)      (ELF64_ST_BIND(i))
 #define ST_TYPE(i)      (ELF64_ST_TYPE(i))
 #define ST_INFO(b,t)    (ELF64_ST_INFO(b,t))
+#define ELF_DICT(result, type, val)                 \
+do {                                                \
+    *result = ELFDEF;                               \
+    for (int i = 0; _ ## type[i].idx != -1; ++i) {  \
+        if (val == _ ## type[i].i) {                \
+            *result = i;                            \
+            break;                                  \
+        }                                           \
+    }                                               \
+} while(0)
+
 
 /*! @see /usr/include/elf.h (depending on your system) */
 typedef Elf64_Addr      elf_addr_t;

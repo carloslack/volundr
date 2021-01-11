@@ -26,17 +26,6 @@
 #include "log.h"
 #include "utils.h"
 
-#define ELF_DICT(result, type, val)                 \
-do {                                                \
-    *result = ELFDEF;                               \
-    for (int i = 0; _ ## type[i].idx != -1; ++i) {  \
-        if (val == _ ## type[i].i) {                \
-            *result = i;                            \
-            break;                                  \
-        }                                           \
-    }                                               \
-} while(0)
-
 /**
  * @brief
  * This is a special case because we'll always want to print
@@ -60,7 +49,7 @@ static elf_info_t *get_index(int index_nr) {
     return &rv;
 }
 
-static void inline _elf_print_fname(FILE *fout, elf_t *elfo) {
+static void inline _elf_print_fname(const elf_t *elfo, FILE *fout) {
     static bool p = false;
     if (!p) {
         logf_it( fout, "-= Volundr reading from %s of %lu bytes =-\n",
@@ -69,17 +58,16 @@ static void inline _elf_print_fname(FILE *fout, elf_t *elfo) {
     }
 }
 
-bool elf_print_header(FILE* fout) {
-    if(fout == NULL) {
+bool elf_print_header(const elf_t *elfo, FILE* fout) {
+    if(fout == NULL || elfo == NULL) {
         log_debug("elf_print_header : invalid argument\n");
         return false;
     }
 
-    elf_t *elfo = elf_get_my_elfo();
     const elf_ehdr_t *ehdr = elfo->ehdr;
     int index;
 
-    _elf_print_fname(fout, elfo);
+    _elf_print_fname(elfo, fout);
     logf_it(fout, "Elf Header:\n");
     logf_it(fout, "Magic:                               %x %c%c%c\n", ehdr->e_ident[EI_MAG0],
             ehdr->e_ident[EI_MAG1], ehdr->e_ident[EI_MAG2], ehdr->e_ident[EI_MAG3]);
@@ -112,10 +100,9 @@ bool elf_print_header(FILE* fout) {
     return true;
 }
 
-bool elf_print_programs(FILE* fout) // XXX : either programs
+bool elf_print_programs(const elf_t *elfo, FILE *fout) // XXX : either programs
                                                  // or phdrs...
 {
-    const elf_t *elfo = elf_get_my_elfo();
     const elf_ehdr_t *ehdr = (const elf_ehdr_t *)elfo->ehdr;
     const elf_phdr_t **phdr = (const elf_phdr_t **)elfo->phdrs;
 
@@ -124,7 +111,7 @@ bool elf_print_programs(FILE* fout) // XXX : either programs
         return false;
     }
 
-    _elf_print_fname(fout, elf_get_my_elfo());
+    _elf_print_fname(elfo, fout);
 
     if (ehdr->e_phnum > 0)
         logf_it(fout, "Program Headers:\n%14s% 19s% 17s% 16s% 17s% 18s %15s %15s",
@@ -148,9 +135,8 @@ bool elf_print_programs(FILE* fout) // XXX : either programs
     return true;
 }
 
-bool elf_print_sections(FILE *fout)
+bool elf_print_sections(const elf_t *elfo, FILE *fout)
 {
-    elf_t *elfo = elf_get_my_elfo();
     const elf_ehdr_t *ehdr = (const elf_ehdr_t *)elfo->ehdr;
     const elf_shdr_t **shdrs = (const elf_shdr_t **)elfo->shdrs;
 
@@ -160,13 +146,13 @@ bool elf_print_sections(FILE *fout)
     }
 
 
-    _elf_print_fname(fout, elf_get_my_elfo());
+    _elf_print_fname(elfo, fout);
 
     if (ehdr->e_shnum)
         logf_it(fout, "Section Headers:\n%14s% 18s% 16s% 19s% 15s% 17s %16s %17s %18s",
                 "Type", "Flags", "Addr", "Offset", "Size", "Link", "Info", "Align", "Entsize", "Name" );
     for(int i=0; i < ehdr->e_shnum; i++) {
-        char *shname = elf_get_section_header_name(shdrs[i]);
+        char *shname = elf_get_section_header_name(elfo, shdrs[i]);
         logf_it(fout, "\n%6d: %016llx ", i, shdrs[i]->sh_type);
         logf_it(fout, "%016llx ",shdrs[i]->sh_flags);
         logf_it(fout, "%016llx ", shdrs[i]->sh_addr);
@@ -183,24 +169,24 @@ bool elf_print_sections(FILE *fout)
     return true;
 }
 
-bool elf_print_symtab(FILE *fout, const elf_shdr_t *symtab, const elf_sym_t **syms)
+bool elf_print_symtab(const elf_t *elfo, FILE *fout, const elf_shdr_t *symtab, const elf_sym_t **syms)
 {
     ASSERT_ARG_RET_FALSE(fout && symtab && syms);
 
     unsigned char *name_off = NULL;
     int sentnum = SENTNUM(symtab);
-    char *symtab_name = elf_get_section_header_name(symtab);
+    char *symtab_name = elf_get_section_header_name(elfo, symtab);
     if(symtab_name == NULL) {
         log_error("Could not read symbol table's name");
         return false;
     }
 
     if (!strcmp(symtab_name, ".dynsym"))
-        name_off = elf_get_symname_offset(".dynstr");
+        name_off = elf_get_symname_offset(elfo, ".dynstr");
     else if (!strcmp(symtab_name, ".symtab"))
-        name_off = elf_get_symname_offset(".strtab");
+        name_off = elf_get_symname_offset(elfo, ".strtab");
 
-    _elf_print_fname(fout, elf_get_my_elfo());
+    _elf_print_fname(elfo, fout);
     // introduction
     logf_it(fout, "%s has %lu symbols:\n"
             , symtab_name, sentnum);

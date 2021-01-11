@@ -60,7 +60,6 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 {
     ASSERT_ARG_RET_FALSE(felf && fout);
 
-    log_debug("whatever");
     // validate it
     if(!elf_validate_filetype(felf)) {
         log_warning("Not a valid ELF file");
@@ -69,12 +68,11 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Load the file in the hope it is an ELF */
     elf_t *elfo = elf_parse_file(filename, felf);
-    elf_set_my_elfo(elfo);
 
 
     /* Display ELF Header */
     if (!flags || flags & V_HEADER) {
-        if(!elf_print_header(fout)) {
+        if(!elf_print_header(elfo, fout)) {
             log_error("failed reading headers");
             return false;
         }
@@ -82,7 +80,7 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Display programs section */
     if (!flags || flags & V_PROGRAM) {
-        if(!elf_print_programs(fout)) {
+        if(!elf_print_programs(elfo, fout)) {
             log_error("failed reading programs");
             return false;
         }
@@ -90,7 +88,7 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Display ELF sections */
     if (!flags || flags & V_SECTION) {
-        if(!elf_print_sections(fout)) {
+        if(!elf_print_sections(elfo, fout)) {
             log_error("failed reading sections");
             return false;
         }
@@ -98,29 +96,24 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Display symbols */
     if (!flags || flags & V_SYM) {
-        elf_shdr_t **sht_dynsym = elf_get_section_header(SHT_DYNSYM);
+        elf_shdr_t **sht_dynsym = elf_get_section_header(elfo, SHT_DYNSYM);
         if (sht_dynsym) {
             for(int i=0; sht_dynsym[i] != NULL; i++) {
-                elf_sym_t **syms = elf_load_section_header_symbols(sht_dynsym[i]);
-                elf_print_symtab(fout, sht_dynsym[i], (const elf_sym_t**)syms);
+                elf_sym_t **syms = elf_load_section_header_symbols(elfo, sht_dynsym[i]);
+                elf_print_symtab(elfo, fout, sht_dynsym[i], (const elf_sym_t**)syms);
             }
         }
-        elf_shdr_t **sht_symtab = elf_get_section_header(SHT_SYMTAB);
+        elf_shdr_t **sht_symtab = elf_get_section_header(elfo, SHT_SYMTAB);
         if (sht_symtab) {
             for(int i=0; sht_symtab[i] != NULL; i++) {
-                elf_sym_t **syms = elf_load_section_header_symbols(sht_symtab[i]);
-                elf_print_symtab(fout, sht_symtab[i], (const elf_sym_t**)syms);
+                elf_sym_t **syms = elf_load_section_header_symbols(elfo, sht_symtab[i]);
+                elf_print_symtab(elfo, fout, sht_symtab[i], (const elf_sym_t**)syms);
             }
         }
     }
 
     /* The mother of all cleanups */
-    assert(elf_destroy_program(elfo));
-    assert(elf_destroy_section(elfo));
-    assert(elf_destroy_global_symbol_table(elfo));
-    assert(elf_destroy_symbol_table(elfo));
-    assert(elf_destroy_header(elfo));
-    assert(elf_destroy_elfo(elfo));
+    assert(elf_destroy_all(elfo));
 
     return true;
 }
