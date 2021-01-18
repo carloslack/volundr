@@ -1,7 +1,3 @@
-[[  This is an old project of mine that I left behind at some point
-and might play with and see how far I can go with it.
-    Currently this code is quite useless and need some effort to get this moving forward. ]]
-
 elf/            = ELF library
 asm/            = syscalls
 common/         = Common library
