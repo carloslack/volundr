@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 #ifdef _TYPES_DECLARE
@@ -28,24 +29,20 @@
 #define _TYPES_XTRN extern
 #endif
 
-#if defined( PARANOID_CHECK ) && defined( LOOSE_CHECK )
-# error "Conflicting pre-processor definition: PARANOID_CHECK, LOOSE_CHECK"
-#endif
-
 #define USEMAP // TODO: Remove it later. It is just for fread/mmap transition
 
 #ifndef PT_PAX_FLAGS
 #define PT_PAX_FLAGS 0x65041580 /* Indicates PaX flag markings */
 #endif
 
-#define false   0
-#define true    1
+//#define false   0
+//#define true    1
 #define ELF_SUCCESS 0
 #define ELF_FAILURE -1
 /*! @see types.c */
 #define ELFDEF -1
 
-static const char *__volundr_ver__="0.1";
+static const char *__volundr_ver__="1.0";
 
 #define ST_BIND(i)      (ELF64_ST_BIND(i))
 #define ST_TYPE(i)      (ELF64_ST_TYPE(i))
@@ -128,9 +125,9 @@ typedef struct elf
  *
  */
 typedef struct elf_info {
-    i32 idx;                        /**< Index used in for/while loops */
-    i32 i;                          /**< ELF code */
-    sbyte* name;                    /**< Text representing the code */
+    int32_t idx;                        /**< Index used in for/while loops */
+    int32_t i;                          /**< ELF code */
+    char *name;                    /**< Text representing the code */
 } elf_info_t;
 
 
@@ -147,7 +144,7 @@ typedef struct elf_info {
 /* x = string table, y = index; look-up name in string table */
 #define NAME2STR(x,y)   (x + y)
 
-/* x = section header, y = .shstrtab content (sbyte*) */
+/* x = section header, y = .shstrtab content (char*) */
 #define SHNAME(x,y)     (NAME2STR(y,(x)->sh_name))
 
 /* x = symbol, y = string table to look-up */

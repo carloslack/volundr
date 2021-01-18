@@ -25,12 +25,12 @@ bool map_write     (void* mapaddr, const void* src, size_t n, void **);
 /** Changes mapping protection from given mapping
  * address os size len
  */
-i32 map_mprotect    (void* mapaddr, size_t len, i32 prot);
+int32_t map_mprotect    (void* mapaddr, size_t len, int32_t prot);
 
 /** Synchronizes memory mapped region with its file on disk */
-i32 map_sync     	(void* mapaddr, off_t size);
+int32_t map_sync     	(void* mapaddr, off_t size);
 
 /** Unmaps memory segment from given address to given size */
-i32 map_fileunmap   (void* mapaddr, off_t size);
+int32_t map_fileunmap   (void* mapaddr, off_t size);
 
 #endif

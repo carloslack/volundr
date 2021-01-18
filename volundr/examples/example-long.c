@@ -13,6 +13,7 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "utils.h"

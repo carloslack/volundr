@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "utils.h"
@@ -22,7 +23,7 @@
 #include "asm.h"
 #include "map.h"
 
-FILE* file_open(const sbyte* filein, const sbyte *mode,
+FILE* file_open(const char* filein, const char *mode,
         open_mode_t m, open_mode_t *rv)
 {
     ASSERT_CON_RET_NULL(rv != NULL);
@@ -77,10 +78,10 @@ bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
     return true;
 }
 
-sbyte* get_binary_name(const sbyte* name)
+char* get_binary_name(const char* name)
 {
-    sbyte* qq = strdup(name);
-    sbyte* ret = NULL;
+    char* qq = strdup(name);
+    char* ret = NULL;
 
     while(strsep(&qq, "/")) {
         if(qq)
@@ -90,17 +91,17 @@ sbyte* get_binary_name(const sbyte* name)
     }
 
     if(!ret)
-        return (sbyte*)name;
+        return (char*)name;
     else
         return ret;
 }
 
-sbyte *get_output_name(const sbyte* base, const sbyte* radix)
+char *get_output_name(const char* base, const char* radix)
 {
     char *new_name = NULL;
     if(NULL != base)
     {
-        sbyte* biname = get_binary_name(base);
+        char* biname = get_binary_name(base);
         new_name = malloc(strlen(biname)+strlen(radix)+1);
         strcpy(new_name,biname);
         strcat(new_name,radix);
@@ -152,11 +153,11 @@ char *sstrdup(const char *str)
     return p;
 }
 
-void dump_buff(void *str, u32 len) {
-    i32 i,j;
-    sbyte *s = (sbyte*)str;
+void dump_buff(void *str, uint32_t len) {
+    int32_t i,j;
+    char *s = (char*)str;
 
-    sbyte str_out[len];
+    char str_out[len];
 
     for(i = 0, j = 0; i < len; i++) {
         if(s[i] >= 33 && s[i] <= 126)
@@ -167,8 +168,8 @@ void dump_buff(void *str, u32 len) {
     log_debug_buff(str_out);
 }
 
-void dump_buff_hex(void *buf, u32 len) {
-    i32 i;
+void dump_buff_hex(void *buf, uint32_t len) {
+    int32_t i;
     unsigned char *p = (unsigned char*)buf;
 
     for(i = 0; i < len; i++)

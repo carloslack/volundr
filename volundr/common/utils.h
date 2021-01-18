@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define FINFOUT 2
 #define MAXFOPEN 128
@@ -62,12 +63,12 @@ struct mapped_file{
 };
 
 off_t   file_size           (FILE*);
-FILE    *file_open          (const sbyte* filein, const sbyte *, open_mode_t, open_mode_t *);
+FILE    *file_open          (const char* filein, const char *, open_mode_t, open_mode_t *);
 bool    file_load_target    (struct mapped_file *, FILE *, open_mode_t);
 bool    file_load_source    (struct mapped_file *file_data, FILE *fp);
-FILE*   open_output         (const sbyte *); // XXX rename to file_open_output?
-char*   get_output_name     (const sbyte *, const sbyte*);
-sbyte*  get_binary_name     (const sbyte*);
+FILE*   open_output         (const char *); // XXX rename to file_open_output?
+char*   get_output_name     (const char *, const char*);
+char*  get_binary_name     (const char*);
 
 void* smalloc       (size_t);
 void* scalloc       (size_t, size_t);
@@ -76,7 +77,7 @@ void  sfree         (void**);
 
 char*   sstrdup             (const char*);
 
-void    dump_buff           (void *, u32);
-void    dump_buff_hex       (void *, u32);
+void    dump_buff           (void *, uint32_t);
+void    dump_buff_hex       (void *, uint32_t);
 unsigned long hash_string(const unsigned char *);
 #endif
