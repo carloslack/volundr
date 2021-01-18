@@ -23,7 +23,6 @@
 - volatile ELF structure (will be changed on-the-fly)
 - make non-gnu version (removing __attribute__, typeof, etc)
 - remove complex and unecessary data structures/types
-- remove unused fatware (unused functions, macros, etc) - use profiler!
 - "static" volundr
 - extend asm syscalls implementations and make use of them
 
@@ -32,10 +31,8 @@
 (future versions)
 
 - kmem trick
-- trivial injection (entrypoint hijack)
 - hash tables
 - relocation algorithms/functionalities
-- string tables
 - dynamic sections
 - alignment constraints
 - other injection tekneeqz!

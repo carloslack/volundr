@@ -12,9 +12,9 @@
 #include "log.h"
 #include "elfo.h"
 
-i32 _log_it(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_it(const char *f, int l, const char* fmt, ...)
 {
-    i32 r = 0;
+    int32_t r = 0;
     va_list ap;
     va_start(ap, fmt);
     r = vfprintf(stdout, fmt, ap);
@@ -24,9 +24,9 @@ i32 _log_it(const char *f, int l, const sbyte* fmt, ...)
 }
 
 
-i32 _log_info(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_info(const char *f, int l, const char* fmt, ...)
 {
-    i32 r = 0;
+    int32_t r = 0;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
@@ -37,9 +37,9 @@ i32 _log_info(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-i32 logf_it(FILE *f, const sbyte* fmt, ...)
+int32_t logf_it(FILE *f, const char* fmt, ...)
 {
-    i32 r = 0;
+    int32_t r = 0;
     va_list ap;
     va_start(ap, fmt);
     r = vfprintf(f, fmt, ap);
@@ -48,9 +48,9 @@ i32 logf_it(FILE *f, const sbyte* fmt, ...)
     return r;
 }
 
-i32 logf_info(FILE *f, const sbyte* fmt, ...) // XXX: add __LINE__
+int32_t logf_info(FILE *f, const char* fmt, ...) // XXX: add __LINE__
 {
-    i32 r = 0;
+    int32_t r = 0;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
@@ -62,9 +62,9 @@ i32 logf_info(FILE *f, const sbyte* fmt, ...) // XXX: add __LINE__
     return r;
 }
 
-i32 logf_debug(FILE *f, const sbyte* fmt, ...)
+int32_t logf_debug(FILE *f, const char* fmt, ...)
 {
-    i32 r = 0;
+    int32_t r = 0;
 #ifdef DEBUG
     va_list ap;
     va_start(ap, fmt);
@@ -76,9 +76,9 @@ i32 logf_debug(FILE *f, const sbyte* fmt, ...)
     return r;
 }
 
-i32 _log_debug(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_debug(const char *f, int l, const char* fmt, ...)
 {
-    i32 r = 0;
+    int32_t r = 0;
 #ifdef DEBUG
     va_list ap;
     va_start(ap, fmt);
@@ -91,9 +91,9 @@ i32 _log_debug(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-i32 _log_warning(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_warning(const char *f, int l, const char* fmt, ...)
 {
-    i32 r;
+    int32_t r;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
@@ -106,9 +106,9 @@ i32 _log_warning(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-i32 _log_error(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_error(const char *f, int l, const char* fmt, ...)
 {
-    i32 r;
+    int32_t r;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
@@ -124,7 +124,7 @@ i32 _log_error(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-void _log_fatal(const char *f, int l, const sbyte* fmt, ...)
+void _log_fatal(const char *f, int l, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -138,9 +138,9 @@ void _log_fatal(const char *f, int l, const sbyte* fmt, ...)
     asm_exit(1);
 }
 
-i32 _log_info_buff(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_info_buff(const char *f, int l, const char* fmt, ...)
 {
-    i32 r;
+    int32_t r;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG
@@ -154,9 +154,9 @@ i32 _log_info_buff(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-i32 _log_debug_buff(const char *f, int l, const sbyte* fmt, ...)
+int32_t _log_debug_buff(const char *f, int l, const char* fmt, ...)
 {
-    i32 r;
+    int32_t r;
     va_list ap;
     va_start(ap, fmt);
 #ifdef DEBUG

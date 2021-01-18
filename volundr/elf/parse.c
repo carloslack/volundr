@@ -2,7 +2,6 @@
  *    @file  parse.c
  *   @brief  Parse general ELF information.
  *
- * TODO: add "@param x" to doxygen comments
  */
 
 #include <stdio.h>
@@ -39,7 +38,7 @@
  * Lookup the Section Headers and return the one
  * matching name.
  */
-static elf_shdr_t *_elf_get_shdr_byname(const elf_t *elfo, const sbyte *name)
+static elf_shdr_t *_elf_get_shdr_byname(const elf_t *elfo, const char *name)
 {
     ASSERT_ARG_RET_NULL(elfo && name != NULL);
     ASSERT_CON_RET_NULL(elfo->shdrs);
@@ -93,7 +92,6 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
 
-#ifdef PARANOID_CHECK
     // check for inconsistency
     size_t elf_size = (size_t) elfo->ehdr->e_phentsize;
     size_t vol_size = sizeof(elf_phdr_t);
@@ -102,7 +100,7 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
         log_error("Invalid program header size : "
                 "rcvd: %d xpctd: %d", elf_size, vol_size);
     }
-#endif
+
     int i;
     elf_phdr_t **array = smalloc((PHNUM(elfo)+1) * sizeof(elf_phdr_t*));
     elf_phdr_t *ptr = (elf_phdr_t*)(elfo->ehdr->e_phoff +
@@ -131,7 +129,6 @@ elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
 
-#ifdef PARANOID_CHECK
     // check for inconsistency
     size_t elf_size = (size_t) elfo->ehdr->e_shentsize;
     size_t vol_size = sizeof(elf_shdr_t);
@@ -139,7 +136,6 @@ elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
     if(vol_size != elf_size)
         log_error("Invalid program header size : "
                 "rcvd: %d xpctd: %d", elf_size, vol_size);
-#endif
     int i;
     elf_shdr_t **array = smalloc((SHNUM(elfo)+1) * sizeof(elf_shdr_t*));
     elf_shdr_t *ptr = (elf_shdr_t*)(elfo->mapaddr + elfo->ehdr->e_shoff);
@@ -221,7 +217,7 @@ elf_t *elf_parse_file(const char *filename, FILE *fp, open_mode_t m)
  *
  * @return Index of given section, if any
  */
-elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const sbyte *name)
+elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const char *name)
 {
     elf_word_t idx = -1;
     if(!(elfo && elfo->shdrs && name != NULL))
@@ -230,7 +226,7 @@ elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const sbyte *name)
     size_t len = strlen(name);
 
     for(elf_word_t i=0; i<SHNUM(elfo) && idx == -1; i++) {
-        sbyte *curr = elf_get_section_header_name(elfo, elfo->shdrs[i]);
+        char *curr = elf_get_section_header_name(elfo, elfo->shdrs[i]);
         if(strlen(curr) == len && !strncmp(name, curr, len))
             idx = i;
     }
@@ -249,7 +245,7 @@ elf_word_t elf_parse_shdr_idx_byname(const elf_t *elfo, const sbyte *name)
 char *elf_parse_shname_byindex(const elf_t *elfo, elf_word_t shidx)
 {
     elf_word_t n = 0;
-    sbyte *shstrtab = NULL;
+    char *shstrtab = NULL;
 
     ASSERT_ARG_RET_NULL(elf_validate_index(elfo, shidx));
     ASSERT_CON_RET_NULL(elfo->shdrs);
@@ -273,11 +269,11 @@ char *elf_parse_shname_byindex(const elf_t *elfo, elf_word_t shidx)
  *
  * @return A string containing section's name
  */
-sbyte *elf_get_section_header_name(const elf_t *elfo, const elf_shdr_t *shdr)
+char *elf_get_section_header_name(const elf_t *elfo, const elf_shdr_t *shdr)
 {
     ASSERT_CON_RET_NULL(shdr);
 
-    sbyte *shstrtab = elf_parse_shstrtab(elfo, NULL);
+    char *shstrtab = elf_parse_shstrtab(elfo, NULL);
     return shstrtab ? SHNAME(shdr,shstrtab) : NULL;
 }
 
@@ -423,52 +419,6 @@ elf_sym_t **elf_load_section_header_symbols(const elf_t *elfo, elf_shdr_t *symta
     return syms;
 }
 
-#if 0
-elf_sym_t *elf_parse_sym(const elf_shdr_t *symtab, elf_word_t index)
-{
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
-    ASSERT_ARG_RET_NULL(symtab);
-    ASSERT_CON_RET_NULL(elfo->mapaddr);
-
-    if(index >= SENTNUM(symtab))
-        return NULL; // symbol not found
-
-#ifdef PARANOID_CHECK
-    // TODO: validate sh_entsize and sh_off.
-#endif
-
-    return (elf_sym_t*)
-        (elfo->mapaddr + symtab->sh_offset + symtab->sh_entsize*index);
-}
-#endif
-/** @} */
-
-/************ STRINGS ************/
-/**
- * @defgroup strings
- * @ingroup parse
- * @addtogroup strings Strings
- * @{
- */
-
-/**
- * @brief This method retrieves pointers to all string tables in ELF file.
- *
- * @return An array of pointers to all string tables in ELF file/image.
- * Returns NULL if fails. The array can be free()'d, but not its elements.
- *
- * @note This method depends on calling elf_parse_shdrs first.
- * @see elf_parse_shdrs
- */
-#if 0
-elf_shdr_t **elf_parse_all_strtabs(void)
-{
-    const elf_t *elfo = (const elf_t *)elf_get_my_elfo();
-    elf_word_t types[] = {SHT_STRTAB};
-    elf_shdr_t **strtabs = elf_load_section_header_global_symbols(types, 1);
-    return strtabs;
-}
-#endif
 /**
  * @brief Read string table pointed by section header of given index.
  *
@@ -484,7 +434,7 @@ char *elf_parse_strtab_byindex(const elf_t *elfo, elf_half_t sh_idx, elf_word_t 
 {
     ASSERT_ARG_RET_NULL(elf_validate_index(elfo, sh_idx));
     elf_shdr_t *shdr = elfo->shdrs[sh_idx];
-    sbyte *strings = elf_parse_shstrtab(elfo, syms);
+    char *strings = elf_parse_shstrtab(elfo, syms);
     if(strings != NULL && n != NULL) {
         /** sh_size: size of the section in isk */
         *n = shdr->sh_size;
@@ -505,7 +455,7 @@ char *elf_parse_strtab_byindex(const elf_t *elfo, elf_half_t sh_idx, elf_word_t 
  * @return An array of bytes (hopefully, a sequence of strings) containing
  * all elements of .shstrtab string table.
  */
-sbyte* elf_parse_shstrtab(const elf_t *elfo, elf_sym_t **syms)
+char* elf_parse_shstrtab(const elf_t *elfo, elf_sym_t **syms)
 {
     ASSERT_CON_RET_NULL(elfo && elfo->ehdr && elfo->shdrs);
     if(elfo->ehdr->e_shstrndx == SHN_UNDEF) {

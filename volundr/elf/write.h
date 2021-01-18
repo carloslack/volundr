@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-void elf_write_strtab(i32, i32, const sbyte*);
-void elf_write_stringname(FILE*, i32);
+void elf_write_strtab(int32_t, int32_t, const char*);
+void elf_write_stringname(FILE*, int32_t);
 
 #endif

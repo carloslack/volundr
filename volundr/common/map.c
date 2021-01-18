@@ -94,8 +94,8 @@ bool map_write(void *mapaddr, const void *src, size_t len, void **rv) {
  *
  * @return Whether operation was successful
  */
-i32 map_mprotect(void* mapaddr, size_t len, i32 prot) {
-    i32 ret = -1;
+int32_t map_mprotect(void* mapaddr, size_t len, int32_t prot) {
+    int32_t ret = -1;
 
     if(mapaddr != NULL) {
         if((ret = asm_mprotect(mapaddr, len, prot)) == -1) {
@@ -115,8 +115,8 @@ i32 map_mprotect(void* mapaddr, size_t len, i32 prot) {
  *
  * @return Whether operation was successful
  */
-i32 map_sync(void* mapaddr, off_t len) {
-    i32 ret = -1;
+int32_t map_sync(void* mapaddr, off_t len) {
+    int32_t ret = -1;
 
     if(mapaddr != NULL) {
         if((ret = msync(mapaddr
@@ -142,8 +142,8 @@ i32 map_sync(void* mapaddr, off_t len) {
  *
  * @return Whether operation was successful
  */
-i32 map_fileunmap(void *mapaddr, off_t len) {
-    i32 ret = -1;
+int32_t map_fileunmap(void *mapaddr, off_t len) {
+    int32_t ret = -1;
 
     if(mapaddr != NULL) {
         if((ret = asm_munmap(mapaddr, len)) == -1) {

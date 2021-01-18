@@ -18,23 +18,12 @@ typedef enum {
 typedef int word;
 typedef unsigned int uword;
 
-typedef uint8_t   u8;
-typedef uint16_t  u16;
-typedef int16_t   i16;
-typedef int32_t   i32;
-typedef uint32_t  u32;
-typedef uint64_t  u64;
-typedef int64_t   i64;
-typedef int16_t   s16;
-typedef char      sbyte;
-typedef int       bool;
-
 #ifndef _DECLARE_DEFITIONS
 #define _CMM_CNDXTRN
 #else
 #define _CMM_CNDXTRN    extern
 #endif
 
-_CMM_CNDXTRN i32 common_errno;
+_CMM_CNDXTRN int32_t common_errno;
 
 #endif

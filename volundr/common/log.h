@@ -18,20 +18,20 @@
 
 #define log_fatal(a...) ({ _log_fatal(__FILE__, __LINE__, a); })
 
-i32 _log_it             (const char*, int, const sbyte *, ...);
-i32 _log_info           (const char*, int, const sbyte *, ...);
-i32 _log_debug          (const char*, int, const sbyte *, ...);
-i32 _log_error          (const char*, int, const sbyte *, ...);
-i32 _log_warning        (const char*, int, const sbyte *, ...);
-i32 _log_info_buff      (const char*, int, const sbyte *, ...);
-i32 _log_debug_buff     (const char*, int, const sbyte *, ...);
+int32_t _log_it             (const char*, int, const char *, ...);
+int32_t _log_info           (const char*, int, const char *, ...);
+int32_t _log_debug          (const char*, int, const char *, ...);
+int32_t _log_error          (const char*, int, const char *, ...);
+int32_t _log_warning        (const char*, int, const char *, ...);
+int32_t _log_info_buff      (const char*, int, const char *, ...);
+int32_t _log_debug_buff     (const char*, int, const char *, ...);
 
-i32 logf_it             (FILE *f, const sbyte *, ...);
-i32 logf_info           (FILE *f, const sbyte *fmt, ...);
-i32 logf_debug          (FILE *f, const sbyte *fmt, ...);
+int32_t logf_it             (FILE *f, const char *, ...);
+int32_t logf_info           (FILE *f, const char *fmt, ...);
+int32_t logf_debug          (FILE *f, const char *fmt, ...);
 
 
 // TODO: add __attribute__ noreturn with macros
-void _log_fatal          (const char*, int, const sbyte *, ...);
+void _log_fatal          (const char*, int, const char *, ...);
 
 #endif
