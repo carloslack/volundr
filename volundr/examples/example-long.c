@@ -56,7 +56,7 @@ static void version(void)
 /**
  * @brief parse and print elf header, program, sections and symbols
  */
-static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vflags flags)
+static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vflags flags, open_mode_t m)
 {
     ASSERT_ARG_RET_FALSE(felf && fout);
 
@@ -67,7 +67,7 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
     }
 
     /* Load the file in the hope it is an ELF */
-    elf_t *elfo = elf_parse_file(filename, felf);
+    elf_t *elfo = elf_parse_file(filename, felf, m);
 
 
     /* Display ELF Header */
@@ -163,13 +163,17 @@ int main(int argc, char** argv)
         asm_exit(EXIT_FAILURE);
     }
 
+    open_mode_t m;
     if (output != NULL)
-        fout = file_open_ow(output);
+        /** m here is just to respect
+         * the contract. We care about it only
+         * in file_open_ro() below */
+        fout = file_open_ow(output, &m);
 
-    FILE *felf = file_open_ro(binfile);
+    FILE *felf = file_open_ro(binfile, &m);
     if (felf) {
         /* Go! */
-        dump_elf_data(binfile, felf, fout, flags);
+        dump_elf_data(binfile, felf, fout, flags, m);
 
         /* volundr implements some x64 syscalls */
         asm_close(fileno(felf));

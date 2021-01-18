@@ -2,7 +2,7 @@
 #define _ELF_PARSE_H
 
 
-elf_t *elf_parse_file                                   (const char *filename, FILE *);
+elf_t *elf_parse_file                                   (const char *filename, FILE *, open_mode_t m);
 elf_shdr_t** elf_parse_shdrs                            (const elf_t*);
 elf_word_t elf_parse_shdr_idx_byname                    (const elf_t *elfo, const sbyte *);
 elf_shdr_t **elf_load_section_header_global_symbols     (const elf_t *elfo, elf_word_t);

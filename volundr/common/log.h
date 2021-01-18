@@ -32,6 +32,6 @@ i32 logf_debug          (FILE *f, const sbyte *fmt, ...);
 
 
 // TODO: add __attribute__ noreturn with macros
-i32 _log_fatal          (const char*, int, const sbyte *, ...);
+void _log_fatal          (const char*, int, const sbyte *, ...);
 
 #endif

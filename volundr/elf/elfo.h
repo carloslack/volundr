@@ -89,8 +89,10 @@ typedef struct elf
      * @name Symbols
      */
     /*@{*/
+    /** Section header tables - linking view */
     elf_shdr_t  **sht_symtab;       /**< .dynsym (global symbols) reference to symbol table from the section header */
     elf_shdr_t  **sht_dynsym;       /**< .dynsym (global symbols) reference to dynamic symbol table from the section header */
+
     elf_sym_t   **syms_symtab;      /**< .symtab reference to symbol table from the section header */
     elf_sym_t   **syms_dynsym;      /**< .symtab reference to dynamic symbol table from the section header */
     /*@}*/
@@ -99,11 +101,13 @@ typedef struct elf
      */
     /*@{*/
     elf_ehdr_t  *ehdr;              /**< ELF file header */
-    elf_phdr_t  **phdrs;            /**< Program Segment Header */
+    elf_phdr_t  **phdrs;            /**< Program Segment Header - execution view,
+                                      helps translating sections (disk) into segments (memory)
+                                      and lies just after header at byte 64 */
     elf_shdr_t  **shdrs;            /**< Section Header */
-    elf_shdr_t  *dynstr;            /**< .dynstr string table for dynamic linking */
-    elf_shdr_t  *strtab;            /**< .strtab string table for names associated with symbol table entries */
-    elf_shdr_t  *shstrtab;          /**< Section Names */
+    elf_shdr_t  *dynstr;            /**< .dynstr string table for dynamic linking (dynsym) */
+    elf_shdr_t  *strtab;            /**< .strtab string table for names associated with symbol table entries (symtab) */
+    elf_shdr_t  *shstrtab;          /**< Stores all Section Names */
     elf_shdr_t  **symtab;           /**< Symbol Table */
     /*@}*/
     /**
@@ -111,7 +115,9 @@ typedef struct elf
      */
     /*@{*/
     void*       mapaddr;            /**< ELF raw image from the disk, loaded with asm_mmap() */
+    void*       infection;          /**< ELF infection; heap allocated via fread() @see utils.c */
     off_t       fsize;              /**< ELF total file size in disk. Also: (ehdr->e_shoff + ehdr->e_shnum) * sizeof(elf_shdr_t)) */
+    off_t       inf_size;
     char filename[PATH_MAX];
     /*@}*/
 } elf_t;

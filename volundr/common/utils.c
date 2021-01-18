@@ -22,17 +22,44 @@
 #include "asm.h"
 #include "map.h"
 
-FILE* file_open(const sbyte* filein, const sbyte *mode)
+FILE* file_open(const sbyte* filein, const sbyte *mode,
+        open_mode_t m, open_mode_t *rv)
 {
+    ASSERT_CON_RET_NULL(rv != NULL);
     FILE *fin = fopen(filein, mode);
     if(!fin) {
         log_error("error opening %s : %s", filein, strerror(errno));
         return NULL;
     }
+    if (rv)
+        *rv = m;
     return fin;
 }
 
-bool file_read_all(struct mapped_file *user_data, FILE *fp)
+bool file_load_source(struct mapped_file *file_data, FILE *fp)
+{
+    struct stat st;
+    if (fstat(fileno(fp), &st) < 0) {
+        log_fatal("Error: fstat\n");
+        asm_exit(-1);
+    }
+    void *infection = scalloc(1, st.st_size);
+
+    if (read(fileno(fp), infection, st.st_size) != st.st_size) {
+        free(infection);
+        log_fatal("Error: fread\n");
+    }
+
+    file_data->st_infection = st;
+    file_data->infection = infection;
+
+    return true;
+}
+
+/**
+ * mmap
+ */
+bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
 {
     struct stat st;
     void *mapaddr = NULL;
@@ -42,10 +69,10 @@ bool file_read_all(struct mapped_file *user_data, FILE *fp)
         asm_exit(-1);
     }
 
-     map_filemap(NULL, st.st_size, fileno(fp), &mapaddr);
+     map_filemap(NULL, st.st_size, fileno(fp), &mapaddr, m);
 
-     user_data->st = st;
-     user_data->mapaddr = mapaddr;
+     file_data->st = st;
+     file_data->mapaddr = mapaddr;
 
     return true;
 }

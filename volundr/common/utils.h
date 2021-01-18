@@ -42,10 +42,13 @@
 #define ASSERT_CON_NULL(x)  ASSERT_NULL(x,CON_MSG)
 #define ASSERT_CON_FALSE(x) ASSERT_FALSE(x,CON_MSG)
 
-// smart file opens
-#define file_open_rw(x) (file_open(x, "a+"))
-#define file_open_ro(x) (file_open(x, "rb"))
-#define file_open_ow(x) (file_open(x, "w+"))
+// smart (O'Rlly??) file opens
+typedef enum { F_RW = 1, F_RO, F_OW } open_mode_t;
+
+/**! XXX: Be careful, files will be created if they do not exist ! */
+#define file_open_rw(x,y) (file_open(x, "a+", F_RW, y))
+#define file_open_ro(x,y) (file_open(x, "rb", F_RO, y))
+#define file_open_ow(x,y) (file_open(x, "w+", F_OW, y))
 #define file_close(x) (fclose(x))
 
 /**
@@ -53,14 +56,15 @@
  */
 struct mapped_file{
     struct  stat    st;     /**< stat, currently only for file size */
+    struct  stat    st_infection;     /**< stat, currently only for file size */
     void    *mapaddr;       /**< ELF file */
+    void    *infection;
 };
 
 off_t   file_size           (FILE*);
-FILE*   file_open           (const sbyte *, const sbyte *mode);
-bool    file_read_all       (struct mapped_file *, FILE *);
-i16     file_read           (void*, off_t, off_t, FILE*);
-
+FILE    *file_open          (const sbyte* filein, const sbyte *, open_mode_t, open_mode_t *);
+bool    file_load_target    (struct mapped_file *, FILE *, open_mode_t);
+bool    file_load_source    (struct mapped_file *file_data, FILE *fp);
 FILE*   open_output         (const sbyte *); // XXX rename to file_open_output?
 char*   get_output_name     (const sbyte *, const sbyte*);
 sbyte*  get_binary_name     (const sbyte*);

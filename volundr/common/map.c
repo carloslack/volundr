@@ -13,7 +13,6 @@
 #include "map.h"
 #include "asm.h"
 /**< x = offset to be aligned for mmap pages */
-#define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
 
 
 /**
@@ -44,12 +43,13 @@
  *
  * @return A valid mapping address.
  */
-bool map_filemap(void* start, size_t size, int fd, void **rv) {
+bool map_filemap(void* start, size_t size, int fd, void **rv, open_mode_t m) {
     void* ret = NULL;
     if((ret = asm_mmap(NULL
                     , size
-                    , PROT_READ
-                    , MAP_PRIVATE
+                    /** Play smart and mmap accordingly */
+                    , m == F_RW ? PROT_WRITE : PROT_READ
+                    , m == F_RW ? MAP_SHARED : MAP_PRIVATE  // MAP_SHARED to sync with fd
                     , fd
                     , (off_t)ALIGNOFFSET(fd))) == MAP_FAILED)
     {
