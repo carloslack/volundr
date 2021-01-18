@@ -41,7 +41,6 @@ infect_t *inf_load(elf_t *elfo, FILE *infection) {
     bool rc = file_load_source(&file_data, infection);
     ASSERT_ARG_RET_NULL(rc);
 
-
     inf->elfo = elfo;
     inf->elfo->inf_size = file_data.st_infection.st_size;
     inf->elfo->infection = file_data.infection;
