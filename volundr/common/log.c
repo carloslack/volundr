@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "utils.h"
+#include "asm.h"
 #include "log.h"
 #include "elfo.h"
 
@@ -31,7 +32,6 @@ i32 _log_info(const char *f, int l, const sbyte* fmt, ...)
 #ifdef DEBUG
     fprintf(stdout, "[N] ");
 #endif
-    fprintf(stdout, "[%s:%d] ", f, l);
     r = vfprintf(stdout, fmt, ap);
     va_end(ap);
     return r;
@@ -124,7 +124,7 @@ i32 _log_error(const char *f, int l, const sbyte* fmt, ...)
     return r;
 }
 
-i32 _log_fatal(const char *f, int l, const sbyte* fmt, ...)
+void _log_fatal(const char *f, int l, const sbyte* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -133,9 +133,9 @@ i32 _log_fatal(const char *f, int l, const sbyte* fmt, ...)
     fprintf(stdout, "[%s:%d] ", f, l);
 #endif
     vfprintf(stderr, fmt, ap);
-    fprintf(stdout, " : aborting...\n");
+    fprintf(stdout, " : ending execution...\n");
     va_end(ap);
-    abort();
+    asm_exit(1);
 }
 
 i32 _log_info_buff(const char *f, int l, const sbyte* fmt, ...)

@@ -10,26 +10,30 @@
 #undef _TYPES_DECLARE
 
 elf_info_t _type[]={
-    {0, 0,                      "NOTYPE"},
-    {1, 1,                      "OBJECT"},
-    {2, 2,                      "FUNC"},
-    {3, 3,                      "SECTION"},
-    {4, 4,                      "FILE"},
-    {5, 10,                     "LOOS"},
-    {6, 12,                     "HIOS"},
-    {7, 13,                     "LOPROC"},
-    {8, 15,                     "HIPROC"},
+    {0, STT_NOTYPE,             "NOTYPE"},
+    {1, STT_OBJECT,             "OBJECT"},
+    {2, STT_FUNC,               "FUNC"},
+    {3, STT_SECTION,            "SECTION"},
+    {4, STT_FILE,               "FILE"},
+    {5, STT_COMMON,             "COMMON"},
+    {6, STT_TLS,                "TLS"},
+    {6, STT_NUM,                "NUM"},
+    {6, STT_LOOS,               "LOOS"},  /*! GNU_IFUNC */
+    {7, STT_HIOS,               "HIOS"},
+    {8, STT_LOPROC,             "LOPROC"},
+    {9, STT_HIPROC,             "HIPROC"},
     {ELFDEF, ELFDEF,            "unhandled"}
 };
 
 elf_info_t _bind[]={
-    {1, 0,                      "LOCAL"},
-    {2, 1,                      "GLOBAL"},
-    {3, 2,                      "WEAK"},
-    {4, 10,                     "LOOS"},
-    {5, 12,                     "HIOS"},
-    {6, 13,                     "LOPROC"},
-    {7, 15,                     "HIPROC"},
+    {1, STB_LOCAL,              "LOCAL"},
+    {2, STB_GLOBAL,             "GLOBAL"},
+    {3, STB_WEAK,               "WEAK"},
+    {3, STB_NUM,                "NUM"},
+    {4, STB_LOOS,               "LOOS"}, /*! Start of OS-specific STT_GNU_IFUNC */
+    {5, STB_HIOS,               "HIOS"},
+    {6, STB_LOPROC,             "LOPROC"},
+    {7, STB_HIPROC,             "HIPROC"},
     {ELFDEF, ELFDEF,            "unhandled"}
 };
 

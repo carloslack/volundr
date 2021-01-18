@@ -163,18 +163,18 @@ elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
  *
  * @return An interface to ELF image on disk.
  */
-elf_t *elf_parse_file(const char *filename, FILE *fp)
+elf_t *elf_parse_file(const char *filename, FILE *fp, open_mode_t m)
 {
     ASSERT_ARG_RET_NULL(filename && fp);
-    struct mapped_file user_data;
+    struct mapped_file file_data;
     elf_t *elfo = smalloc(sizeof(elf_t));
 
-    bool rc = file_read_all(&user_data, fp);
+    bool rc = file_load_target(&file_data, fp, m);
     ASSERT_ARG_RET_FALSE(rc);
 
     // create interface
-    elfo->fsize = user_data.st.st_size;
-    elfo->mapaddr = user_data.mapaddr;
+    elfo->fsize = file_data.st.st_size;
+    elfo->mapaddr = file_data.mapaddr;
     strncpy(elfo->filename, filename, sizeof(elfo->filename));
 
     elfo->syms_symtab = NULL;
@@ -257,6 +257,7 @@ char *elf_parse_shname_byindex(const elf_t *elfo, elf_word_t shidx)
     shstrtab = elf_parse_shstrtab(elfo, NULL);
     ASSERT_RET_NULL(shstrtab && n, "Invalid .shstrtab");
 
+    /** sh_name: offset to .shstrtab */
     elf_word_t index = elfo->shdrs[shidx]->sh_name;
     ASSERT_RET_NULL(shidx < n, "Invalid string table index");
 
@@ -299,6 +300,9 @@ sbyte *elf_get_section_header_name(const elf_t *elfo, const elf_shdr_t *shdr)
 static void _elf_store_global_symbol_table(const elf_t *elfo, elf_shdr_t **shdrs
         , elf_word_t sh_type)
 {
+    /** sh_type: content type, e.g.: static & dynamic symbols,
+     * rolocation information...
+     */
     elf_t *e = (elf_t*)elfo;
     if (sh_type == SHT_SYMTAB)
         e->sht_symtab = shdrs;
@@ -482,6 +486,7 @@ char *elf_parse_strtab_byindex(const elf_t *elfo, elf_half_t sh_idx, elf_word_t 
     elf_shdr_t *shdr = elfo->shdrs[sh_idx];
     sbyte *strings = elf_parse_shstrtab(elfo, syms);
     if(strings != NULL && n != NULL) {
+        /** sh_size: size of the section in isk */
         *n = shdr->sh_size;
     }
     return strings;
@@ -508,6 +513,7 @@ sbyte* elf_parse_shstrtab(const elf_t *elfo, elf_sym_t **syms)
         return NULL;
     }
     elf_shdr_t *shstrtab = elfo->shdrs[elfo->ehdr->e_shstrndx];
+    /** sh_offset: offset of the first byte of the section in disk */
     return ((char*)elfo->mapaddr + shstrtab->sh_offset);
 }
 

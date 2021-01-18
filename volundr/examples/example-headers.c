@@ -21,15 +21,16 @@ int main(int argc, char **argv)
         log_info("Use %s <elf file>\n", argv[0]);
         asm_exit(0);
     }
+    open_mode_t m;
     const char *file = argv[1];
-    FILE *fp = file_open_ro(file);
+    FILE *fp = file_open_ro(file, &m);
 
     if(!elf_validate_filetype(fp)) {
         log_error("Not a valid ELF file");
         asm_exit(1);
     }
 
-    elf_t *elfo = elf_parse_file(file, fp);
+    elf_t *elfo = elf_parse_file(file, fp, m);
 
     elf_ehdr_t *ehdr = elf_get_elf_header(elfo);
     if (ehdr)

@@ -8,6 +8,7 @@
 #include <string.h>
 #include <errno.h>
 
+#define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
 /**
  *    @file  map.h
  *   @brief  provides mechanisms to create an ELF image on memory (definition module).
@@ -16,7 +17,7 @@
 /** Copies a file from given file descritor to memory
  * from start address (usually (void*)0) to size
  */
-bool map_filemap   (void* start, size_t size, int fd, void **);
+bool map_filemap   (void* start, size_t size, int fd, void **, open_mode_t);
 
 /** Copies src of size n to memory mapped segment */
 bool map_write     (void* mapaddr, const void* src, size_t n, void **);
