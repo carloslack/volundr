@@ -89,7 +89,7 @@ bool elf_print_header(const elf_t *elfo, FILE* fout) {
     logf_it(fout, "Entry point address:                 %016llx\n", ehdr->e_entry);
     logf_it(fout, "Start of the program header:         %lld (bytes into file)\n", ehdr->e_phoff);
     logf_it(fout, "Start of the section header:         %lld (bytes into file)\n", ehdr->e_shoff);
-    logf_it(fout, "Flags:                               %016llx\n", ehdr->e_flags);
+    logf_it(fout, "Flags:                               %016x\n", ehdr->e_flags);
     logf_it(fout, "Size of this header:                 %d (bytes)\n", ehdr->e_ehsize);
     logf_it(fout, "Size of program headers:             %d (bytes)\n", ehdr->e_phentsize);
     logf_it(fout, "Number of program headers:           %d\n", ehdr->e_phnum);
