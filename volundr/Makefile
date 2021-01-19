@@ -27,7 +27,7 @@ trj1=et_exec_trojan
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
-all: libs
+all: libs example-lib
 	$(AS) --64 $(EX_ORIG_PATH)/$(trj1).S -statistics -fatal-warnings \
 		-size-check=error -o $(EX_ORIG_PATH)/$(trj1).o
 	$(LD) -Ttext 200000 --oformat binary -o $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
@@ -39,6 +39,9 @@ all: libs
 	$(CC) $(EX_ORIG_PATH)/$(ex3).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex3)
 
+example-lib:
+	gcc $(EX_ORIG_PATH)/example-lib01-impl.c -o $(EX_DST_PATH)/lib01-impl.so -shared -fPIC
+	gcc $(EX_ORIG_PATH)/example-lib01.c -L$(EX_DST_PATH) -l01-impl -o $(EX_DST_PATH)/example-lib
 
 libs: $(elf_OBJS) $(common_OBJS)
 	$(AS) asm/syscalls.S -statistics -fatal-warnings -size-check=error -o asm/syscalls.o
@@ -52,4 +55,5 @@ clean:
 	rm -f $(EX_DST_PATH)/$(ex1)
 	rm -f $(EX_DST_PATH)/$(ex2)
 	rm -f $(EX_DST_PATH)/$(ex3)
-	rm -f $(EX_DST_PATH)/$(trj1)
+	rm -f $(EX_DST_PATH)/lib01-impl.so $(EX_DST_PATH)/example-lib
+	rm -f $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
