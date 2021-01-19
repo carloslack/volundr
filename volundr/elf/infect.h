@@ -15,7 +15,7 @@ typedef struct infect {
 } infect_t;
 
 
-infect_t *inf_load(elf_t *, FILE *);
+infect_t *inf_load(elf_t *, FILE *, open_mode_t);
 elf_off_t inf_scan_segment(infect_t *);
-bool inf_load_and_patch(infect_t *, open_mode_t, long);
+bool inf_load_and_patch(infect_t *, long);
 #endif

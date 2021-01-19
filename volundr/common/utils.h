@@ -27,21 +27,24 @@
     }
 
 
-#define ASSERT_RET_NULL(x,y)    ASSERT_RET(x,y,NULL)
-#define ASSERT_RET_FALSE(x,y)   ASSERT_RET(x,y,false)
-#define ASSERT_NULL(x,y)    ASSERT_(x,y,NULL)
-#define ASSERT_FALSE(x,y)   ASSERT_(x,y,false)
+#define ASSERT_RET_NULL(x,y)        ASSERT_RET(x,y,NULL)
+#define ASSERT_RET_FALSE(x,y)       ASSERT_RET(x,y,false)
+#define ASSERT_RET_VAL(x,y,val)     ASSERT_RET(x,y,val)
+#define ASSERT_NULL(x,y)            ASSERT_(x,y,NULL)
+#define ASSERT_FALSE(x,y)           ASSERT_(x,y,false)
 
 // argument asserts
-#define ASSERT_ARG_RET_NULL(x)  ASSERT_RET_NULL(x,ARG_MSG)
-#define ASSERT_ARG_RET_FALSE(x) ASSERT_RET_FALSE(x,ARG_MSG)
+#define ASSERT_ARG_RET_NULL(x)      ASSERT_RET_NULL(x,ARG_MSG)
+#define ASSERT_ARG_RET_FALSE(x)     ASSERT_RET_FALSE(x,ARG_MSG)
+#define ASSERT_ARG_RET_VAL(x, val)  ASSERT_RET_VAL(x,ARG_MSG, val)
 
 // contract asserts
-#define ASSERT_CON_RET_NULL(x)  ASSERT_RET_NULL(x,CON_MSG)
-#define ASSERT_CON_RET_FALSE(x) ASSERT_RET_FALSE(x,CON_MSG)
+#define ASSERT_CON_RET_NULL(x)      ASSERT_RET_NULL(x,CON_MSG)
+#define ASSERT_CON_RET_FALSE(x)     ASSERT_RET_FALSE(x,CON_MSG)
+#define ASSERT_CON_RET_VAL(x, val)  ASSERT_RET_VAL(x,CON_MSG, val)
 
-#define ASSERT_CON_NULL(x)  ASSERT_NULL(x,CON_MSG)
-#define ASSERT_CON_FALSE(x) ASSERT_FALSE(x,CON_MSG)
+#define ASSERT_CON_NULL(x)          ASSERT_NULL(x,CON_MSG)
+#define ASSERT_CON_FALSE(x)         ASSERT_FALSE(x,CON_MSG)
 
 // smart (O'Rlly??) file opens
 typedef enum { F_RW = 1, F_RO, F_OW } open_mode_t;

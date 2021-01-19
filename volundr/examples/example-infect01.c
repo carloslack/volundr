@@ -39,9 +39,9 @@ int main(int argc, char **argv)
 
     elf_t *elfo = elf_parse_file(file, fp, m1);
 
-    infect_t *inf = inf_load(elfo, trojanfp);
+    infect_t *inf = inf_load(elfo, trojanfp, m1);
     if (inf_scan_segment(inf)) {
-        if (inf_load_and_patch(inf, m1, (long)0x1122334455667788) == true)
+        if (inf_load_and_patch(inf, (long)0x1122334455667788) == true)
             printf("Done!\nTry running %s\n", file);
         else
             printf("Failed :(\n");
