@@ -38,8 +38,7 @@ static void usage(char *prog)
 {
     log_it( "Usage %s <OPTION>... \n"
             "-f <elf file>      Input binary to be analysed\n"
-            "-o <output file>   Log output into file instead of stdout\n"
-            "-v                 Show program version\n"
+            "-v                 Show Volundr version\n"
             "-t                 Show header\n"
             "-p                 Show programs\n"
             "-s                 Show sections\n"
@@ -48,18 +47,18 @@ static void usage(char *prog)
 }
 
 /**
- * @brief Prints version tag to standard output.
- */
-static void version(void)
-{
-    log_it("Völundr %s\n", elf_get_version());
-}
-/**
  * @brief parse and print elf header, program, sections and symbols
  */
-static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vflags flags, open_mode_t m)
+static bool doit(const char *binfile, enum vflags flags)
 {
-    ASSERT_ARG_RET_FALSE(felf && fout);
+    ASSERT_CON_RET_FALSE(binfile);
+
+    open_mode_t m;
+    FILE *felf = file_open_ro(binfile, &m);
+    if (!felf) {
+        log_error("Can't open file");
+        return false;
+    }
 
     // validate it
     if(!elf_validate_filetype(felf)) {
@@ -68,12 +67,12 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
     }
 
     /* Load the file in the hope it is an ELF */
-    elf_t *elfo = elf_parse_file(filename, felf, m);
+    elf_t *elfo = elf_parse_file(binfile, felf, m);
 
 
     /* Display ELF Header */
     if (!flags || flags & V_HEADER) {
-        if(!elf_print_header(elfo, fout)) {
+        if(!elf_print_header(elfo, stdout)) {
             log_error("failed reading headers");
             return false;
         }
@@ -81,7 +80,7 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Display programs section */
     if (!flags || flags & V_PROGRAM) {
-        if(!elf_print_programs(elfo, fout)) {
+        if(!elf_print_programs(elfo, stdout)) {
             log_error("failed reading programs");
             return false;
         }
@@ -89,7 +88,7 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 
     /* Display ELF sections */
     if (!flags || flags & V_SECTION) {
-        if(!elf_print_sections(elfo, fout)) {
+        if(!elf_print_sections(elfo, stdout)) {
             log_error("failed reading sections");
             return false;
         }
@@ -101,20 +100,21 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
         if (sht_dynsym) {
             for(int i=0; sht_dynsym[i] != NULL; i++) {
                 elf_sym_t **syms = elf_load_section_header_symbols(elfo, sht_dynsym[i]);
-                elf_print_symtab(elfo, fout, sht_dynsym[i], (const elf_sym_t**)syms);
+                elf_print_symtab(elfo, stdout, sht_dynsym[i], (const elf_sym_t**)syms);
             }
         }
         elf_shdr_t **sht_symtab = elf_get_section_header(elfo, SHT_SYMTAB);
         if (sht_symtab) {
             for(int i=0; sht_symtab[i] != NULL; i++) {
                 elf_sym_t **syms = elf_load_section_header_symbols(elfo, sht_symtab[i]);
-                elf_print_symtab(elfo, fout, sht_symtab[i], (const elf_sym_t**)syms);
+                elf_print_symtab(elfo, stdout, sht_symtab[i], (const elf_sym_t**)syms);
             }
         }
     }
 
     /* The mother of all cleanups */
     assert(elf_destroy_all(elfo));
+    file_close(felf);
 
     return true;
 }
@@ -125,16 +125,12 @@ static bool dump_elf_data(const char *filename, FILE *felf, FILE *fout, enum vfl
 int main(int argc, char** argv)
 {
     int c, flags = V_ALL;
-    char *binfile = NULL, *output = NULL;
-    FILE *fout = stdout;
+    char *binfile = NULL;
 
-    while ((c = getopt(argc, argv, "f:o:tpcsyhv")) != -1) {
+    while ((c = getopt(argc, argv, "f:tpcsyhv")) != -1) {
         switch (c) {
             case 'f':
                 binfile = optarg;
-                break;
-            case 'o':
-                output = optarg;
                 break;
             case 't':
                 flags |= V_HEADER;
@@ -152,7 +148,7 @@ int main(int argc, char** argv)
                 usage(argv[0]);
                 asm_exit(EXIT_SUCCESS);
             case 'v':
-                version();
+                log_it("Völundr %s\n", elf_get_version());
                 asm_exit(EXIT_SUCCESS);
             default:
                 usage(argv[0]);
@@ -164,26 +160,8 @@ int main(int argc, char** argv)
         asm_exit(EXIT_FAILURE);
     }
 
-    open_mode_t m;
-    if (output != NULL)
-        /** m here is just to respect
-         * the contract. We care about it only
-         * in file_open_ro() below */
-        fout = file_open_ow(output, &m);
-
-    FILE *felf = file_open_ro(binfile, &m);
-    if (felf) {
-        /* Go! */
-        dump_elf_data(binfile, felf, fout, flags, m);
-
-        /* volundr implements some x64 syscalls */
-        asm_close(fileno(felf));
-    }
-
-
-    if (fout != stdout)
-        file_close(fout);
-    file_close(felf);
+    /* Go! */
+    (void)doit(binfile, flags);
 
     return 0;
 }

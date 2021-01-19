@@ -15,19 +15,21 @@
 
 extern elf_info_t   _program[];
 
-int main(int argc, char **argv)
-{
-    if (argc < 2) {
-        log_info("Use %s <elf file>\n", argv[0]);
-        asm_exit(0);
-    }
+static bool doit(const char *binfile) {
+    ASSERT_CON_RET_FALSE(binfile);
     open_mode_t m;
-    const char *file = argv[1];
+    const char *file = binfile;
     FILE *fp = file_open_ro(file, &m);
+
+    if (!fp) {
+        log_error("Can't open file");
+        return false;
+    }
 
     if(!elf_validate_filetype(fp)) {
         log_error("Not a valid ELF file");
-        asm_exit(1);
+        file_close(fp);
+        return false;
     }
 
     elf_t *elfo = elf_parse_file(file, fp, m);
@@ -62,6 +64,16 @@ int main(int argc, char **argv)
 
     assert(elf_destroy_all(elfo));
     file_close(fp);
+    return true;
+}
+
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        log_info("Use %s <elf file>\n", argv[0]);
+        asm_exit(0);
+    }
+
+    (void)doit(argv[1]);
 
     return 0;
 }
