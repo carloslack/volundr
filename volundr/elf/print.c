@@ -94,8 +94,8 @@ bool elf_print_header(const elf_t *elfo, FILE* fout) {
     logf_it(fout, "Size of program headers:             %d (bytes)\n", ehdr->e_phentsize);
     logf_it(fout, "Number of program headers:           %d\n", ehdr->e_phnum);
     logf_it(fout, "Size of section header:              %d (bytes)\n", ehdr->e_shentsize);
-    logf_it(fout, "Number of section headers:           %lld\n", ehdr->e_shnum);
-    logf_it(fout, "Section heander string table index:  %lld\n", ehdr->e_shstrndx);
+    logf_it(fout, "Number of section headers:           %d\n", ehdr->e_shnum);
+    logf_it(fout, "Section heander string table index:  %d\n", ehdr->e_shstrndx);
 
     return true;
 }
@@ -188,7 +188,7 @@ bool elf_print_symtab(const elf_t *elfo, FILE *fout, const elf_shdr_t *symtab, c
 
     _elf_print_fname(elfo, fout);
     // introduction
-    logf_it(fout, "%s has %lu symbols:\n"
+    logf_it(fout, "%s has %d symbols:\n"
             , symtab_name, sentnum);
 
     // output table header
