@@ -21,6 +21,13 @@ void asm_fork       (void);
  * @param code exit status
  * @see syscalls.S
  */
+ssize_t asm_read    (int fd, void *buf, size_t count);
+
+/*!
+ * sys_exit x86 syscall implementation
+ * @param code exit status
+ * @see syscalls.S
+ */
 void asm_exit       (int code);
 
 /*!
