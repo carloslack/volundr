@@ -52,4 +52,4 @@ clean:
 	rm -f $(EX_DST_PATH)/$(ex1)
 	rm -f $(EX_DST_PATH)/$(ex2)
 	rm -f $(EX_DST_PATH)/$(ex3)
-	rm -f $(EX_DST_PATH)/$(trj1)
+	rm -f $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
