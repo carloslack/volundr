@@ -22,6 +22,7 @@ asm_OBJS=$(asm_SRCS:.S=.o)
 ex1=example-long
 ex2=example-headers
 ex3=example-infect01
+ex4=example-sctidx
 trj1=et_exec_trojan
 
 LIB=lib$(PROJ).so
@@ -38,6 +39,8 @@ all: libs example-lib
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex2)
 	$(CC) $(EX_ORIG_PATH)/$(ex3).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex3)
+	$(CC) $(EX_ORIG_PATH)/$(ex4).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
+		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex4)
 
 example-lib:
 	gcc $(EX_ORIG_PATH)/example-lib01-impl.c -o $(EX_DST_PATH)/lib01-impl.so -shared -fPIC
@@ -55,5 +58,6 @@ clean:
 	rm -f $(EX_DST_PATH)/$(ex1)
 	rm -f $(EX_DST_PATH)/$(ex2)
 	rm -f $(EX_DST_PATH)/$(ex3)
+	rm -f $(EX_DST_PATH)/$(ex4)
 	rm -f $(EX_DST_PATH)/lib01-impl.so $(EX_DST_PATH)/example-lib
 	rm -f $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o

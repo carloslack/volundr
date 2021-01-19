@@ -32,14 +32,11 @@
 #include "parse.h"
 #include "map.h"
 #include "asm.h"
-#include "print.h"
 #include "validate.h"
 #include "destroy.h"
 
-extern elf_info_t   _program[];
-
-static bool doit(const char *binfile) {
-    ASSERT_CON_RET_FALSE(binfile);
+static bool doit(const char *binfile, const char *name) {
+    ASSERT_CON_RET_FALSE(binfile && name);
     open_mode_t m;
     const char *file = binfile;
     FILE *fp = file_open_ro(file, &m);
@@ -57,46 +54,26 @@ static bool doit(const char *binfile) {
 
     elf_t *elfo = elf_parse_file(file, fp, m);
 
-    elf_ehdr_t *ehdr = elf_get_elf_header(elfo);
-    if (ehdr)
-        log_info("Ehdr=%p %c%c%c\n",
-                ehdr, ehdr->e_ident[EI_MAG1], ehdr->e_ident[EI_MAG2], ehdr->e_ident[EI_MAG3]);
 
-    elf_phdr_t **phdrs = elf_get_elf_programs(elfo);
-    if (phdrs) {
-        log_info("Phdrs=%p Number of Programs %d:\n", phdrs, ehdr->e_phnum);
-
-        for (int i = 0, phidx; i < ehdr->e_phnum; ++i, (*phdrs)++) {
-            const elf_phdr_t *phdr = (const elf_phdr_t *)*phdrs;
-            ELF_DICT(&phidx, program, phdr->p_type);
-            log_info("\t%d: %s\n",i,  _program[phidx].name);
-        }
-        free(phdrs);
-    }
-
-    elf_shdr_t **shdrs = elf_get_elf_sections(elfo);
-    if (shdrs) {
-        log_info("Shdrs=%p Number of Sections %d:\n", phdrs, ehdr->e_shnum);
-
-        for(int i=0; i < ehdr->e_shnum; i++, (*shdrs)++) {
-            char *shname = elf_get_section_header_name(elfo, *shdrs);
-            log_info("\t%d: %s\n",i, strlen(shname) ? shname : "--");
-        }
-        free(shdrs);
-    }
+    elf_word_t idx = elf_parse_shdr_idx_byname(elfo, name);
+    if (idx != -1)
+        log_info("Section name '%s' is at offset %016llx\n", name, elfo->shdrs[idx]->sh_offset);
+    else
+        log_info("Section name '%s' not found\n", name);
 
     assert(elf_destroy_all(elfo));
     file_close(fp);
+
     return true;
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
-        log_info("Use %s <elf file>\n", argv[0]);
+    if (argc < 3) {
+        log_info("Use %s <elf file> <shdr name>\n", argv[0]);
         asm_exit(0);
     }
 
-    (void)doit(argv[1]);
+    (void)doit(argv[1], argv[2]);
 
     return 0;
 }
