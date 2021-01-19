@@ -39,6 +39,7 @@
 /**
  * x86_64-linux-gnu/asm/unistd_64.h
  */
+.equ SYS_read,      0
 .equ SYS_write,     1
 .equ SYS_open,      2
 .equ SYS_close,     3
@@ -58,6 +59,12 @@
 FN asm_exit
     movl $SYS_exit, %eax                # NR syscall
     syscall                             # x64 ABI: first 6 args are in registers
+    ret
+
+#   ssize_t read(int, void *, size_t);
+FN asm_read
+    movl $SYS_read, %eax
+    syscall
     ret
 
 #   void asm_fork      (int);
