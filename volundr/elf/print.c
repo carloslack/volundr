@@ -121,7 +121,7 @@ bool elf_print_programs(const elf_t *elfo, FILE *fout) // XXX : either programs
         int index;
 
         ELF_DICT(&index, program, prog->p_type);
-        logf_it(fout, "\n%6d: %016llx ", i, prog->p_type);
+        logf_it(fout, "\n%6d: %016x ", i, prog->p_type);
         logf_it(fout, "%016llx ", prog->p_offset);
         logf_it(fout, "%016llx ", prog->p_filesz);
         logf_it(fout, "%016llx ", prog->p_vaddr);
@@ -153,13 +153,13 @@ bool elf_print_sections(const elf_t *elfo, FILE *fout)
                 "Type", "Flags", "Addr", "Offset", "Size", "Link", "Info", "Align", "Entsize", "Name" );
     for(int i=0; i < ehdr->e_shnum; i++) {
         char *shname = elf_get_section_header_name(elfo, shdrs[i]);
-        logf_it(fout, "\n%6d: %016llx ", i, shdrs[i]->sh_type);
+        logf_it(fout, "\n%6d: %016x ", i, shdrs[i]->sh_type);
         logf_it(fout, "%016llx ",shdrs[i]->sh_flags);
         logf_it(fout, "%016llx ", shdrs[i]->sh_addr);
         logf_it(fout, "%016llx ", shdrs[i]->sh_offset);
         logf_it(fout, "%016llx ", shdrs[i]->sh_size);
-        logf_it(fout, "%016llx ", shdrs[i]->sh_link);
-        logf_it(fout, "%016llx ", shdrs[i]->sh_info);
+        logf_it(fout, "%016x ", shdrs[i]->sh_link);
+        logf_it(fout, "%016x ", shdrs[i]->sh_info);
         logf_it(fout, "%016llx ", shdrs[i]->sh_addralign);
         logf_it(fout, "%016llx " ,shdrs[i]->sh_entsize);
         logf_it(fout, "%s ", shname);
