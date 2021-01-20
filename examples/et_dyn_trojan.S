@@ -21,9 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-#include <stdio.h>
-void showme(void)
-{
-    printf("Hoooray here we are: %s:%d\n", __FILE__, __LINE__);
-}
+
+.globl _start
+
 

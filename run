@@ -1,16 +1,13 @@
 #!/bin/bash
+set -euo pipefail
 
-if [[ ! -e example-long ]] || [[ ! -e example-headers ]]
-then
-    make
+list=($(find examples/example-* ! -name "*.c" ! -name "*~"))
+if [[ "$#" -lt 1 ]]; then
+    echo "Use <example code> [[-h] | [parameters]]"
+    echo "example codes:"
+    for ((i=0 ; i < "${#list[@]}" ; i++));  do
+        echo "${list[$i]}"|cut -d "/" -f2
+    done
+    exit
 fi
-
-ulimit -c unlimited
-export LD_LIBRARY_PATH=./volundr/
-#./example-long "$@";
-#valgrind --track-origins=yes --leak-check=full ./example-long $*;
-#gdb ./example $*;
-#./example-long $*;
-#valgrind --track-origins=yes --leak-check=full ./example-headers "$@"
-#./example-headers "$@"
-./example-infect01 "$@"
+LD_LIBRARY_PATH=./volundr ./examples/"$@"

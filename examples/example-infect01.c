@@ -76,8 +76,13 @@ static bool doit(const char *binfile, const char *trojan) {
             printf("Failed :(\n");
     }
 
+    /** XXX: Fix this in volundr */
+    free(inf);
+    free(inf->elfo->infection);
+
     assert(elf_destroy_all(elfo));
     file_close(fp);
+    file_close(trojanfp);
 
     return rc;
 }
