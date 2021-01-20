@@ -25,7 +25,7 @@ tst = example-long example-headers example-infect01 example-sctidx
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
-all: libs example-lib
+all: libs
 	$(AS) --64 $(EX_ORIG_PATH)/$(trj1).S -statistics -fatal-warnings \
 		-size-check=error -o $(EX_ORIG_PATH)/$(trj1).o
 	$(LD) -Ttext 200000 --oformat binary -o $(EX_ORIG_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
@@ -36,10 +36,6 @@ all: libs example-lib
 		$(CC) $(EX_ORIG_PATH)/$$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_ORIG_PATH)/$$i ;	\
 	done
-
-example-lib:
-	gcc $(EX_ORIG_PATH)/example-lib01-impl.c -o $(EX_ORIG_PATH)/lib01-impl.so -shared -fPIC
-	gcc $(EX_ORIG_PATH)/example-lib01.c -L$(EX_ORIG_PATH) -l01-impl -o $(EX_ORIG_PATH)/example-lib
 
 libs: $(elf_OBJS) $(common_OBJS)
 	$(AS) asm/syscalls.S -statistics -fatal-warnings -size-check=error -o asm/syscalls.o
