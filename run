@@ -3,7 +3,7 @@ set -euo pipefail
 
 list=($(find examples/example-* ! -name "*.c" ! -name "*~"))
 if [[ "$#" -lt 1 ]]; then
-    echo "Use <example code> [parameters]"
+    echo "Use <example code> [[-h] | [parameters]]"
     echo "example codes:"
     for ((i=0 ; i < "${#list[@]}" ; i++));  do
         echo "${list[$i]}"|cut -d "/" -f2
