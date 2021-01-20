@@ -6,7 +6,7 @@ CURRENT=$(realpath)
 CC=$(shell which gcc)
 AS=$(shell which as)
 LD=$(shell which ld)
-CFLAGS=-O0 -g -ggdb -Wall -fPIC -I. -Icommon -Iasm -Ielf
+CFLAGS=-O0 -g -ggdb -Wall -Werror -fPIC -I. -Icommon -Iasm -Ielf
 
 elf_SRCS=$(wildcard $(realpath elf)/*.c)
 asm_SRCS=$(wildcard $(realpath asm)/*.S)
@@ -19,11 +19,9 @@ elf_OBJS=$(elf_SRCS:.c=.o)
 common_OBJS=$(common_SRCS:.c=.o)
 asm_OBJS=$(asm_SRCS:.S=.o)
 
-ex1=example-long
-ex2=example-headers
-ex3=example-infect01
-ex4=example-sctidx
 trj1=et_exec_trojan
+trj2=et_dyn_trojan
+tst = example-long example-headers example-infect01 example-sctidx
 
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
@@ -32,15 +30,13 @@ all: libs example-lib
 	$(AS) --64 $(EX_ORIG_PATH)/$(trj1).S -statistics -fatal-warnings \
 		-size-check=error -o $(EX_ORIG_PATH)/$(trj1).o
 	$(LD) -Ttext 200000 --oformat binary -o $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
-
-	$(CC) $(EX_ORIG_PATH)/$(ex1).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
-		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex1)
-	$(CC) $(EX_ORIG_PATH)/$(ex2).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
-		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex2)
-	$(CC) $(EX_ORIG_PATH)/$(ex3).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
-		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex3)
-	$(CC) $(EX_ORIG_PATH)/$(ex4).c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf \
-		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$(ex4)
+	$(AS) --64 $(EX_ORIG_PATH)/$(trj2).S -statistics -fatal-warnings \
+		-size-check=error -o $(EX_ORIG_PATH)/$(trj2).o
+	$(LD) $(EX_ORIG_PATH)/$(trj2).o -o $(EX_ORIG_PATH)/$(trj2)
+	for i in $(tst) ; do \
+		$(CC) $(EX_ORIG_PATH)/$$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
+		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_DST_PATH)/$$i ;	\
+	done
 
 example-lib:
 	gcc $(EX_ORIG_PATH)/example-lib01-impl.c -o $(EX_DST_PATH)/lib01-impl.so -shared -fPIC
@@ -55,9 +51,8 @@ docs:
 
 clean:
 	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(LIB)
-	rm -f $(EX_DST_PATH)/$(ex1)
-	rm -f $(EX_DST_PATH)/$(ex2)
-	rm -f $(EX_DST_PATH)/$(ex3)
-	rm -f $(EX_DST_PATH)/$(ex4)
 	rm -f $(EX_DST_PATH)/lib01-impl.so $(EX_DST_PATH)/example-lib
-	rm -f $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
+	rm -f $(EX_DST_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj2) $(EX_ORIG_PATH)/$(trj1).o
+	for i in $(tst) ; do \
+		rm -f $(EX_DST_PATH)/$$i ;	\
+	done
