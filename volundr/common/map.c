@@ -67,22 +67,22 @@
  * @return A valid mapping address.
  */
 bool map_filemap(void* start, size_t size, int fd, void **rv, open_mode_t m) {
-    void* ret = NULL;
-    if((ret = asm_mmap(NULL
-                    , size
-                    /** Play smart and mmap accordingly */
-                    , m == F_RW ? PROT_WRITE : PROT_READ
-                    , m == F_RW ? MAP_SHARED : MAP_PRIVATE  // MAP_SHARED to sync with fd
-                    , fd
-                    , (off_t)ALIGNOFFSET(fd))) == MAP_FAILED)
-    {
+    void *ret = asm_mmap(NULL
+            , size
+            /** Play smart and mmap accordingly */
+            , m == F_RW ? PROT_WRITE : PROT_READ
+            , m == F_RW ? MAP_SHARED : MAP_PRIVATE  // MAP_SHARED to sync with fd
+            , fd
+            , (off_t)ALIGNOFFSET(fd));
+
+    if (MAP_FAILED == ret) {
         asm_close(fd);
-        log_fatal("mmap %s", strerror(errno));
+        log_error("map_filemap failed\n");
+        return false;
     }
 
     *rv = ret;
-    log_debug("file mapped to %p", *rv);
-
+    log_debug("file mapped to %p\n", ret);
     return true;
 }
 

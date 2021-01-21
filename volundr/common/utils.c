@@ -64,18 +64,20 @@ bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
 {
     struct stat st;
     void *mapaddr = NULL;
+    bool rc;
 
     if (fstat(fileno(fp), &st) < 0) {
         log_fatal("Error: fstat\n");
         asm_exit(-1);
     }
 
-     map_filemap(NULL, st.st_size, fileno(fp), &mapaddr, m);
+    rc = map_filemap(NULL, st.st_size, fileno(fp), &mapaddr, m);
+    if (rc) {
+        file_data->st = st;
+        file_data->mapaddr = mapaddr;
+    }
 
-     file_data->st = st;
-     file_data->mapaddr = mapaddr;
-
-    return true;
+    return rc;
 }
 
 char* get_binary_name(const char* name)

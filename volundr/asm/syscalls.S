@@ -44,6 +44,7 @@
 .equ SYS_open,      2
 .equ SYS_close,     3
 .equ SYS_mmap,      9
+.equ MAP_FAILED,    -1
 .equ SYS_mprotect,  10
 .equ SYS_munmap,    11
 .equ SYS_fork,      57
@@ -84,7 +85,12 @@ FN asm_mmap
     movl $SYS_mmap, %eax
     mov %rcx, %r10                      # copy %rcx to %r10 - rcx is userlevel, %r10 kernel
     syscall
-    ret
+    cmp $0xffffffffffffffea, %rax       # MAP_FAILED
+    je mmap_error
+    retq
+mmap_error:
+    mov $MAP_FAILED, %rax
+    retq
 
 #   int asm_munmap(void *, size_t);
 FN asm_munmap
