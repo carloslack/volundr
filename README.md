@@ -11,9 +11,23 @@ asm/            = syscalls
 common/         = Common library
 examples/       = General use of API (dummy trojan included)
 
+## Load auto-completion before running the examples
+
+     $ source ./completion.sh
+
+## Example options
+
+     $ ./run
+    Use <example code> [[-h] | [parameters]]
+    example codes:
+    example-headers
+    example-infect01
+    example-long
+    example-sctidx
 
 ## Trojan ET_EXEC example
     *** ET_DYN also supported ***
+
 
     $ cat victim.c
     #include <stdio.h>
@@ -36,7 +50,7 @@ examples/       = General use of API (dummy trojan included)
      8
      9
      ---snip---
-     $ LD_LIBRARY_PATH=./volundr ./example-infect01 a.out parasite
+     $ ./run example-infect01 a.out parasite
     Done!
     Try running a.out
      ---snip---
@@ -55,7 +69,7 @@ examples/       = General use of API (dummy trojan included)
 
 ## Parsing Example output
 
-     $ cat out.txt 
+     $ ./run example-long -f a.out
     -= Volundr reading from a.out of 8608 bytes =-
     Elf Header:
     Magic:                               7f ELF

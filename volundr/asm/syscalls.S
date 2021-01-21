@@ -66,7 +66,7 @@ FN asm_exit
 FN asm_read
     movl $SYS_read, %eax
     syscall
-    ret
+    retq
 
 #   void asm_fork      (int);
 FN asm_fork
@@ -144,5 +144,5 @@ FN asm_write
 FN asm_fopen
     movl $SYS_open, %eax
     syscall
-    ret
+    retq
 
