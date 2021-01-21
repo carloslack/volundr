@@ -18,8 +18,8 @@ examples/       = General use of API (dummy trojan included)
 ## Example options
 
      $ ./run
-    Use <example code> [[-h] | [parameters]]
-    example codes:
+    Use <example code> [[parameters] [-h]]
+    Parameters:
     example-headers
     example-infect01
     example-long
