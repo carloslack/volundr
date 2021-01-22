@@ -83,7 +83,7 @@ FN asm_close
 #   void *mmap(void *, size_t, int, int, int, off_t);
 FN asm_mmap
     movl $SYS_mmap, %eax
-    mov %rcx, %r10                      # copy %rcx to %r10 - rcx is userlevel, %r10 kernel
+    movq %rcx, %r10                     # copy %rcx to %r10 - rcx is userlevel, %r10 kernel
     syscall
     cmp $0xffffffffffffffea, %rax       # MAP_FAILED
     je mmap_error
