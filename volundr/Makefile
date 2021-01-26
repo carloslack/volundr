@@ -31,7 +31,7 @@ all: libs
 	$(LD) -Ttext 200000 --oformat binary -o $(EX_ORIG_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
 	$(AS) --64 $(EX_ORIG_PATH)/$(trj2).S -statistics -fatal-warnings \
 		-size-check=error -o $(EX_ORIG_PATH)/$(trj2).o
-	$(LD) $(EX_ORIG_PATH)/$(trj2).o -o $(EX_ORIG_PATH)/$(trj2)
+	$(LD) -Ttext 200000 --oformat binary -o $(EX_ORIG_PATH)/$(trj2) $(EX_ORIG_PATH)/$(trj2).o
 	for i in $(tst) ; do \
 		$(CC) $(EX_ORIG_PATH)/$$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_ORIG_PATH)/$$i ;	\

