@@ -25,10 +25,9 @@ examples/       = General use of API (dummy trojan included)
     example-long
     example-sctidx
 
-## Trojan ET_EXEC example
-    *** ET_DYN also supported ***
+## Trojan ET_EXEC/ET_DYN examples
 
-
+    Target:
     $ cat victim.c
     #include <stdio.h>
     int main(int argc, char **argv) {
@@ -37,25 +36,34 @@ examples/       = General use of API (dummy trojan included)
             printf("%d\n",i);
         return 0;
     }
+
+### ET_DYN
+    gcc victim.c -pie -fPIC
+     $ ./run example-infect01 a.out examples/et_dyn_trojan
+    Done!
+    Try running a.out
+     $ ./a.out
+    -= Quantum junction get in both lanes =-    <---------- yay!
+    0
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+
+### ET_EXEC
      ---snip---
      $ gcc victim.c && ./a.out
-     0
-     1
-     2
-     3
-     4
-     5
-     6
-     7
-     8
-     9
-     ---snip---
-     $ ./run example-infect01 a.out parasite
+     $ ./run example-infect01 a.out examples/et_exec_trojan
     Done!
     Try running a.out
      ---snip---
      $ ./a.out
-    -= Objective reality doesn't exist! =-    <---------- yay!
+    -= Objective reality doesn't exist! =-      <---------- yay!
     0
     1
     2
