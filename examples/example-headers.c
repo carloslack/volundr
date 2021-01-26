@@ -91,8 +91,7 @@ static bool doit(const char *binfile) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2 || (*(*(argv+1)) == '-' && /* ahahahaha you lazy dipshit */
-                *(*(argv+1)+1) == 'h')) {
+    if (argc < 2 || !strcmp(argv[1], "-h")) {
         log_info("Use %s <elf file>\n", argv[0]);
         asm_exit(0);
     }
