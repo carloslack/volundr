@@ -5,11 +5,9 @@
     <a href="https://github.com/carloslack/volundr/blob/master/LICENSE"><img alt="Software License" src="https://img.shields.io/badge/MIT-license-green.svg?style=flat-square"></a>
 </p>
 
+## Volundr
 
-elf/            = ELF library
-asm/            = syscalls
-common/         = Common library
-examples/       = General use of API (dummy trojan included)
+![Screenshot](examples/elf.png)
 
 ## Load auto-completion before running the examples
 
@@ -17,63 +15,51 @@ examples/       = General use of API (dummy trojan included)
 
 ## Example options
 
-     $ ./run
+     `$ ./run <TAB>
     Use <example code> [[parameters] [-h]]
     Parameters:
     example-headers
     example-infect01
     example-long
-    example-sctidx
+    example-sctidx`
 
-## Trojan ET_EXEC/ET_DYN examples
+## Trojan examples
 
-    Target:
-    $ cat victim.c
-    #include <stdio.h>
-    int main(int argc, char **argv) {
-        int i;
-        for (i = 0; i < 10; ++i)
-            printf("%d\n",i);
-        return 0;
-    }
-
-### ET_DYN
-    gcc victim.c -pie -fPIC
-     $ ./run example-infect01 a.out examples/et_dyn_trojan
+### LSB shared objects
+     $ cp /bin/grep .
+     $ file grep
+    grep: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked,...
+     $ ./grep 
+    Usage: ./grep [OPTION]... PATTERN [FILE]...
+    Try './grep --help' for more information.
+     $ ./run example-infect01 grep examples/et_dyn_trojan
     Done!
-    Try running a.out
-     $ ./a.out
-    -= Quantum junction get in both lanes =-    <---------- yay!
-    0
-    1
-    2
-    3
-    4
-    5
-    6
-    7
-    8
-    9
+    Try running grep
+     $ ./grep 
+    -= Quantum junction get in both lanes =-
+    Usage: ./grep [OPTION]... PATTERN [FILE]...
+    Try './grep --help' for more information.
 
-### ET_EXEC
-     ---snip---
-     $ gcc victim.c && ./a.out
-     $ ./run example-infect01 a.out examples/et_exec_trojan
+### LSB executables
+     $ cp /usr/bin/nmap .
+     $ ./nmap --version
+
+    Nmap version 7.01 ( https://nmap.org )
+    Platform: x86_64-pc-linux-gnu
+    Compiled with: liblua-5.2.4 openssl-1.0.2g libpcre-8.38 libpcap-1.7.4 nmap-libdnet-1.12 ipv6
+    Compiled without:
+    Available nsock engines: epoll poll select
+     $ ./run example-infect01 nmap examples/et_exec_trojan
     Done!
-    Try running a.out
-     ---snip---
-     $ ./a.out
-    -= Objective reality doesn't exist! =-      <---------- yay!
-    0
-    1
-    2
-    3
-    4
-    5
-    6
-    7
-    8
-    9
+    Try running nmap
+     $ ./nmap --version
+    -= Objective reality doesn't exist! =-
+
+    Nmap version 7.01 ( https://nmap.org )
+    Platform: x86_64-pc-linux-gnu
+    Compiled with: liblua-5.2.4 openssl-1.0.2g libpcre-8.38 libpcap-1.7.4 nmap-libdnet-1.12 ipv6
+    Compiled without:
+    Available nsock engines: epoll poll select
 
 ## Parsing Example output
 

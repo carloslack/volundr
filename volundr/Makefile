@@ -1,8 +1,28 @@
-################### VLIBS
-
+#
+# MIT License
+#
+# Copyright (c) 2021 Carlos Carvalho
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 PROJ=volundr
 
-CURRENT=$(realpath)
 CC=$(shell which gcc)
 AS=$(shell which as)
 LD=$(shell which ld)
@@ -12,42 +32,46 @@ elf_SRCS=$(wildcard $(realpath elf)/*.c)
 asm_SRCS=$(wildcard $(realpath asm)/*.S)
 
 common_SRCS=$(wildcard $(realpath common)/*.c)
-EX_ORIG_PATH=$(realpath ../examples/)
+EX=$(realpath ../examples/)
 
 elf_OBJS=$(elf_SRCS:.c=.o)
 common_OBJS=$(common_SRCS:.c=.o)
 asm_OBJS=$(asm_SRCS:.S=.o)
 
-trj1=et_exec_trojan
-trj2=et_dyn_trojan
-tst = example-long example-headers example-infect01 example-sctidx
+et_exec=$(EX)/et_exec_trojan
+et_dyn=$(EX)/et_dyn_trojan
+tst = $(EX)/example-long $(EX)/example-headers \
+	$(EX)/example-infect01 $(EX)/example-sctidx
 
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
-all: libs
-	$(AS) --64 $(EX_ORIG_PATH)/$(trj1).S -statistics -fatal-warnings \
-		-size-check=error -o $(EX_ORIG_PATH)/$(trj1).o
-	$(LD) -Ttext 200000 --oformat binary -o $(EX_ORIG_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj1).o
-	$(AS) --64 $(EX_ORIG_PATH)/$(trj2).S -statistics -fatal-warnings \
-		-size-check=error -o $(EX_ORIG_PATH)/$(trj2).o
-	$(LD) -Ttext 200000 --oformat binary -o $(EX_ORIG_PATH)/$(trj2) $(EX_ORIG_PATH)/$(trj2).o
+all: libs et_exec et_dyn
 	for i in $(tst) ; do \
-		$(CC) $(EX_ORIG_PATH)/$$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
-		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $(EX_ORIG_PATH)/$$i ;	\
+		$(CC) $$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
+		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $$i ;	\
 	done
 
 libs: $(elf_OBJS) $(common_OBJS)
 	$(AS) asm/syscalls.S -statistics -fatal-warnings -size-check=error -o asm/syscalls.o
 	$(CC) -shared -o $(LIB) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(CFLAGS)
 
+et_exec:
+	$(AS) --64 $(et_exec).S -statistics -fatal-warnings \
+		-size-check=error -o $(et_exec).o
+	$(LD) -Ttext 200000 --oformat binary -o $(et_exec) $(et_exec).o
+
+et_dyn:
+	$(AS) --64 $(et_dyn).S -statistics -fatal-warnings \
+		-size-check=error -o $(et_dyn).o
+	$(LD) -Ttext 200000 --oformat binary -o $(et_dyn) $(et_dyn).o
+
 docs:
-	(cd $(CURRENT).. && doxygen doxygen.cfg)
+	(cd $(realpath).. && doxygen doxygen.cfg)
 
 clean:
 	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(LIB)
-	rm -f $(EX_ORIG_PATH)/lib01-impl.so $(EX_ORIG_PATH)/example-lib
-	rm -f $(EX_ORIG_PATH)/$(trj1) $(EX_ORIG_PATH)/$(trj2) $(EX_ORIG_PATH)/$(trj1).o
+	rm -f $(et_exec) $(et_dyn) $(et_exec).o $(et_dyn).o
 	for i in $(tst) ; do \
-		rm -f $(EX_ORIG_PATH)/$$i ;	\
+		rm -f $$i ;	\
 	done
