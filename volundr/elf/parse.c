@@ -192,7 +192,7 @@ elf_t *elf_parse_file(const char *filename, FILE *fp, open_mode_t m)
     ASSERT_ARG_RET_FALSE(rc);
 
     // create interface
-    elfo->fsize = file_data.st.st_size;
+    elfo->elf_size = file_data.st.st_size;
     elfo->mapaddr = file_data.mapaddr;
     strncpy(elfo->filename, filename, sizeof(elfo->filename));
 

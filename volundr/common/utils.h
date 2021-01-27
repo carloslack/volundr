@@ -60,9 +60,8 @@ typedef enum { F_RW = 1, F_RO, F_OW } open_mode_t;
  */
 struct mapped_file{
     struct  stat    st;     /**< stat, currently only for file size */
-    struct  stat    st_infection;     /**< stat, currently only for file size */
-    void    *mapaddr;       /**< ELF file */
-    void    *infection;
+    void    *mapaddr;       /**< file from mmap() */
+    void    *heap;          /**< file from heap */
 };
 
 off_t   file_size           (FILE*);
@@ -71,7 +70,7 @@ bool    file_load_target    (struct mapped_file *, FILE *, open_mode_t);
 bool    file_load_source    (struct mapped_file *file_data, FILE *fp);
 FILE*   open_output         (const char *); // XXX rename to file_open_output?
 char*   get_output_name     (const char *, const char*);
-char*  get_binary_name     (const char*);
+char*   get_binary_name     (const char*);
 
 void* smalloc       (size_t);
 void* scalloc       (size_t, size_t);

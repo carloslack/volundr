@@ -112,9 +112,7 @@ typedef struct elf
      */
     /*@{*/
     void*       mapaddr;            /**< ELF raw image from the disk, loaded with asm_mmap() */
-    void*       infection;          /**< ELF infection; heap allocated via fread() @see utils.c */
-    off_t       fsize;              /**< ELF total file size in disk. Also: (ehdr->e_shoff + ehdr->e_shnum) * sizeof(elf_shdr_t)) */
-    off_t       inf_size;
+    off_t       elf_size;           /**< ELF total file size in disk. Also: (ehdr->e_shoff + ehdr->e_shnum) * sizeof(elf_shdr_t)) */
     char filename[PATH_MAX];
     /*@}*/
 } elf_t;

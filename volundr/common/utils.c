@@ -44,15 +44,15 @@ bool file_load_source(struct mapped_file *file_data, FILE *fp)
         log_fatal("Error: fstat\n");
         asm_exit(-1);
     }
-    void *infection = scalloc(1, st.st_size);
+    void *heap = scalloc(1, st.st_size);
 
-    if (read(fileno(fp), infection, st.st_size) != st.st_size) {
-        free(infection);
+    if (read(fileno(fp), heap, st.st_size) != st.st_size) {
+        free(heap);
         log_fatal("Error: fread\n");
     }
 
-    file_data->st_infection = st;
-    file_data->infection = infection;
+    file_data->st = st;
+    file_data->heap = heap;
 
     return true;
 }

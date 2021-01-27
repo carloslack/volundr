@@ -61,7 +61,7 @@ bool elf_destroy_header(elf_t *elfo) {
     elf_t **e = &elfo;
     /** Ehdr here is just the pointer to memory area */
     return !!((map_fileunmap((*e)->mapaddr,
-                    (*e)->fsize)) == 0);
+                    (*e)->elf_size)) == 0);
 }
 
 /**

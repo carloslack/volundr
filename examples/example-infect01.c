@@ -76,7 +76,7 @@ static bool doit(const char *binfile, const char *trojan) {
                 printf("Failed :(\n");
         }
 
-        free(inf->elfo->infection);
+        free(inf->trojan);
         free(inf);
         assert(elf_destroy_all(elfo));
     }
