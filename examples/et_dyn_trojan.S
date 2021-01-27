@@ -22,6 +22,7 @@
  *  SOFTWARE.
  */
 
+/* 227 bytes */
 .globl _start
 
 .equ SYS_read,      0
@@ -41,55 +42,50 @@ _start:
     push %r11
 
     # Write out greetz
-    mov $SYS_write, %eax
-    mov $1, %rdi
-    lea msg(%rip), %rsi
-    mov $msglen, %rdx
+    movl $SYS_write, %eax
+    movq $1, %rdi
+    leaq msg(%rip), %rsi
+    movq $msglen, %rdx
     syscall
 
     xor %rax, %rax
 
     // Open path in read-only
-    mov $SYS_open, %eax
-    lea path(%rip), %rdi
-    mov $0, %rsi
+    movl $SYS_open, %eax
+    leaq path(%rip), %rdi
+    movq $0, %rsi
     syscall
 
     // Allocate buffer space
     subq $16, %rsp
 
     // Read the first MAXLEN bytes from path
-    mov %rax, %rdi
-    mov $SYS_read, %eax
-    mov %rsp, %rsi
-    mov $MAXLEN, %rdx
+    movq %rax, %rdi
+    movl $SYS_read, %eax
+    movq %rsp, %rsi
+    movq $MAXLEN, %rdx
     syscall
 
     // scan the buffer for the fist '-' character
 scan:
-    mov $MAXLEN, %ecx
-    // store the wildcard in %al byte
-    mov $'-', %al
-    mov %rsp, %rdi
+    // initialize counter
+    movq $MAXLEN+1, %rcx
+    // store the wild-card in %al byte
+    movb $'-', %al
+    movq %rsp, %rdi
     cld
     repne scasb
-    // ECX holds the index
 
-    // Do some ugly gymnastics
-    // moving data around to fix
-    // our counter
-    // FIXME
-    inc %ecx
-    mov %rcx, %r10
-    mov $MAXLEN, %r13
-    sub %r10, %r13
-    mov %r13, %rcx
+    // rcx = (MAXLEN-rcx)
+    movq $MAXLEN, %r13
+    subq %rcx, %r13
+    movq %r13, %rcx
 
     // Prepare to read from
     // result buffer
     xor %rbx, %rbx
-    mov %rsp, %rsi
-    mov %rsi, %rdi
+    movq %rsp, %rsi
+    movq %rsi, %rdi
     cld
     // Convert the result buffer
     // into hex real values
@@ -100,28 +96,24 @@ readchars:
 alpha:
     subb $0x57, %al
     jmp load_ebx
-
 digit:
     subb $0x30, %al
-
 load_ebx:
-    shl $0x4, %rbx
+    shl $4, %rbx
     or %rax, %rbx
     stosb
     loop readchars
 
+    // At this point %rbx holds the offset
+
+    // realign rsp
     addq $16, %rsp
 
-    // Load offset on general reg %r8
-    xor %r8, %r8
-    movq %rbx, %r8
-    xor %rbx, %rbx
-
     // Dummy jump address
-    mov $0x1122334455667788, %rbx
+    movq $0x1122334455667788, %r8
 
-    // Add result offset
-    addq %r8, %rbx
+    // Add result offset into %r8
+    addq %rbx, %r8
 
     # Restore
     pop %r11
@@ -132,7 +124,7 @@ load_ebx:
     pop %rax
 
     // This is it
-    jmp *%rbx
+    jmpq *%r8
 
     path:   .asciz "/proc/self/maps"
     msg:    .asciz "-= Quantum junction get in both lanes =-\n"
