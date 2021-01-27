@@ -9,19 +9,16 @@
 
 ![Screenshot](examples/elf.png)
 
-## Load auto-completion before running the examples
-
-     $ source ./completion.sh
-
 ## Example options
 
-     `$ ./run <TAB>
+     $ source ./completion.sh
+     $ ./run <TAB>
     Use <example code> [[parameters] [-h]]
     Parameters:
     example-headers
     example-infect01
     example-long
-    example-sctidx`
+    example-sctidx
 
 ## Trojan examples
 
