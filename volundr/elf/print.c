@@ -76,7 +76,7 @@ static void inline _elf_print_fname(const elf_t *elfo, FILE *fout) {
     static bool p = false;
     if (!p) {
         logf_it( fout, "-= Volundr reading from %s of %lu bytes =-\n",
-                elfo->filename, elfo->fsize);
+                elfo->filename, elfo->elf_size);
         p = true;
     }
 }
