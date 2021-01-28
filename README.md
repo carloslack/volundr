@@ -16,7 +16,7 @@
     (and some very ancient) out there but still this kind of tool is somehow fun to
     write, probably for this reason there are so many hanging around.
 
-    This is currently a working in progress, and likely to be the case for a long time.
+    This is currently a work in progress, and likely to be the case for a long time.
 
     Nevertheless... whatever :)
 
