@@ -162,7 +162,7 @@ elf_phdr_t* elf_parse_phdr_by_type(const elf_t *elfo, elf_word_t type)
 
     for(int i=0; i<PHNUM(elfo); i++) {
         elf_phdr_t *phdr = ptr++;
-        if (phdr->p_type == PT_NOTE)
+        if (phdr->p_type == type)
             return phdr;
     }
     return NULL;
