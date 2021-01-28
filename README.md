@@ -40,7 +40,7 @@
     // Here we print the secton .text offset
     elf_word_t idx = elf_parse_shdr_idx_byname(elfo, ".text");
     ... do some checks
-    log_info("Section name '%s' is at offset %016llx\n", name, elfo->shdrs[idx]->sh_offset);
+    log_info("Section name .text is at offset %016llx\n", elfo->shdrs[idx]->sh_offset);
 
     For more details I wrote a bunch of actual examples, described below
 
