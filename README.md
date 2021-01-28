@@ -9,10 +9,12 @@
 
 ### Yet just another ELF64 library that provides basic ELF parsing and some code injection features
 
-    This is one of those small projects that I wanted to write long ago but never actually got into doing, so here it is.
+    This is one of those small projects that I wanted to write long ago but never actually
+    got into doing, so here it is.
 
-    ELF parasite/infection etc.. is nothing new and you can find many similar ones (and some very ancient) out there but still this
-    this kind of tool is really fun to write, probably for this reason there are so many hanging around.
+    ELF parasite/infection etc.. is nothing new and you can find many similar ones
+    (and some very ancient) out there but still this kind of tool is somehow fun to
+    write, probably for this reason there are so many hanging around.
 
     This is currently a working in progress, and likely to be the case for a long time.
 
@@ -20,7 +22,7 @@
 
 ## Interfacing
 
-### Parse some data
+### Parsing some data
 
     // m stores the permissions for file, e.g.: RW, RO...
     open_mode_t m;
