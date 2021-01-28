@@ -136,6 +136,39 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 }
 
 /**
+ * Contract:
+ * @note This method depends on both populating the ELF object with image's
+ * raw data and calling elf_parse_ehdr.
+ * @see elf_parse_ehdr
+ *
+ * @return Program matching the type. NULL if not found.
+ */
+elf_phdr_t* elf_parse_phdr_by_type(const elf_t *elfo, elf_word_t type)
+{
+    ASSERT_ARG_RET_NULL(elfo);
+    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
+
+    // check for inconsistency
+    size_t elf_size = (size_t) elfo->ehdr->e_phentsize;
+    size_t vol_size = sizeof(elf_phdr_t);
+
+    if(vol_size != elf_size) {
+        log_error("Invalid program header size : "
+                "rcvd: %d xpctd: %d", elf_size, vol_size);
+    }
+
+    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->ehdr->e_phoff +
+            (unsigned char*)elfo->mapaddr);
+
+    for(int i=0; i<PHNUM(elfo); i++) {
+        elf_phdr_t *phdr = ptr++;
+        if (phdr->p_type == PT_NOTE)
+            return phdr;
+    }
+    return NULL;
+}
+
+/**
  * @brief Read Section Headers
  *
  * Contract:
