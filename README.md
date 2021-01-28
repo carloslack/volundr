@@ -46,11 +46,11 @@
 
 ### Example options
 
-    There is the "run" script which I is helpful (it even has auto-completion!)
+    There is the "run" script which is a bit handy (it even has crafted auto-completion!)
 
      $ source ./completion.sh
      $ ./run <TAB>
-    Use <example code> [[parameters] [-h]]
+    Use <example code> [-h] [[parameters]
     Parameters:
     example-headers
     example-infect01
