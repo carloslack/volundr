@@ -147,9 +147,3 @@ FN asm_write
     syscall
     ret
 
-#   FILE *asm_fopen     (const char*, const char*);
-FN asm_fopen
-    movl $SYS_open, %eax
-    syscall
-    retq
-
