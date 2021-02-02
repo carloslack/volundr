@@ -40,8 +40,8 @@ FILE* file_open(const char* filein, const char *mode,
 bool file_load_source(struct mapped_file *file_data, FILE *fp)
 {
     struct stat st;
-    if (fstat(fileno(fp), &st) < 0) {
-        log_fatal("Error: fstat\n");
+    if (asm_fstat(fileno(fp), &st) < 0) {
+        log_fatal("Error: asm_fstat\n");
         asm_exit(-1);
     }
     void *heap = scalloc(1, st.st_size);
@@ -66,8 +66,8 @@ bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
     void *mapaddr = NULL;
     bool rc;
 
-    if (fstat(fileno(fp), &st) < 0) {
-        log_fatal("Error: fstat\n");
+    if (asm_fstat(fileno(fp), &st) < 0) {
+        log_fatal("Error: asm_fstat\n");
         asm_exit(-1);
     }
 
