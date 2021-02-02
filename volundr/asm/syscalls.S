@@ -43,6 +43,7 @@
 .equ SYS_write,     1
 .equ SYS_open,      2
 .equ SYS_close,     3
+.equ SYS_fstat,     5
 .equ SYS_mmap,      9
 .equ MAP_FAILED,    -1
 .equ SYS_mprotect,  10
@@ -77,6 +78,12 @@ FN asm_fork
 #   int asm_close      (int);
 FN asm_close
     movl $SYS_close, %eax
+    syscall
+    ret
+
+#   int asm_close      (int);
+FN asm_fstat
+    movl $SYS_fstat, %eax
     syscall
     ret
 
