@@ -103,14 +103,6 @@ int asm_open        (const char* path, int flags, mode_t mode);
 int asm_write       (int fd, const void* buf, size_t count);
 
 /*!
- * sys_open x64 syscall implementation
- * @param mode mode
- * @return file descriptor
- * @see syscalls.S
- */
-FILE *asm_fopen     (const char *path, const char *mode);
-
-/*!
  * sys_mmap x64 syscall implementation
  * @param addr start address to map
  * @param length size of the mapping
