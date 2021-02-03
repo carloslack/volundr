@@ -36,7 +36,6 @@
 #include "log.h"
 #include "elfo.h"
 #include "parse.h"
-#include "write.h"
 #include "validate.h"
 #include "log.h"
 #include "map.h"

@@ -46,7 +46,7 @@ bool file_load_source(struct mapped_file *file_data, FILE *fp)
     }
     void *heap = scalloc(1, st.st_size);
 
-    if (read(fileno(fp), heap, st.st_size) != st.st_size) {
+    if (fread(heap, st.st_size, 1, fp) != 1) {
         free(heap);
         log_fatal("Error: fread\n");
     }
