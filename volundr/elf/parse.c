@@ -136,6 +136,32 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 
 /**
  * Contract:
+ * @note Return the last PT_NOTE section
+ * @see elf_parse_phdrs
+ *
+ * @return Last PT_NOTE section, NULL if not found or inconsistent
+ */
+elf_phdr_t *elf_parse_get_last_code_section(const elf_t *elfo)
+{
+    ASSERT_ARG_RET_NULL(elfo);
+    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr && elfo->phdrs);
+    elf_phdr_t *phdr = NULL;
+    for (int i = 0; i < PHNUM(elfo) && !phdr; ++i) {
+        if (elfo->phdrs[i]->p_type == PT_LOAD) {
+            elf_phdr_t *next = elfo->phdrs[i+1];
+            if (!next || (next->p_type != PT_LOAD)) {
+                log_info("Invalid/Unexpected PT_LOAD sequence\n");
+                break;
+            }
+            /** PT_LOAD segments live next to each other */
+            phdr = next;
+        }
+    }
+    return phdr;
+}
+
+/**
+ * Contract:
  * @note This method depends on both populating the ELF object with image's
  * raw data and calling elf_parse_ehdr.
  * @see elf_parse_ehdr
@@ -159,12 +185,12 @@ elf_phdr_t* elf_parse_phdr_by_type(const elf_t *elfo, elf_word_t type)
     elf_phdr_t *ptr = (elf_phdr_t*)(elfo->ehdr->e_phoff +
             (unsigned char*)elfo->mapaddr);
 
-    for(int i=0; i<PHNUM(elfo); i++) {
-        elf_phdr_t *phdr = ptr++;
-        if (phdr->p_type == type)
-            return phdr;
+    elf_phdr_t *phdr = NULL;
+    for(int i=0; i<PHNUM(elfo) && !phdr; i++, ptr++) {
+        if (ptr && ((ptr)->p_type == type))
+            phdr = ptr;
     }
-    return NULL;
+    return phdr;
 }
 
 /**
