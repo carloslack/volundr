@@ -44,7 +44,6 @@
 #include "log.h"
 #include "elfo.h"
 #include "print.h"
-#include "write.h"
 #include "parse.h"
 #include "log.h"
 #include "utils.h"
