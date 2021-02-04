@@ -38,6 +38,7 @@
 static bool doit(const char *binfile, const char *name) {
     ASSERT_CON_RET_FALSE(binfile && name);
     open_mode_t m;
+    struct mapped_file map = {0};
     const char *file = binfile;
     FILE *fp = file_open_ro(file, &m);
 
@@ -52,9 +53,12 @@ static bool doit(const char *binfile, const char *name) {
         return false;
     }
 
-    elf_t *elfo = elf_parse_file(file, fp, m);
+    if (!file_load_target(&map, fp, m)) {
+        log_error("Error loading target ELF\n");
+        return false;
+    }
 
-
+    elf_t *elfo = elf_parse_file(file, &map);
     elf_word_t idx = elf_parse_shdr_idx_byname(elfo, name);
     if (idx != -1)
         log_info("Section name '%s' is at offset %016llx\n", name, elfo->shdrs[idx]->sh_offset);
