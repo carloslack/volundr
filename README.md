@@ -26,15 +26,21 @@
 
     // m stores the permissions for file, e.g.: RW, RO...
     open_mode_t m;
+    // mapped file data
+    struct mapped_file map = {0};
     // Open ELF binary file in read-only
     FILE *fp = file_open_ro(elf_filename, &m);
 
     // Optionally do some checks
     if(!elf_validate_filetype(fp)) { ...
 
+    // Load target file to make
+    // it ready for elf_parse_file()
+    if (!file_load_target(&map, fp, m)) { ...
+
     // After this call the whole file is parsed
     // elfo is the main "handler" (object)
-    elf_t *elfo = elf_parse_file(file, fp, m);
+    elf_t *elfo = elf_parse_file(binfile, &map);
 
     // Retrieve Section Header data
     // Here we print the secton .text offset

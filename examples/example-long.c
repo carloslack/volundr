@@ -77,6 +77,7 @@ static bool doit(const char *binfile, enum vflags flags)
     ASSERT_CON_RET_FALSE(binfile);
 
     open_mode_t m;
+    struct mapped_file map = {0};
     FILE *felf = file_open_ro(binfile, &m);
     if (!felf) {
         log_error("Can't open file");
@@ -89,9 +90,12 @@ static bool doit(const char *binfile, enum vflags flags)
         return false;
     }
 
-    /* Load the file in the hope it is an ELF */
-    elf_t *elfo = elf_parse_file(binfile, felf, m);
+    if (!file_load_target(&map, felf, m)) {
+        log_error("Error loading target ELF\n");
+        return false;
+    }
 
+    elf_t *elfo = elf_parse_file(binfile, &map);
 
     /* Display ELF Header */
     if (!flags || flags & V_HEADER) {

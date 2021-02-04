@@ -41,6 +41,7 @@ extern elf_info_t   _program[];
 static bool doit(const char *binfile) {
     ASSERT_CON_RET_FALSE(binfile);
     open_mode_t m;
+    struct mapped_file map = {0};
     const char *file = binfile;
     FILE *fp = file_open_ro(file, &m);
 
@@ -55,7 +56,13 @@ static bool doit(const char *binfile) {
         return false;
     }
 
-    elf_t *elfo = elf_parse_file(file, fp, m);
+
+    if (!file_load_target(&map, fp, m)) {
+        log_error("Error loading target ELF\n");
+        return false;
+    }
+
+    elf_t *elfo = elf_parse_file(file, &map);
 
     elf_ehdr_t *ehdr = elf_get_elf_header(elfo);
     if (ehdr)

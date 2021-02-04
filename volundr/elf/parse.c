@@ -240,18 +240,15 @@ elf_shdr_t** elf_parse_shdrs(const elf_t *elfo)
  *
  * @return An interface to ELF image on disk.
  */
-elf_t *elf_parse_file(const char *filename, FILE *fp, open_mode_t m)
+elf_t *elf_parse_file(const char *filename, const struct mapped_file *map)
 {
-    ASSERT_ARG_RET_NULL(filename && fp);
-    struct mapped_file file_data;
+    ASSERT_ARG_RET_NULL(filename);
+    ASSERT_CON_RET_NULL(map);
     elf_t *elfo = smalloc(sizeof(elf_t));
 
-    bool rc = file_load_target(&file_data, fp, m);
-    ASSERT_ARG_RET_FALSE(rc);
-
     // create interface
-    elfo->elf_size = file_data.st.st_size;
-    elfo->mapaddr = file_data.mapaddr;
+    elfo->elf_size = map->st.st_size;
+    elfo->mapaddr = map->mapaddr;
     strncpy(elfo->filename, filename, sizeof(elfo->filename));
 
     elfo->syms_symtab = NULL;
