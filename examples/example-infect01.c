@@ -74,7 +74,7 @@ static bool doit(const char *binfile, const char *trojan) {
     file_close(fp);
 
     if (!(rc = file_load_source(&src_map, trojanfp /** RO */))) {
-        log_error("Error loading source ELF\n");
+        log_error("Error loading source binary\n");
         return rc;
     }
 
