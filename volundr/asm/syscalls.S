@@ -45,15 +45,17 @@
 .equ SYS_close,     3
 .equ SYS_fstat,     5
 .equ SYS_mmap,      9
-.equ MAP_FAILED,    -1
 .equ SYS_mprotect,  10
 .equ SYS_munmap,    11
+.equ SYS_msync,     26
 .equ SYS_fork,      57
 .equ SYS_exit,      60
 .equ SYS_kill,      62
 .equ SYS_mkdir,     83
 .equ SYS_rmdir,     84
 .equ SYS_chown,     92
+
+.equ MAP_FAILED,    -1
 
 .text
 
@@ -102,6 +104,12 @@ mmap_error:
 #   int asm_munmap(void *, size_t);
 FN asm_munmap
     movl $SYS_munmap, %eax
+    syscall
+    ret
+
+#   int msync(void *addr, size_t length, int flags);
+FN asm_msync
+    movl $SYS_msync, %eax
     syscall
     ret
 

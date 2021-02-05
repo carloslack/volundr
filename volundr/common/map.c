@@ -67,13 +67,13 @@
  * @return A valid mapping address.
  */
 bool map_filemap(void* start, size_t size, int fd, void **rv, open_mode_t m) {
-    void *ret = asm_mmap(NULL
-            , size
+    void *ret = asm_mmap(start
+            , PALIGN_UP(size)
             /** Play smart and mmap accordingly */
             , m == F_RW ? PROT_WRITE : PROT_READ
             , m == F_RW ? MAP_SHARED : MAP_PRIVATE  // MAP_SHARED to sync with fd
             , fd
-            , (off_t)ALIGNOFFSET(fd));
+            , 0);
 
     if (MAP_FAILED == ret) {
         asm_close(fd);
@@ -83,6 +83,25 @@ bool map_filemap(void* start, size_t size, int fd, void **rv, open_mode_t m) {
 
     *rv = ret;
     log_debug("file mapped to %p\n", ret);
+
+    return true;
+}
+
+/**
+ * @brief make sure changes are synced to disk
+ *
+ * @param start The start address for the mapping
+ * @see asm.h
+ *
+ * @return true for success, false for error
+ */
+bool map_filesync(void* start, size_t size) {
+    int ret = asm_msync(start, PALIGN_UP(size), MS_SYNC);
+    if (0 != ret) {
+        log_error("map_filesync failed\n");
+        return false;
+    }
+
     return true;
 }
 

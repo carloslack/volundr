@@ -8,7 +8,9 @@
 #include <string.h>
 #include <errno.h>
 
-#define ALIGNOFFSET(x) x & ~(sysconf(_SC_PAGE_SIZE) - 1)
+#define PAGE_SIZE sysconf(_SC_PAGE_SIZE)
+#define PALIGN(x) (x & ~(PAGE_SIZE - 1))
+#define PALIGN_UP(x) (PALIGN(x) + PAGE_SIZE)
 /**
  *    @file  map.h
  *   @brief  provides mechanisms to create an ELF image on memory (definition module).
@@ -33,4 +35,5 @@ int32_t map_sync     	(void* mapaddr, off_t size);
 /** Unmaps memory segment from given address to given size */
 int32_t map_fileunmap   (void* mapaddr, off_t size);
 
+bool map_filesync(void* start, size_t size);
 #endif

@@ -126,6 +126,17 @@ void *asm_mmap      (void *addr, size_t length, int prot,
 int asm_munmap(void *addr, size_t length);
 
 /*!
+ * sys_msync x64 syscall implementation
+ * @param addr address to sync
+ * @param length size of mapping
+ * @param flags flags
+ *
+ * @return 0 on success
+ * @see syscalls.S
+ */
+int asm_msync(void *addr, size_t length, int flags);
+
+/*!
  * sys_mprotect x64 syscall implementation
  * @param addr address to mprotect
  * @param prot protection flags

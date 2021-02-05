@@ -15,7 +15,7 @@ typedef struct infect {
     void           *trojan;             /**< ELF infection; heap allocated via fread() @see utils.c */
 } infect_t;
 
-infect_t *inf_load(elf_t *, FILE *, open_mode_t, long);
+infect_t *inf_load(elf_t *, FILE *, open_mode_t, long, struct mapped_file *);
 elf_off_t inf_scan_segment(infect_t *);
 bool inf_load_and_patch(infect_t *);
 #endif
