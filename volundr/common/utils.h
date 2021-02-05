@@ -68,6 +68,7 @@ off_t   file_size           (FILE*);
 FILE    *file_open          (const char* filein, const char *, open_mode_t, open_mode_t *);
 bool    file_load_target    (struct mapped_file *, FILE *, open_mode_t);
 bool    file_load_source    (struct mapped_file *file_data, FILE *fp);
+bool    file_sync_target    (struct mapped_file *);
 FILE*   open_output         (const char *); // XXX rename to file_open_output?
 char*   get_output_name     (const char *, const char*);
 char*   get_binary_name     (const char*);

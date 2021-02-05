@@ -1,9 +1,25 @@
 /**
+ *  MIT License
  *
- *  Völundr / utils.c
+ *  Copyright (c) 2021 Carlos Carvalho
  *
- * 	Genereal utilities
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
  */
 
 #include <stdio.h>
@@ -26,7 +42,7 @@
 FILE* file_open(const char* filein, const char *mode,
         open_mode_t m, open_mode_t *rv)
 {
-    ASSERT_CON_RET_NULL(rv != NULL);
+    ASSERT_CON_RET_NULL(filein && mode);
     FILE *fin = fopen(filein, mode);
     if(!fin) {
         log_error("error opening %s : %s", filein, strerror(errno));
@@ -39,6 +55,7 @@ FILE* file_open(const char* filein, const char *mode,
 
 bool file_load_source(struct mapped_file *file_data, FILE *fp)
 {
+    ASSERT_ARG_RET_NULL(file_data && fp);
     struct stat st;
     if (asm_fstat(fileno(fp), &st) < 0) {
         log_fatal("Error: asm_fstat\n");
@@ -62,6 +79,9 @@ bool file_load_source(struct mapped_file *file_data, FILE *fp)
  */
 bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
 {
+    ASSERT_ARG_RET_NULL(file_data);
+    ASSERT_CON_RET_NULL(m == F_RW ||
+            m == F_RO || m == F_OW );
     struct stat st;
     void *mapaddr = NULL;
     bool rc;
@@ -78,6 +98,17 @@ bool file_load_target(struct mapped_file *file_data, FILE *fp, open_mode_t m)
     }
 
     return rc;
+}
+
+/**
+ * msync
+ */
+bool file_sync_target(struct mapped_file *file_data)
+{
+    ASSERT_ARG_RET_NULL(file_data);
+    ASSERT_CON_RET_NULL(file_data->mapaddr);
+    return map_filesync((void*)file_data->mapaddr,
+            file_data->st.st_size);
 }
 
 char* get_binary_name(const char* name)
