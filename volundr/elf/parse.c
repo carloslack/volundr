@@ -136,11 +136,11 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 
 /**
  * Load a map of number and index of
- * programs in phdrs
+ * programs in phdrs for direct access
  */
 static void elf_parse_programs_map(elf_t *elfo)
 {
-    memset(&elfo->pmap, 0, sizeof(struct generic_map) * MAXMAP);
+    memset(&elfo->pmap, 0, sizeof(elfo->pmap));
     for (int i = 0; elfo->phdrs[i]; ++i) {
 
         elf_word_t t = elfo->phdrs[i]->p_type;
@@ -150,10 +150,6 @@ static void elf_parse_programs_map(elf_t *elfo)
          * It only works because the range
          * is tweaked to match PT_<program> value range
          * as the last two hex digits are always unique :)
-         *
-         * Very sub-optimal because we only have 20 values
-         * so there will always be gaps
-         * but I really want to avoid using/freeing more heap.
          */
         int idx = MAP_IN(t);
         int nr = elfo->pmap[idx].nr;
@@ -185,39 +181,6 @@ elf_phdr_t *elf_parse_get_last_code_section(const elf_t *elfo)
             /** PT_LOAD segments live next to each other */
             phdr = next;
         }
-    }
-    return phdr;
-}
-
-/**
- * Contract:
- * @note This method depends on both populating the ELF object with image's
- * raw data and calling elf_parse_ehdr.
- * @see elf_parse_ehdr
- *
- * @return Program matching the type. NULL if not found.
- */
-elf_phdr_t* elf_parse_phdr_by_type(const elf_t *elfo, elf_word_t type)
-{
-    ASSERT_ARG_RET_NULL(elfo);
-    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr);
-
-    // check for inconsistency
-    size_t elf_size = (size_t) elfo->ehdr->e_phentsize;
-    size_t vol_size = sizeof(elf_phdr_t);
-
-    if(vol_size != elf_size) {
-        log_error("Invalid program header size : "
-                "rcvd: %d xpctd: %d", elf_size, vol_size);
-    }
-
-    elf_phdr_t *ptr = (elf_phdr_t*)(elfo->ehdr->e_phoff +
-            (unsigned char*)elfo->mapaddr);
-
-    elf_phdr_t *phdr = NULL;
-    for(int i=0; i<PHNUM(elfo) && !phdr; i++, ptr++) {
-        if (ptr && ((ptr)->p_type == type))
-            phdr = ptr;
     }
     return phdr;
 }
