@@ -24,4 +24,5 @@ elf_ehdr_t *elf_get_elf_header                          (const elf_t *elfo);
 elf_phdr_t **elf_get_elf_programs                       (const elf_t *elfo);
 elf_shdr_t **elf_get_elf_sections                       (const elf_t *elfo);
 elf_phdr_t *elf_parse_phdr_by_type                      (const elf_t *elfo, elf_word_t type);
+
 #endif

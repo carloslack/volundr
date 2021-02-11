@@ -42,6 +42,16 @@
 /*! @see types.c */
 #define ELFDEF -1
 
+// This valus is quite arbitraty
+// but should suffice for most cases
+#define MAXMAP      100
+#define P_TYPE_MAX  20
+
+// Mod - decreases the value
+#define MAP_IN(x) (x % 100)
+// Reverse mod
+#define MAP_OUT(x,y) ((x / 100) + y)
+
 static const char *__volundr_ver__="1.0";
 
 #define ST_BIND(i)      (ELF64_ST_BIND(i))
@@ -73,6 +83,14 @@ typedef Elf64_Sym       elf_sym_t;
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
 
+/*@*/
+/**
+ * Generic map
+ */
+struct generic_map{
+    int map[P_TYPE_MAX];
+    int nr;
+};
 /**
  *  @brief ELF Object ADT - This is the main volundr structure
  *      It keeps the references for ELF headers,
@@ -97,15 +115,17 @@ typedef struct elf
      * @name ELF Headers and Sections
      */
     /*@{*/
-    elf_ehdr_t  *ehdr;              /**< ELF file header */
-    elf_phdr_t  **phdrs;            /**< Program Segment Header - execution view,
-                                      helps translating sections (disk) into segments (memory)
-                                      and lies just after header at byte 64 */
-    elf_shdr_t  **shdrs;            /**< Section Header */
-    elf_shdr_t  *dynstr;            /**< .dynstr string table for dynamic linking (dynsym) */
-    elf_shdr_t  *strtab;            /**< .strtab string table for names associated with symbol table entries (symtab) */
-    elf_shdr_t  *shstrtab;          /**< Stores all Section Names */
-    elf_shdr_t  **symtab;           /**< Symbol Table */
+    elf_ehdr_t  *ehdr;                              /**< ELF file header */
+    elf_phdr_t  **phdrs;                            /**< Program Segment Header - execution view,
+                                                      helps translating sections (disk) into segments (memory)
+                                                      and lies just after header at byte 64 */
+    elf_shdr_t  **shdrs;                            /**< Section Header */
+    elf_shdr_t  *dynstr;                            /**< .dynstr string table for dynamic linking (dynsym) */
+    elf_shdr_t  *strtab;                            /**< .strtab string table for names associated with symbol table entries (symtab) */
+    elf_shdr_t  *shstrtab;                          /**< Stores all Section Names */
+    elf_shdr_t  **symtab;                           /**< Symbol Table */
+
+    struct generic_map pmap[MAXMAP];                /**< Program map */
     /*@}*/
     /**
      * @name ELF raw file
