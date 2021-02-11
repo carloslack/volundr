@@ -141,7 +141,7 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 static void elf_parse_programs_map(elf_t *elfo)
 {
     memset(&elfo->pmap, 0, sizeof(elfo->pmap));
-    for (int i = 0; elfo->phdrs[i]; ++i) {
+    for (int i = 0; i < PHNUM(elfo); ++i) {
 
         elf_word_t t = elfo->phdrs[i]->p_type;
 
@@ -157,32 +157,6 @@ static void elf_parse_programs_map(elf_t *elfo)
         elfo->pmap[idx].map[nr] = i;
         elfo->pmap[idx].nr++;
     }
-}
-
-/**
- * Contract:
- * @note Return the last PT_NOTE section
- * @see elf_parse_phdrs
- *
- * @return Last PT_NOTE section, NULL if not found or inconsistent
- */
-elf_phdr_t *elf_parse_get_last_code_section(const elf_t *elfo)
-{
-    ASSERT_ARG_RET_NULL(elfo);
-    ASSERT_CON_RET_NULL(elfo->mapaddr && elfo->ehdr && elfo->phdrs);
-    elf_phdr_t *phdr = NULL;
-    for (int i = 0; i < PHNUM(elfo) && !phdr; ++i) {
-        if (elfo->phdrs[i]->p_type == PT_LOAD) {
-            elf_phdr_t *next = elfo->phdrs[i+1];
-            if (!next || (next->p_type != PT_LOAD)) {
-                log_info("Invalid/Unexpected PT_LOAD sequence\n");
-                break;
-            }
-            /** PT_LOAD segments live next to each other */
-            phdr = next;
-        }
-    }
-    return phdr;
 }
 
 /**
