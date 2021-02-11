@@ -48,9 +48,9 @@
 #define P_TYPE_MAX  20
 
 // Mod - decreases the value
-#define MAP_IN(x) (x % 100)
+#define MAP_IN(x) (x % MAXMAP)
 // Reverse mod
-#define MAP_OUT(x,y) ((x / 100) + y)
+#define MAP_OUT(x,y) ((x / MAXMAP) + y)
 
 static const char *__volundr_ver__="1.0";
 
@@ -83,14 +83,6 @@ typedef Elf64_Sym       elf_sym_t;
 typedef Elf64_Dyn       elf_dyn_t;
 # endif // __ELF_SYSV__
 
-/*@*/
-/**
- * Generic map
- */
-struct generic_map{
-    int map[P_TYPE_MAX];
-    int nr;
-};
 /**
  *  @brief ELF Object ADT - This is the main volundr structure
  *      It keeps the references for ELF headers,
@@ -125,7 +117,15 @@ typedef struct elf
     elf_shdr_t  *shstrtab;                          /**< Stores all Section Names */
     elf_shdr_t  **symtab;                           /**< Symbol Table */
 
-    struct generic_map pmap[MAXMAP];                /**< Program map */
+    /**
+     * Stack allocated map of number of programs
+     * and program indexes
+     */
+    struct {
+        int map[P_TYPE_MAX];
+        int nr;
+    } pmap[MAXMAP];
+
     /*@}*/
     /**
      * @name ELF raw file
