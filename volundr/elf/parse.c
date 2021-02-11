@@ -151,11 +151,11 @@ static void elf_parse_programs_map(elf_t *elfo)
          * is tweaked to match PT_<program> value range
          * as the last two hex digits are always unique :)
          */
-        int idx = MAP_IN(t);
-        int nr = elfo->pmap[idx].nr;
+        int p_type = MAP_IN(t);
+        int nr = elfo->pmap[p_type].nr;
 
-        elfo->pmap[idx].map[nr] = i;
-        elfo->pmap[idx].nr++;
+        elfo->pmap[p_type].map[nr] = i;
+        elfo->pmap[p_type].nr++;
     }
 }
 
