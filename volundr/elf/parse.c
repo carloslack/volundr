@@ -135,6 +135,35 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
 }
 
 /**
+ * Load a map of number and index of
+ * programs in phdrs
+ */
+static void elf_parse_programs_map(elf_t *elfo)
+{
+    memset(&elfo->pmap, 0, sizeof(struct generic_map) * MAXMAP);
+    for (int i = 0; elfo->phdrs[i]; ++i) {
+
+        elf_word_t t = elfo->phdrs[i]->p_type;
+
+        /**
+         * Decrease the number so it fits in our array
+         * It only works because the range
+         * is tweaked to match PT_<program> value range
+         * as the last two hex digits are always unique :)
+         *
+         * Very sub-optimal because we only have 20 values
+         * so there will always be gaps
+         * but I really want to avoid using/freeing more heap.
+         */
+        int idx = MAP_IN(t);
+        int nr = elfo->pmap[idx].nr;
+
+        elfo->pmap[idx].map[nr] = i;
+        elfo->pmap[idx].nr++;
+    }
+}
+
+/**
  * Contract:
  * @note Return the last PT_NOTE section
  * @see elf_parse_phdrs
@@ -260,6 +289,10 @@ elf_t *elf_parse_file(const char *filename, const struct mapped_file *map)
     elfo->ehdr  = elf_parse_ehdr(elfo);
     elfo->phdrs = elf_parse_phdrs(elfo);
     elfo->shdrs = elf_parse_shdrs(elfo);
+
+    // Load mapping of number & index
+    // of Programs
+    elf_parse_programs_map(elfo);
 
     return elf_set_my_elfo(elfo);
 }
