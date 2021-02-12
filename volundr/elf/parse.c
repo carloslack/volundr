@@ -138,7 +138,7 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
  * Load a map of number and index of
  * programs in phdrs for direct access
  */
-static void elf_parse_programs_map(elf_t *elfo)
+static void _elf_load_programs_map(elf_t *elfo)
 {
     memset(&elfo->pmap, 0, sizeof(elfo->pmap));
     for (int i = 0; i < PHNUM(elfo); ++i) {
@@ -229,7 +229,7 @@ elf_t *elf_parse_file(const char *filename, const struct mapped_file *map)
 
     // Load mapping of number & index
     // of Programs
-    elf_parse_programs_map(elfo);
+    _elf_load_programs_map(elfo);
 
     return elf_set_my_elfo(elfo);
 }
@@ -380,7 +380,7 @@ elf_shdr_t **elf_load_section_header_global_symbols(const elf_t *elfo, elf_word_
 
     int cnt = 0;
     elf_shdr_t **shdrs = smalloc(shnum*sizeof(elf_shdr_t*));
-    for(int i=0; i<elfo->ehdr->e_shnum && elfo->shdrs[i]; i++) {
+    for(int i=0; i<shnum && elfo->shdrs[i]; i++) {
         if(elfo->shdrs[i]->sh_type == sh_type)
             shdrs[cnt++] = elfo->shdrs[i];
     }
