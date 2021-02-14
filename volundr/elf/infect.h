@@ -10,7 +10,7 @@ typedef struct infect {
         elf_off_t   lsb_so_addr;        /**< parasite load addr if .so */
         elf_off_t   target_offset;      /**< location to inject parasite */
         elf_off_t   o_entry;            /**< Original entry point must be saved before infecting */
-    } pad;
+    } lsb;
     off_t           src_bin_size;       /**< trojan size in disk */
     void           *trojan;             /**< ELF infection; heap allocated via fread() @see utils.c */
 } infect_t;
