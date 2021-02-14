@@ -86,7 +86,7 @@ elf_off_t inf_scan_segment(infect_t *inf) {
 
     int nr = inf->elfo->pmap[PT_LOAD].nr;
     if (nr != 2) {
-        log_error("Wait!? %d loadable sections?!\n");
+        log_error("Wait!? %d loadable sections?!\n", nr);
         return (elf_off_t)0;
     }
 
