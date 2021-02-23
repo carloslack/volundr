@@ -35,8 +35,6 @@
 #define PT_PAX_FLAGS 0x65041580 /* Indicates PaX flag markings */
 #endif
 
-//#define false   0
-//#define true    1
 #define ELF_SUCCESS 0
 #define ELF_FAILURE -1
 /*! @see types.c */
@@ -44,13 +42,76 @@
 
 // This valus is quite arbitraty
 // but should suffice for most cases
-#define MAXMAP      100
-#define P_TYPE_MAX  20
+#define MAXMAP      0xff
+#define PH_TYPE_MAX  20
+#define SH_TYPE_MAX  36
 
-// Mod - decreases the value
-#define MAP_IN(x) (x % MAXMAP)
-// Reverse mod
-#define MAP_OUT(x,y) ((x / MAXMAP) + y)
+
+// WTF?! Combine the most and least significant bytes
+// ex: 0x6ffffff5 -> 0x65 -> map[0x65]
+// yeah yeah lazy as hell only because I don't want
+// looping too much
+#define LAZYMAP(x) (((x>>24)&0xf0)>>4)<<4|(x&0x0f)
+
+// PT & SHT most & least significant bytes never repeat
+// Always 32 bits in size
+#define LAZY_PT_NULL            PT_NULL
+#define LAZY_PT_LOAD            LAZYMAP(PT_LOAD)
+#define LAZY_PT_DYNAMIC         LAZYMAP(PT_DYNAMIC)
+#define LAZY_PT_INTERP          LAZYMAP(PT_INTERP)
+#define LAZY_PT_NOTE            LAZYMAP(PT_NOTE)
+#define LAZY_PT_SHLIB           LAZYMAP(PT_SHLIB)
+#define LAZY_PT_PHDR            LAZYMAP(PT_PHDR)
+#define LAZY_PT_TLS             LAZYMAP(PT_TLS)
+#define LAZY_PT_NUM             LAZYMAP(PT_NUM)
+#define LAZY_PT_LOOS            LAZYMAP(PT_LOOS)
+#define LAZY_PT_GNU_EH_FRAME    LAZYMAP(PT_GNU_EH_FRAME)
+#define LAZY_PT_GNU_STACK       LAZYMAP(PT_GNU_STACK)
+#define LAZY_PT_GNU_RELRO       LAZYMAP(PT_GNU_RELRO )
+#define LAZY_PT_LOSUNW          LAZYMAP(PT_LOSUNW)
+#define LAZY_PT_SUNWBSS         LAZYMAP(PT_SUNWBSS)
+#define LAZY_PT_SUNWSTACK       LAZYMAP(PT_SUNWSTACK)
+#define LAZY_PT_HISUNW          LAZYMAP(PT_HISUNW)
+#define LAZY_PT_HIOS            LAZYMAP(PT_HIOS)
+#define LAZY_PT_LOPROC          LAZYMAP(PT_LOPROC)
+#define LAZY_PT_HIPROC          LAZYMAP(PT_HIPROC)
+
+#define LAZY_SHT_NULL           SHT_NULL
+#define LAZY_SHT_PROGBITS       LAZYMAP(SHT_PROGBITS)
+#define LAZY_SHT_SYMTAB         LAZYMAP(SHT_SYMTAB)
+#define LAZY_SHT_STRTAB         LAZYMAP(SHT_STRTAB)
+#define LAZY_SHT_RELA           LAZYMAP(SHT_RELA)
+#define LAZY_SHT_HASH           LAZYMAP(SHT_HASH)
+#define LAZY_SHT_DYNAMIC        LAZYMAP(SHT_DYNAMIC)
+#define LAZY_SHT_NOTE           LAZYMAP(SHT_NOTE)
+#define LAZY_SHT_NOBITS         LAZYMAP(SHT_NOBITS)
+#define LAZY_SHT_REL            LAZYMAP(SHT_REL)
+#define LAZY_SHT_SHLIB          LAZYMAP(SHT_SHLIB)
+#define LAZY_SHT_DYNSYM         LAZYMAP(SHT_DYNSYM)
+#define LAZY_SHT_INIT_ARRAY     LAZYMAP(SHT_INIT_ARRAY)
+#define LAZY_SHT_FINI_ARRAY     LAZYMAP(SHT_FINI_ARRAY)
+#define LAZY_SHT_PREINIT_ARRAY  LAZYMAP(SHT_PREINIT_ARRAY)
+#define LAZY_SHT_GROUP          LAZYMAP(SHT_GROUP)
+#define LAZY_SHT_SYMTAB_SHNDX   LAZYMAP(SHT_SYMTAB_SHNDX)
+#define LAZY_SHT_NUM            LAZYMAP(SHT_NUM)
+#define LAZY_SHT_LOOS           LAZYMAP(SHT_LOO)
+#define LAZY_SHT_GNU_ATTRIBUTES LAZYMAP(SHT_GNU_ATTRIBUTE)
+#define LAZY_SHT_GNU_HASH       LAZYMAP(SHT_GNU_HASH)
+#define LAZY_SHT_GNU_LIBLIST    LAZYMAP(SHT_GNU_LIBLIST)
+#define LAZY_SHT_CHECKSUM       LAZYMAP(SHT_CHECKSUM)
+#define LAZY_SHT_LOSUNW         LAZYMAP(SHT_LOSUNW)
+#define LAZY_SHT_SUNW_move      LAZYMAP(SHT_SUNW_move)
+#define LAZY_SHT_SUNW_COMDAT    LAZYMAP(SHT_SUNW_COMDAT)
+#define LAZY_SHT_SUNW_syminfo   LAZYMAP(SHT_SUNW_syminfo)
+#define LAZY_SHT_GNU_verdef     LAZYMAP(SHT_GNU_verdef)
+#define LAZY_SHT_GNU_verneed    LAZYMAP(SHT_GNU_verneed)
+#define LAZY_SHT_GNU_versym     LAZYMAP(SHT_GNU_versym)
+#define LAZY_SHT_HISUNW         LAZYMAP(SHT_HISUNW)
+#define LAZY_SHT_HIOS           LAZYMAP(SHT_HIOS)
+#define LAZY_SHT_LOPROC         LAZYMAP(SHT_LOPROC)
+#define LAZY_SHT_HIPROC         LAZYMAP(SHT_HIPROC)
+#define LAZY_SHT_LOUSER         LAZYMAP(SHT_LOUSER)
+#define LAZY_SHT_HIUSER         LAZYMAP(SHT_HIUSER)
 
 static const char *__volundr_ver__="1.0";
 
@@ -122,9 +183,18 @@ typedef struct elf
      * and program indexes
      */
     struct {
-        int map[P_TYPE_MAX];
+        int map[PH_TYPE_MAX];
         int nr;
-    } pmap[MAXMAP];
+    } phmap[MAXMAP];
+
+    /**
+     * Stack allocated map of number of sections
+     * and section indexes
+     */
+    struct {
+        int map[SH_TYPE_MAX];
+        int nr;
+    } shmap[MAXMAP];
 
     /*@}*/
     /**

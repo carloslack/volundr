@@ -97,7 +97,7 @@ elf_off_t inf_scan_segment(infect_t *inf) {
 
     bool pass_check = false;
 
-    int nr = inf->elfo->pmap[PT_LOAD].nr;
+    int nr = inf->elfo->phmap[LAZY_PT_LOAD].nr;
     if (nr != 2) {
         log_error("Wait!? %d loadable sections?!\n", nr);
         return (elf_off_t)0;
@@ -105,8 +105,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
 
     elf_phdr_t *text = NULL;
     elf_phdr_t *data = NULL;
-    int idx0 = inf->elfo->pmap[PT_LOAD].map[0];
-    int idx1 = inf->elfo->pmap[PT_LOAD].map[1];
+    int idx0 = inf->elfo->phmap[LAZY_PT_LOAD].map[0];
+    int idx1 = inf->elfo->phmap[LAZY_PT_LOAD].map[1];
     elf_word_t flags0 = inf->elfo->phdrs[idx0]->p_flags;
     elf_word_t flags1 = inf->elfo->phdrs[idx1]->p_flags;
 
