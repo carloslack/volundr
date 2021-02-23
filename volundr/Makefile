@@ -26,6 +26,7 @@ PROJ=volundr
 CC=$(shell which gcc)
 AS=$(shell which as)
 LD=$(shell which ld)
+OBJCOPY=$(shell which objcopy)
 CFLAGS=-O0 -g -ggdb -Wall -Werror -fPIC -I. -Icommon -Iasm -Ielf
 
 elf_SRCS=$(wildcard $(realpath elf)/*.c)
@@ -42,11 +43,12 @@ et_exec=$(EX)/et_exec_trojan
 et_dyn=$(EX)/et_dyn_trojan
 tst = $(EX)/example-long $(EX)/example-headers \
 	$(EX)/example-infect01 $(EX)/example-sctidx
+PT_NOTE = $(EX)/PT_NOTE
 
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
-all: libs et_exec et_dyn
+all: libs et_exec et_dyn PT_NOTE
 	for i in $(tst) ; do \
 		$(CC) $$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $$i ;	\
@@ -66,12 +68,22 @@ et_dyn:
 		-size-check=error -o $(et_dyn).o
 	$(LD) -Ttext 200000 --oformat binary -o $(et_dyn) $(et_dyn).o
 
+PT_NOTE:
+	# Create a 128b PT_NOTE section
+	$(shell perl -e 'print"A"'x128 >$(EX)/note.txt)
+	$(CC) $(PT_NOTE).c -c -o $(PT_NOTE).o
+	$(OBJCOPY) --add-section .note.volundr=$(EX)/note.txt --set-section-flags \
+		.note.custom=noload $(PT_NOTE).o $(PT_NOTE).o
+	$(CC) $(PT_NOTE).o -o $(PT_NOTE)
+
+
 docs:
 	(cd $(realpath).. && doxygen doxygen.cfg)
 
 clean:
 	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(LIB)
 	rm -f $(et_exec) $(et_dyn) $(et_exec).o $(et_dyn).o
+	rm -f $(PT_NOTE).o $(PT_NOTE) $(EX)/note.txt
 	for i in $(tst) ; do \
 		rm -f $$i ;	\
 	done
