@@ -140,22 +140,27 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
  */
 static void _elf_load_programs_map(elf_t *elfo)
 {
-    memset(&elfo->pmap, 0, sizeof(elfo->pmap));
+    memset(&elfo->phmap, 0, sizeof(elfo->phmap));
     for (int i = 0; i < PHNUM(elfo); ++i) {
+        int p_type = LAZYMAP(elfo->phdrs[i]->p_type);
+        int nr = elfo->phmap[p_type].nr;
+        elfo->phmap[p_type].map[nr] = i;
+        elfo->phmap[p_type].nr++;
+    }
+}
 
-        elf_word_t t = elfo->phdrs[i]->p_type;
-
-        /**
-         * Decrease the number so it fits in our array
-         * It only works because the range
-         * is tweaked to match PT_<program> value range
-         * as the last two hex digits are always unique :)
-         */
-        int p_type = MAP_IN(t);
-        int nr = elfo->pmap[p_type].nr;
-
-        elfo->pmap[p_type].map[nr] = i;
-        elfo->pmap[p_type].nr++;
+/**
+ * Load a map of number and index of
+ * sections in shdrs for direct access
+ */
+static void _elf_load_sections_map(elf_t *elfo)
+{
+    memset(&elfo->shmap, 0, sizeof(elfo->shmap));
+    for (int i = 0; i < SHNUM(elfo); ++i) {
+        int sh_type = LAZYMAP(elfo->shdrs[i]->sh_type);
+        int nr = elfo->shmap[sh_type].nr;
+        elfo->shmap[sh_type].map[nr] = i;
+        elfo->shmap[sh_type].nr++;
     }
 }
 
@@ -228,8 +233,9 @@ elf_t *elf_parse_file(const char *filename, const struct mapped_file *map)
     elfo->shdrs = elf_parse_shdrs(elfo);
 
     // Load mapping of number & index
-    // of Programs
+    // of Programs and sections
     _elf_load_programs_map(elfo);
+    _elf_load_sections_map(elfo);
 
     return elf_set_my_elfo(elfo);
 }
