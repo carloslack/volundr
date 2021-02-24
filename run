@@ -1,12 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-list=($(find examples/example-* ! -name "*.c" ! -name "*~"))
 if [[ "$#" -lt 1 ]]; then
-    echo "Use <example code> [[parameters] [-h]]"
-    echo "Parameters:"
-    for ((i=0 ; i < "${#list[@]}" ; i++));  do
-        echo "${list[$i]}"|cut -d "/" -f2
+    echo "Use <example code> [[example] [-h]]"
+    echo "examples:"
+    for i in example-headers example-infect-text \
+        example-infect-note example-long example-sctidx; do
+        printf "\t%s\n" "$i"
     done
     exit
 fi

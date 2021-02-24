@@ -52,17 +52,17 @@
 
 ### Example options
 
-    There is the "run" script which is a bit handy (it even has crafted auto-completion!)
+    There is a "run" script which is a bit handy (it even has crafted auto-completion!)
 
      $ source ./completion.sh
-     $ ./run <TAB>
-    Use <example code> [-h] [[parameters]
-    Parameters:
-    example-headers
-    example-long
-    example-sctidx
-    example-infect-text
-    example-infect-note
+     $ ./run
+    Use <example code> [[example] [-h]]
+    examples:
+        example-headers
+        example-infect-text
+        example-infect-note
+        example-long
+        example-sctidx
 
     Some of them:
 
@@ -70,12 +70,12 @@
     Will dump some Elf header to stdout
 
 #### example infect
-    This is more fun, will actually inject a dummy trojan that will print a message to output
+    This is more fun!
     Currently we support:
         - LSB shared and EXEC infections for .text section padding
         - LSB shared and EXEC infections for SHT_NOTE/PT_NOTE injection (if trojan binary fits)
 
-    See et_exec_trojan.S and et_dyn_trojan.S
+    See trojan examples et_exec_trojan.S and et_dyn_trojan.S
 
 #### example-long
     A more complete version of example-headers, will dump Elf headers in readelf-ish style.
