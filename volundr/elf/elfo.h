@@ -135,6 +135,7 @@ typedef Elf64_Addr      elf_addr_t;
 typedef Elf64_Half      elf_half_t;
 typedef Elf64_Off       elf_off_t;
 typedef Elf64_Sword     elf_sword_t;
+typedef Elf64_Xword     elf_xword_t;
 typedef Elf64_Word      elf_word_t;
 typedef Elf64_Ehdr      elf_ehdr_t;
 typedef Elf64_Phdr      elf_phdr_t;
