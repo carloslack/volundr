@@ -59,9 +59,10 @@
     Use <example code> [-h] [[parameters]
     Parameters:
     example-headers
-    example-infect01
     example-long
     example-sctidx
+    example-infect-text
+    example-infect-note
 
     Some of them:
 
@@ -70,7 +71,11 @@
 
 #### example infect
     This is more fun, will actually inject a dummy trojan that will print a message to output
-    Currently we support LSB shared and EXEC infections. See et_exec_trojan.S and et_dyn_trojan.S
+    Currently we support:
+        - LSB shared and EXEC infections for .text section padding
+        - LSB shared and EXEC infections for SHT_NOTE/PT_NOTE injection (if trojan binary fits)
+
+    See et_exec_trojan.S and et_dyn_trojan.S
 
 #### example-long
     A more complete version of example-headers, will dump Elf headers in readelf-ish style.
