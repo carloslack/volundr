@@ -91,8 +91,7 @@ static elf_shdr_t *_inf_get_largest_note(infect_t *inf) {
     return rv;
 }
 
-infect_t *inf_load(elf_t *elfo, FILE *trojan /* TODO remove this */, open_mode_t m,
-        long magic, struct mapped_file *map) {
+infect_t *inf_load(elf_t *elfo, open_mode_t m, long magic, struct mapped_file *map) {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(m == F_RW);
     ASSERT_CON_RET_NULL(map);
