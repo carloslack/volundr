@@ -42,7 +42,7 @@ asm_OBJS=$(asm_SRCS:.S=.o)
 et_exec=$(EX)/et_exec_trojan
 et_dyn=$(EX)/et_dyn_trojan
 tst = $(EX)/example-long $(EX)/example-headers \
-	$(EX)/example-infect01 $(EX)/example-sctidx
+	$(EX)/example-infect01 $(EX)/example-infect02 $(EX)/example-sctidx
 PT_NOTE = $(EX)/PT_NOTE
 
 LIB=lib$(PROJ).so
@@ -69,12 +69,12 @@ et_dyn:
 	$(LD) -Ttext 200000 --oformat binary -o $(et_dyn) $(et_dyn).o
 
 PT_NOTE:
-	# Create a 128b PT_NOTE section
-	$(shell perl -e 'print"A"'x128 >$(EX)/note.txt)
-	$(CC) $(PT_NOTE).c -c -o $(PT_NOTE).o
+	# Create a 128b PT_NOTE section in a shared lsb
+	$(shell perl -e 'print"A"'x256 >$(EX)/note.txt)
+	$(CC) $(PT_NOTE).c -pie -fPIC -c -o $(PT_NOTE).o
 	$(OBJCOPY) --add-section .note.volundr=$(EX)/note.txt --set-section-flags \
 		.note.custom=noload $(PT_NOTE).o $(PT_NOTE).o
-	$(CC) $(PT_NOTE).o -o $(PT_NOTE)
+	$(CC) $(PT_NOTE).o -pie -fPIC -o $(PT_NOTE)
 
 
 docs:

