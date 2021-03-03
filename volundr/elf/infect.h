@@ -18,5 +18,6 @@ typedef struct infect {
 infect_t *inf_load(elf_t *, open_mode_t, long, struct mapped_file *);
 elf_off_t inf_scan_segment(infect_t *);
 bool inf_load_and_patch(infect_t *);
-bool inf_note_patch(infect_t *inf);
+bool inf_note_patch(infect_t *inf, elf_xword_t);
+elf_xword_t inf_note_has_room_for_payload(infect_t *inf);
 #endif

