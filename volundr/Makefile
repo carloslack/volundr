@@ -41,6 +41,8 @@ asm_OBJS=$(asm_SRCS:.S=.o)
 
 et_exec=$(EX)/et_exec_trojan
 et_dyn=$(EX)/et_dyn_trojan
+et_ex=$(EX)/et_dyn_ex
+
 tst = $(EX)/example-long $(EX)/example-headers \
 	$(EX)/example-infect-text $(EX)/example-infect-note $(EX)/example-sctidx
 sht_note = $(EX)/sht_note
@@ -48,7 +50,7 @@ sht_note = $(EX)/sht_note
 LIB=lib$(PROJ).so
 LIBDIR=$(realpath .)
 
-all: libs et_exec et_dyn sht_note
+all: libs et_exec et_dyn et_ex sht_note
 	for i in $(tst) ; do \
 		$(CC) $$i.c -L$(realpath .) -lvolundr -I $(LIBDIR)/elf		\
 		-I $(LIBDIR)/common/ -I $(LIBDIR)/asm/ $(CFLAGS) -o $$i ;	\
@@ -68,6 +70,11 @@ et_dyn:
 		-size-check=error -o $(et_dyn).o
 	$(LD) -Ttext 200000 --oformat binary -o $(et_dyn) $(et_dyn).o
 
+et_ex:
+	$(AS) --64 $(et_ex).S -statistics -fatal-warnings \
+		-size-check=error -o $(et_ex).o
+	$(LD) -Ttext 200000 --oformat binary -o $(et_ex) $(et_ex).o
+
 sht_note:
 	# Create a 128b sht_note section in a shared lsb
 	$(shell perl -e 'print"A"'x256 >$(EX)/note.txt)
@@ -82,7 +89,7 @@ docs:
 
 clean:
 	rm -f $(PROJ) $(elf_OBJS) $(common_OBJS) asm/syscalls.o $(LIB)
-	rm -f $(et_exec) $(et_dyn) $(et_exec).o $(et_dyn).o
+	rm -f $(et_exec) $(et_dyn) $(et_ex) $(et_exec).o $(et_dyn).o $(et_ex).o
 	rm -f $(sht_note).o $(sht_note) $(EX)/note.txt
 	for i in $(tst) ; do \
 		rm -f $$i ;	\
