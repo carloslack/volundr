@@ -33,7 +33,7 @@
   * ---snip---
   */
 
-/* 240 bytes */
+/* 245 bytes */
 .globl _start
 
 .equ SYS_read,      0
