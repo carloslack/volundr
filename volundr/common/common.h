@@ -1,5 +1,5 @@
-#ifndef _COMMON_TYPES_H
-#define _COMMON_TYPES_H
+#ifndef _COMMON_H
+#define _COMMON_H
 
 #include <stdint.h>
 
@@ -24,6 +24,7 @@ typedef unsigned int uword;
 #define _CMM_CNDXTRN    extern
 #endif
 
-_CMM_CNDXTRN int32_t common_errno;
+static _CMM_CNDXTRN int32_t
+__attribute__((unused)) common_errno;
 
 #endif
