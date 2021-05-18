@@ -102,24 +102,38 @@ elf_off_t inf_scan_segment(infect_t *inf) {
     bool pass_check = false;
 
     int nr = inf->elfo->phmap[LAZY_PT_LOAD].nr;
-    if (nr != 2) {
-        log_error("Wait!? %d loadable sections?!\n", nr);
+    if (nr != 2 && nr != 4) {
+        log_error("Unexpected number of PT_LOAD sections: %d\n", nr);
         return (elf_off_t)0;
     }
 
     elf_phdr_t *text = NULL;
     elf_phdr_t *data = NULL;
-    int idx0 = inf->elfo->phmap[LAZY_PT_LOAD].map[0];
-    int idx1 = inf->elfo->phmap[LAZY_PT_LOAD].map[1];
-    elf_word_t flags0 = inf->elfo->phdrs[idx0]->p_flags;
-    elf_word_t flags1 = inf->elfo->phdrs[idx1]->p_flags;
 
-    if (flags0 == (PF_R|PF_X) && flags1 == (PF_R|PF_W)) { /** .text,.data */
-        text = inf->elfo->phdrs[idx0];
-        data = inf->elfo->phdrs[idx1];
-    } else if (flags0 == (PF_R|PF_W) && flags1 == (PF_R|PF_X)) { /** .data,.text */
-        text = inf->elfo->phdrs[idx1];
-        data = inf->elfo->phdrs[idx0];
+    if (nr == 2) {
+#pragma message "Fixme: PT_LOAD number"
+        int idx0 = inf->elfo->phmap[LAZY_PT_LOAD].map[0];
+        int idx1 = inf->elfo->phmap[LAZY_PT_LOAD].map[1];
+        elf_word_t flags0 = inf->elfo->phdrs[idx0]->p_flags;
+        elf_word_t flags1 = inf->elfo->phdrs[idx1]->p_flags;
+
+        if (flags0 == (PF_R|PF_X) && flags1 == (PF_R|PF_W)) { /** .text,.data */
+            text = inf->elfo->phdrs[idx0];
+            data = inf->elfo->phdrs[idx1];
+        } else if (flags0 == (PF_R|PF_W) && flags1 == (PF_R|PF_X)) { /** .data,.text */
+            text = inf->elfo->phdrs[idx1];
+            data = inf->elfo->phdrs[idx0];
+        }
+    } else {
+        for (int i = 0; i < nr; ++i) {
+            elf_word_t flags = inf->elfo->phdrs[i]->p_flags;
+            if (flags == (PF_R|PF_X))
+                text = inf->elfo->phdrs[i];
+            if (text) {
+                data = inf->elfo->phdrs[i+1];
+                break;
+            }
+        }
     }
 
     if (!text) {
