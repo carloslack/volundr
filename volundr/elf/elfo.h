@@ -268,7 +268,7 @@ extern elf_info_t   _endianness[];
 extern elf_info_t   _file_class[];
 
 /**< opaque elfo */
-elf_t *_elfo;
+static elf_t *_elfo;
 
 /*
  * helper that returns elfo object
