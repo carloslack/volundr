@@ -41,6 +41,7 @@ asm_OBJS=$(asm_SRCS:.S=.o)
 
 et_exec=$(EX)/et_exec_trojan
 et_dyn=$(EX)/et_dyn_trojan
+
 tst = $(EX)/example-long $(EX)/example-headers \
 	$(EX)/example-infect-text $(EX)/example-infect-note $(EX)/example-sctidx
 sht_note = $(EX)/sht_note
