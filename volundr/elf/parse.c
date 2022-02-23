@@ -232,6 +232,10 @@ elf_t *elf_parse_file(const char *filename, const struct mapped_file *map)
     elfo->phdrs = elf_parse_phdrs(elfo);
     elfo->shdrs = elf_parse_shdrs(elfo);
 
+    // Basic check for endianess
+    ASSERT_RET_NULL((elfo->ehdr->e_ident[EI_DATA] == 1 ||
+                elfo->ehdr->e_ident[EI_DATA] == 2), "Invalid endianess");
+
     // Load mapping of number & index
     // of Programs and sections
     _elf_load_programs_map(elfo);
