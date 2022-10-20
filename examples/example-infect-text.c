@@ -111,7 +111,8 @@ int main(int argc, char **argv)
         asm_exit(0);
     }
 
-    (void)doit(argv[1], argv[2]);
+    if (!doit(argv[1], argv[2]))
+        return 1;
 
     return 0;
 }

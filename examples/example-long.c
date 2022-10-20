@@ -188,7 +188,8 @@ int main(int argc, char** argv)
     }
 
     /* Go! */
-    (void)doit(binfile, flags);
+    if (!doit(binfile, flags))
+        return 1;
 
     return 0;
 }
