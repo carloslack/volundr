@@ -64,11 +64,12 @@ static elf_shdr_t *_elf_get_shdr_byname(const elf_t *elfo, const char *name)
 {
     ASSERT_ARG_RET_NULL(elfo && name != NULL);
     ASSERT_CON_RET_NULL(elfo->shdrs);
+    int i;
 
     elf_shdr_t *shdr = NULL;
     size_t len = strlen(name);
 
-    for(int i = 0; i<SHNUM(elfo) && !shdr; i++) {
+    for(i = 0; i<SHNUM(elfo) && !shdr; i++) {
         char *curr = elf_get_section_header_name(elfo, elfo->shdrs[i]);
         if(curr && strlen(curr) == len && !strncmp(name, curr, len))
             shdr = elfo->shdrs[i];
@@ -140,8 +141,9 @@ elf_phdr_t** elf_parse_phdrs(const elf_t *elfo)
  */
 static void _elf_load_programs_map(elf_t *elfo)
 {
+    int i;
     memset(&elfo->phmap, 0, sizeof(elfo->phmap));
-    for (int i = 0; i < PHNUM(elfo); ++i) {
+    for (i = 0; i < PHNUM(elfo); ++i) {
         int p_type = LAZYMAP(elfo->phdrs[i]->p_type);
         int nr = elfo->phmap[p_type].nr;
         elfo->phmap[p_type].map[nr] = i;
@@ -155,8 +157,9 @@ static void _elf_load_programs_map(elf_t *elfo)
  */
 static void _elf_load_sections_map(elf_t *elfo)
 {
+    int i;
     memset(&elfo->shmap, 0, sizeof(elfo->shmap));
-    for (int i = 0; i < SHNUM(elfo); ++i) {
+    for (i = 0; i < SHNUM(elfo); ++i) {
         int sh_type = LAZYMAP(elfo->shdrs[i]->sh_type);
         int nr = elfo->shmap[sh_type].nr;
         elfo->shmap[sh_type].map[nr] = i;

