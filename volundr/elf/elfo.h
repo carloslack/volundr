@@ -121,7 +121,8 @@ static const char *__volundr_ver__="1.0";
 #define ELF_DICT(result, type, val)                 \
 do {                                                \
     *result = ELFDEF;                               \
-    for (int i = 0; _ ## type[i].idx != -1; ++i) {  \
+    int i;                                          \
+    for (i = 0; _ ## type[i].idx != -1; ++i) {      \
         if (val == _ ## type[i].i) {                \
             *result = i;                            \
             break;                                  \
